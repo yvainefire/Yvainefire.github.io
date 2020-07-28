@@ -2,11 +2,11 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>Yvaine</title>
-    <updated>2020-07-28T14:27:04.670Z</updated>
+    <updated>2020-07-28T14:29:59.618Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
-    <subtitle>Rush B</subtitle>
+    <subtitle>Rush Rush</subtitle>
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, Yvaine</rights>
