@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
-    <title>Gridea</title>
-    <updated>2020-07-28T13:56:16.825Z</updated>
+    <title>Yvaine</title>
+    <updated>2020-07-28T13:57:06.067Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
-    <subtitle>温故而知新</subtitle>
+    <subtitle>Rush B</subtitle>
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, Gridea</rights>
+    <rights>All rights reserved 2020, Yvaine</rights>
     <entry>
         <title type="html"><![CDATA[ucosii运行流程]]></title>
         <id>https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/</id>
