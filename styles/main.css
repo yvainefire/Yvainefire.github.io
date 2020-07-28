@@ -2052,7 +2052,7 @@ p > code {
   }
 }
 body {
-      background-color: #eee;
+      background-color: #343a40;
     }.header {
         width: 960px;
         margin: 0 auto;
@@ -2063,30 +2063,30 @@ body {
         margin: 0 auto;
       }
     body {
-      color: #555;
+      color: #4c6ef5;
     }
     .next-md-body {
-      color: #555;
+      color: #4c6ef5;
     }
     .next-md-body h1, .next-md-body h2 {
-      border-bottom-color: #555;
+      border-bottom-color: #4c6ef5;
     }
     .archive-timeline-box::after, .tag-timeline-wrapper::after {
       background: #eeeeeefe;
     }h1, h2, h3, h4, h5, h6 {
-      color: #555;
+      color: #fa5252;
     }
     
     .archive-timeline-title::before {
-      background-color: #555;
+      background-color: #fa5252;
     }
     
     .post-title-link::before {
-      background-color: #555;
+      background-color: #fa5252;
     }
     
     .node-title::before {
-      background-color: #555;
+      background-color: #fa5252;
     }a {
       color: #555;
     }
@@ -2159,7 +2159,7 @@ body {
       color: #fc6423;
       border-bottom-color: #fc6423;
     }.bg-color {
-      background-color: #fffffffe;
+      background-color: #adb5bdfe;
     }
     .site-meta {
       background: #000 !important;
