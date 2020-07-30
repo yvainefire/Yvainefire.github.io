@@ -9,7 +9,7 @@
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
 <title>函数指针 | YvaineFire_block</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1596094053967">
+<link rel="shortcut icon" href="/favicon.ico?v=1596094383883">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -1176,7 +1176,7 @@ int Max(int x, int y)  //定义Max函数
 &lt;p&gt;如：要求某些数据的地址只能以1或2或8或16的倍数。&lt;/p&gt;
 &lt;h2 id=&#34;二字节对齐的原因&#34;&gt;二.字节对齐的原因&lt;/h2&gt;
 &lt;h3 id=&#34;1性能&#34;&gt;1.性能&lt;/h3&gt;
-&lt;p&gt;字节对齐的根本原因在于提高数据的访问的效率。主要在于减少数据访问的次数，因为不是所有的硬件平台都能访问任意地址上的任意数据，某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。如x86的一个总线周期只能访问偶地址的数据，所以若进行对齐，一个原本可以一次访存获得的数据则需要2次甚至更多次才能得到。&lt;/p&gt;
+&lt;p&gt;字节对齐的根本原因在于提高数据的访问的效率。主要在于减少数据访问的次数，因为不是所有的硬件平台都能访问任意地址上的任意数据，某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。如x86的一个总线周期只能访问偶地址的数据，所以若不进行对齐，一个原本可以一次访存获得的数据则需要2次甚至更多次才能得到。&lt;/p&gt;
 &lt;h3 id=&#34;2平台原因&#34;&gt;2.平台原因&lt;/h3&gt;
 &lt;p&gt;不是所有的硬件平台都能访问到任意地址上的任意数据&lt;/p&gt;
 &lt;h2 id=&#34;三几种对齐的方式&#34;&gt;三.几种对齐的方式&lt;/h2&gt;

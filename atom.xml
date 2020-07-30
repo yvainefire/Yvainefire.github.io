@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2020-07-30T07:27:47.259Z</updated>
+    <updated>2020-07-30T07:33:07.900Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -117,7 +117,7 @@ int Max(int x, int y)  //定义Max函数
 <p>如：要求某些数据的地址只能以1或2或8或16的倍数。</p>
 <h2 id="二字节对齐的原因">二.字节对齐的原因</h2>
 <h3 id="1性能">1.性能</h3>
-<p>字节对齐的根本原因在于提高数据的访问的效率。主要在于减少数据访问的次数，因为不是所有的硬件平台都能访问任意地址上的任意数据，某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。如x86的一个总线周期只能访问偶地址的数据，所以若进行对齐，一个原本可以一次访存获得的数据则需要2次甚至更多次才能得到。</p>
+<p>字节对齐的根本原因在于提高数据的访问的效率。主要在于减少数据访问的次数，因为不是所有的硬件平台都能访问任意地址上的任意数据，某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。如x86的一个总线周期只能访问偶地址的数据，所以若不进行对齐，一个原本可以一次访存获得的数据则需要2次甚至更多次才能得到。</p>
 <h3 id="2平台原因">2.平台原因</h3>
 <p>不是所有的硬件平台都能访问到任意地址上的任意数据</p>
 <h2 id="三几种对齐的方式">三.几种对齐的方式</h2>
