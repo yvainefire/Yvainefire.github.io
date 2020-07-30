@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2020-07-30T07:33:07.900Z</updated>
+    <updated>2020-07-30T08:01:52.100Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -124,13 +124,12 @@ int Max(int x, int y)  //定义Max函数
 <h3 id="1数据类型自身的对齐自然对齐">1.数据类型自身的对齐(自然对齐)</h3>
 <p>存放变量的地址为该变量在改平台上对应的数据类型大小的整数倍。</p>
 <h3 id="2结构体或类的自身对齐">2.结构体或类的自身对齐</h3>
-<p>其成员中自身对齐值最大的那个值。</p>
+<p>结构体或类的首地址是其成员中自身对齐值最大的那个值的整数倍。</p>
 <h3 id="3指定对齐值">3.指定对齐值</h3>
 <p>#pragma pack (value)时的指定对齐值value。</p>
 <p>例：#pragma pack (5)</p>
 <p>int a = 4;</p>
 <p>int b = 9;</p>
-<p>#pragma pack ()</p>
 <p>即：按照5字节进行对齐</p>
 <h3 id="4数据成员结构体和类的有效对齐值">4.数据成员，结构体和类的有效对齐值</h3>
 <p>有效对齐值 = min{自身对齐值，当前指定对齐值}</p>

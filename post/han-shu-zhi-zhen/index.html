@@ -9,7 +9,7 @@
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
 <title>函数指针 | YvaineFire_block</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1596094383883">
+<link rel="shortcut icon" href="/favicon.ico?v=1596096104711">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -1183,13 +1183,12 @@ int Max(int x, int y)  //定义Max函数
 &lt;h3 id=&#34;1数据类型自身的对齐自然对齐&#34;&gt;1.数据类型自身的对齐(自然对齐)&lt;/h3&gt;
 &lt;p&gt;存放变量的地址为该变量在改平台上对应的数据类型大小的整数倍。&lt;/p&gt;
 &lt;h3 id=&#34;2结构体或类的自身对齐&#34;&gt;2.结构体或类的自身对齐&lt;/h3&gt;
-&lt;p&gt;其成员中自身对齐值最大的那个值。&lt;/p&gt;
+&lt;p&gt;结构体或类的首地址是其成员中自身对齐值最大的那个值的整数倍。&lt;/p&gt;
 &lt;h3 id=&#34;3指定对齐值&#34;&gt;3.指定对齐值&lt;/h3&gt;
 &lt;p&gt;#pragma pack (value)时的指定对齐值value。&lt;/p&gt;
 &lt;p&gt;例：#pragma pack (5)&lt;/p&gt;
 &lt;p&gt;int a = 4;&lt;/p&gt;
 &lt;p&gt;int b = 9;&lt;/p&gt;
-&lt;p&gt;#pragma pack ()&lt;/p&gt;
 &lt;p&gt;即：按照5字节进行对齐&lt;/p&gt;
 &lt;h3 id=&#34;4数据成员结构体和类的有效对齐值&#34;&gt;4.数据成员，结构体和类的有效对齐值&lt;/h3&gt;
 &lt;p&gt;有效对齐值 = min{自身对齐值，当前指定对齐值}&lt;/p&gt;
