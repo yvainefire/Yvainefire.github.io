@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2020-07-30T07:03:30.140Z</updated>
+    <updated>2020-07-30T07:27:47.259Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -10,6 +10,142 @@
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[多进程]]></title>
+        <id>https://yvainefire.github.io/post/duo-jin-cheng/</id>
+        <link href="https://yvainefire.github.io/post/duo-jin-cheng/">
+        </link>
+        <updated>2020-07-30T07:25:38.000Z</updated>
+        <content type="html"><![CDATA[<p>#一. fork函数</p>
+<h2 id="1关于fork函数">1.关于fork()函数</h2>
+<p>pid_t fork(void);</p>
+<p>创建一个新的进程，对于原进程而言该进程是子进程。</p>
+<p>注意子进程和父进程的关系</p>
+<h2 id="2关于返回值">2.关于返回值</h2>
+<p>返回值有两个</p>
+<p>对于子进程而言返回值为0</p>
+<p>对于父进程而言，返回值是子进程的进程号</p>
+<p><strong>为什么返回值会设置两个</strong>：因为对于一个父进程而言，是很难获得其子进程的进程号的，毕竟 一个父进程可能会有多个子进程。所以对于父进程而言，返回值设置其子进程的进程号，方便  父进程进行记录。而对于子进程而言，就很容易找到其父进程对应的进程号，使用getppid()函数。<br>
+出错返回-1</p>
+<h2 id="3关于拷贝">3.关于拷贝</h2>
+<p>os会分配新的内存空间和内核数据结构给子进程</p>
+<p>父进程中的部分代码，数据会拷贝到子进程中包括父进程的数据空间，堆，栈，还包括缓冲区的数据。这些拷贝的东西都是父本，所以是不会进行数据共享的，包括信号量。对于代码拷贝一定要注意：只拷贝位于fork()之后的代码，同时这里的拷贝不是真正的拷贝，只能说是代码的共享。这里特别注意循环结构，</p>
+<p><strong>父子进程是相对的</strong>！！！！</p>
+<p><strong>特别注意在带循环的进程创建的时候，在父进程创建子进程后，子进程拷贝的代码是for()位置当前未执行完的代码，即还需要考虑仍需执行的循环的次数。若该子进程会进行fork()创建对他而言的子进程，则在以此子进程为主进程的进程中，此子进程充当父进程。即父子进程是相对的额，是根据两进程的相对关系而言的。这里特别要注意，使用for进行fork()时一共创建的进程不是1+n个！！！</strong></p>
+<p>两段代码：<br>
+代码1</p>
+<pre><code class="language-c">for(int i=0;i&lt;3;i++)  
+{    
+    if(pid=fork())    
+    {      
+        printf(&quot;%d\n&quot;,getpid());    
+    }    
+    else    
+    {      
+        printf(&quot;%d\n&quot;,getpid());    
+    }      
+}
+</code></pre>
+<p>代码2</p>
+<pre><code class="language-c">int i=1;
+
+  while((pid=fork()))    
+  {            
+      printf(&quot;pid:%d i:%d\n&quot;,getpid(),i);      
+      if(i&gt;5)      
+      {                  
+          break;      
+      }                      
+      i++;        
+  }    
+
+printf(&quot;pid:%d\n&quot;,getpid());
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[函数指针]]></title>
+        <id>https://yvainefire.github.io/post/han-shu-zhi-zhen/</id>
+        <link href="https://yvainefire.github.io/post/han-shu-zhi-zhen/">
+        </link>
+        <updated>2020-07-30T07:07:53.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一函数指针和函数首地址">一.函数指针和函数首地址</h2>
+<p>地址的联系</p>
+<p>如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，<strong>这段存储空间的首地址称为这个函数的地址</strong>。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针变量就叫<strong>作函数指针变量</strong>，简称函数指针。</p>
+<h2 id="二函数指针的定义方式">二.函数指针的定义方式</h2>
+<p>然而函数指针的定义和普通指针的定义事不同的。</p>
+<p>函数指针的定义方式：</p>
+<pre><code>函数返回值类型 (* 指针变量名) (函数参数列表);
+</code></pre>
+<p>例：</p>
+<pre><code class="language-c"># include &lt;stdio.h&gt;
+int Max(int, int);  //函数声明
+int main(void){    
+    int(*p)(int, int);  //定义一个函数指针    
+    int a, b, c;    
+    p = Max;  //把函数Max赋给指针变量p, 使p指向Max函数    
+    
+    printf(&quot;please enter a and b:&quot;);    
+    scanf(&quot;%d%d&quot;, &amp;a, &amp;b);    
+    c = (*p)(a, b);  //通过函数指针调用Max函数    
+    printf(&quot;a = %d\nb = %d\nmax = %d\n&quot;, a, b, c);   
+    
+    return 0;
+}
+int Max(int x, int y)  //定义Max函数
+{    
+    int z;    
+    if (x &gt; y) {        
+        z = x;    
+    }else 
+    {        
+        z = y;    
+    }    
+    return z;
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[对齐]]></title>
+        <id>https://yvainefire.github.io/post/dui-qi/</id>
+        <link href="https://yvainefire.github.io/post/dui-qi/">
+        </link>
+        <updated>2020-07-30T07:03:36.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一字节对齐的概念">一.字节对齐的概念</h2>
+<p>计算机系统对基本数据类型的合法地址做了一些限制，这种限制称为对齐。</p>
+<p>如：要求某些数据的地址只能以1或2或8或16的倍数。</p>
+<h2 id="二字节对齐的原因">二.字节对齐的原因</h2>
+<h3 id="1性能">1.性能</h3>
+<p>字节对齐的根本原因在于提高数据的访问的效率。主要在于减少数据访问的次数，因为不是所有的硬件平台都能访问任意地址上的任意数据，某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。如x86的一个总线周期只能访问偶地址的数据，所以若进行对齐，一个原本可以一次访存获得的数据则需要2次甚至更多次才能得到。</p>
+<h3 id="2平台原因">2.平台原因</h3>
+<p>不是所有的硬件平台都能访问到任意地址上的任意数据</p>
+<h2 id="三几种对齐的方式">三.几种对齐的方式</h2>
+<h3 id="1数据类型自身的对齐自然对齐">1.数据类型自身的对齐(自然对齐)</h3>
+<p>存放变量的地址为该变量在改平台上对应的数据类型大小的整数倍。</p>
+<h3 id="2结构体或类的自身对齐">2.结构体或类的自身对齐</h3>
+<p>其成员中自身对齐值最大的那个值。</p>
+<h3 id="3指定对齐值">3.指定对齐值</h3>
+<p>#pragma pack (value)时的指定对齐值value。</p>
+<p>例：#pragma pack (5)</p>
+<p>int a = 4;</p>
+<p>int b = 9;</p>
+<p>#pragma pack ()</p>
+<p>即：按照5字节进行对齐</p>
+<h3 id="4数据成员结构体和类的有效对齐值">4.数据成员，结构体和类的有效对齐值</h3>
+<p>有效对齐值 = min{自身对齐值，当前指定对齐值}</p>
+<h2 id="四结构体数据的对齐问题">四.结构体数据的对齐问题</h2>
+<p>数据结构中的数据变量都是按照定义的先后顺寻进行存放的。第一个数据变量的起始地址就是数据结构的起始地址。结构体的成员变量要对齐存放，结构体本身也要根据自身的有效对齐值圆整 (即结构体成员变量占用总长度为结构体有效对齐值的整数倍) 。</p>
+<ol>
+<li>结构体字节对齐的细节和具体编译器实现相关，但一般而言满足三个准则： 结构体变量的首地址能够被其最宽基本类型成员的大小所整除；</li>
+<li>结构体每个成员相对结构体首地址的偏移量(offset注意偏移量是从0开始的)都是min{本成员大小,当前有效对齐值}的整数倍，如有需要编译器会在成员之间加上填充字节(internal adding)；</li>
+<li>结构体的总大小为结构体最宽基本类型成员大小的整数倍，如有需要编译器会在最末一个成员之后加上填充字节{trailing padding}。</li>
+</ol>
+<p>第一条：编译器在给结构体开辟空间时，首先找到结构体中最宽的基本数据类型，然后寻找内存地址能被该基本数据类型所整除的位置，作为结构体的首地址。将这个最宽的基本数据类型的大小作为上面介绍的对齐模数。</p>
+<p>第二条：为结构体的一个成员开辟空间之前，编译器首先检查预开辟空间的首地址相对于结构体首地址的偏移是否是min{本成员大小,当前有效对齐值}的整数倍，若是，则存放本成员，反之，则在本成员和上一个成员之间填充一定的字节，以达到整数倍的要求，也就是将预开辟空间的首地址后移几个字节。</p>
+<p>第三条：结构体总大小是包括填充字节，最后一个成员满足上面两条以外，还必须满足第三条，否则就必须在最后填充几个字节以达到本条要求。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[ucosii运行流程]]></title>
         <id>https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/</id>

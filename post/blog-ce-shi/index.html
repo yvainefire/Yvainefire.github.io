@@ -9,7 +9,7 @@
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
 <title>blog测试 | YvaineFire_block</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1596092576554">
+<link rel="shortcut icon" href="/favicon.ico?v=1596094053967">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -206,19 +206,19 @@
     <div class="sidebar-item-box">
       <a href="/archives/">
         
-        <span class="site-item-stat-count">1</span>
+        <span class="site-item-stat-count">4</span>
         <span class="site-item-stat-name language" data-lan="article">文章</span>
       </a>
     </div>
     <div class="sidebar-item-box">
       <a href="">
-        <span class="site-item-stat-count">1</span>
+        <span class="site-item-stat-count">3</span>
         <span class="site-item-stat-name language" data-lan="category">分类</span>
       </a>
     </div>
     <div class="sidebar-item-box">
       <a href="/tags/">
-        <span class="site-item-stat-count">1</span>
+        <span class="site-item-stat-count">3</span>
         <span class="site-item-stat-name language" data-lan="tag">标签</span>
       </a>
     </div>
@@ -1031,6 +1031,133 @@
       <hr>
     </div>
     <div class="result" id="result">
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/duo-jin-cheng/"" data-c="
+          &lt;p&gt;#一. fork函数&lt;/p&gt;
+&lt;h2 id=&#34;1关于fork函数&#34;&gt;1.关于fork()函数&lt;/h2&gt;
+&lt;p&gt;pid_t fork(void);&lt;/p&gt;
+&lt;p&gt;创建一个新的进程，对于原进程而言该进程是子进程。&lt;/p&gt;
+&lt;p&gt;注意子进程和父进程的关系&lt;/p&gt;
+&lt;h2 id=&#34;2关于返回值&#34;&gt;2.关于返回值&lt;/h2&gt;
+&lt;p&gt;返回值有两个&lt;/p&gt;
+&lt;p&gt;对于子进程而言返回值为0&lt;/p&gt;
+&lt;p&gt;对于父进程而言，返回值是子进程的进程号&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;为什么返回值会设置两个&lt;/strong&gt;：因为对于一个父进程而言，是很难获得其子进程的进程号的，毕竟 一个父进程可能会有多个子进程。所以对于父进程而言，返回值设置其子进程的进程号，方便  父进程进行记录。而对于子进程而言，就很容易找到其父进程对应的进程号，使用getppid()函数。&lt;br&gt;
+出错返回-1&lt;/p&gt;
+&lt;h2 id=&#34;3关于拷贝&#34;&gt;3.关于拷贝&lt;/h2&gt;
+&lt;p&gt;os会分配新的内存空间和内核数据结构给子进程&lt;/p&gt;
+&lt;p&gt;父进程中的部分代码，数据会拷贝到子进程中包括父进程的数据空间，堆，栈，还包括缓冲区的数据。这些拷贝的东西都是父本，所以是不会进行数据共享的，包括信号量。对于代码拷贝一定要注意：只拷贝位于fork()之后的代码，同时这里的拷贝不是真正的拷贝，只能说是代码的共享。这里特别注意循环结构，&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;父子进程是相对的&lt;/strong&gt;！！！！&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;特别注意在带循环的进程创建的时候，在父进程创建子进程后，子进程拷贝的代码是for()位置当前未执行完的代码，即还需要考虑仍需执行的循环的次数。若该子进程会进行fork()创建对他而言的子进程，则在以此子进程为主进程的进程中，此子进程充当父进程。即父子进程是相对的额，是根据两进程的相对关系而言的。这里特别要注意，使用for进行fork()时一共创建的进程不是1+n个！！！&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;两段代码：&lt;br&gt;
+代码1&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;for(int i=0;i&amp;lt;3;i++)  
+{    
+    if(pid=fork())    
+    {      
+        printf(&amp;quot;%d\n&amp;quot;,getpid());    
+    }    
+    else    
+    {      
+        printf(&amp;quot;%d\n&amp;quot;,getpid());    
+    }      
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;代码2&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;int i=1;
+
+  while((pid=fork()))    
+  {            
+      printf(&amp;quot;pid:%d i:%d\n&amp;quot;,getpid(),i);      
+      if(i&amp;gt;5)      
+      {                  
+          break;      
+      }                      
+      i++;        
+  }    
+
+printf(&amp;quot;pid:%d\n&amp;quot;,getpid());
+&lt;/code&gt;&lt;/pre&gt;
+">多进程</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/han-shu-zhi-zhen/"" data-c="
+          &lt;h2 id=&#34;一函数指针和函数首地址&#34;&gt;一.函数指针和函数首地址&lt;/h2&gt;
+&lt;p&gt;地址的联系&lt;/p&gt;
+&lt;p&gt;如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，&lt;strong&gt;这段存储空间的首地址称为这个函数的地址&lt;/strong&gt;。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针变量就叫&lt;strong&gt;作函数指针变量&lt;/strong&gt;，简称函数指针。&lt;/p&gt;
+&lt;h2 id=&#34;二函数指针的定义方式&#34;&gt;二.函数指针的定义方式&lt;/h2&gt;
+&lt;p&gt;然而函数指针的定义和普通指针的定义事不同的。&lt;/p&gt;
+&lt;p&gt;函数指针的定义方式：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;函数返回值类型 (* 指针变量名) (函数参数列表);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;例：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;# include &amp;lt;stdio.h&amp;gt;
+int Max(int, int);  //函数声明
+int main(void){    
+    int(*p)(int, int);  //定义一个函数指针    
+    int a, b, c;    
+    p = Max;  //把函数Max赋给指针变量p, 使p指向Max函数    
+    
+    printf(&amp;quot;please enter a and b:&amp;quot;);    
+    scanf(&amp;quot;%d%d&amp;quot;, &amp;amp;a, &amp;amp;b);    
+    c = (*p)(a, b);  //通过函数指针调用Max函数    
+    printf(&amp;quot;a = %d\nb = %d\nmax = %d\n&amp;quot;, a, b, c);   
+    
+    return 0;
+}
+int Max(int x, int y)  //定义Max函数
+{    
+    int z;    
+    if (x &amp;gt; y) {        
+        z = x;    
+    }else 
+    {        
+        z = y;    
+    }    
+    return z;
+}
+&lt;/code&gt;&lt;/pre&gt;
+">函数指针</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/dui-qi/"" data-c="
+          &lt;h2 id=&#34;一字节对齐的概念&#34;&gt;一.字节对齐的概念&lt;/h2&gt;
+&lt;p&gt;计算机系统对基本数据类型的合法地址做了一些限制，这种限制称为对齐。&lt;/p&gt;
+&lt;p&gt;如：要求某些数据的地址只能以1或2或8或16的倍数。&lt;/p&gt;
+&lt;h2 id=&#34;二字节对齐的原因&#34;&gt;二.字节对齐的原因&lt;/h2&gt;
+&lt;h3 id=&#34;1性能&#34;&gt;1.性能&lt;/h3&gt;
+&lt;p&gt;字节对齐的根本原因在于提高数据的访问的效率。主要在于减少数据访问的次数，因为不是所有的硬件平台都能访问任意地址上的任意数据，某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。如x86的一个总线周期只能访问偶地址的数据，所以若进行对齐，一个原本可以一次访存获得的数据则需要2次甚至更多次才能得到。&lt;/p&gt;
+&lt;h3 id=&#34;2平台原因&#34;&gt;2.平台原因&lt;/h3&gt;
+&lt;p&gt;不是所有的硬件平台都能访问到任意地址上的任意数据&lt;/p&gt;
+&lt;h2 id=&#34;三几种对齐的方式&#34;&gt;三.几种对齐的方式&lt;/h2&gt;
+&lt;h3 id=&#34;1数据类型自身的对齐自然对齐&#34;&gt;1.数据类型自身的对齐(自然对齐)&lt;/h3&gt;
+&lt;p&gt;存放变量的地址为该变量在改平台上对应的数据类型大小的整数倍。&lt;/p&gt;
+&lt;h3 id=&#34;2结构体或类的自身对齐&#34;&gt;2.结构体或类的自身对齐&lt;/h3&gt;
+&lt;p&gt;其成员中自身对齐值最大的那个值。&lt;/p&gt;
+&lt;h3 id=&#34;3指定对齐值&#34;&gt;3.指定对齐值&lt;/h3&gt;
+&lt;p&gt;#pragma pack (value)时的指定对齐值value。&lt;/p&gt;
+&lt;p&gt;例：#pragma pack (5)&lt;/p&gt;
+&lt;p&gt;int a = 4;&lt;/p&gt;
+&lt;p&gt;int b = 9;&lt;/p&gt;
+&lt;p&gt;#pragma pack ()&lt;/p&gt;
+&lt;p&gt;即：按照5字节进行对齐&lt;/p&gt;
+&lt;h3 id=&#34;4数据成员结构体和类的有效对齐值&#34;&gt;4.数据成员，结构体和类的有效对齐值&lt;/h3&gt;
+&lt;p&gt;有效对齐值 = min{自身对齐值，当前指定对齐值}&lt;/p&gt;
+&lt;h2 id=&#34;四结构体数据的对齐问题&#34;&gt;四.结构体数据的对齐问题&lt;/h2&gt;
+&lt;p&gt;数据结构中的数据变量都是按照定义的先后顺寻进行存放的。第一个数据变量的起始地址就是数据结构的起始地址。结构体的成员变量要对齐存放，结构体本身也要根据自身的有效对齐值圆整 (即结构体成员变量占用总长度为结构体有效对齐值的整数倍) 。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;结构体字节对齐的细节和具体编译器实现相关，但一般而言满足三个准则： 结构体变量的首地址能够被其最宽基本类型成员的大小所整除；&lt;/li&gt;
+&lt;li&gt;结构体每个成员相对结构体首地址的偏移量(offset注意偏移量是从0开始的)都是min{本成员大小,当前有效对齐值}的整数倍，如有需要编译器会在成员之间加上填充字节(internal adding)；&lt;/li&gt;
+&lt;li&gt;结构体的总大小为结构体最宽基本类型成员大小的整数倍，如有需要编译器会在最末一个成员之后加上填充字节{trailing padding}。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;第一条：编译器在给结构体开辟空间时，首先找到结构体中最宽的基本数据类型，然后寻找内存地址能被该基本数据类型所整除的位置，作为结构体的首地址。将这个最宽的基本数据类型的大小作为上面介绍的对齐模数。&lt;/p&gt;
+&lt;p&gt;第二条：为结构体的一个成员开辟空间之前，编译器首先检查预开辟空间的首地址相对于结构体首地址的偏移是否是min{本成员大小,当前有效对齐值}的整数倍，若是，则存放本成员，反之，则在本成员和上一个成员之间填充一定的字节，以达到整数倍的要求，也就是将预开辟空间的首地址后移几个字节。&lt;/p&gt;
+&lt;p&gt;第三条：结构体总大小是包括填充字节，最后一个成员满足上面两条以外，还必须满足第三条，否则就必须在最后填充几个字节以达到本条要求。&lt;/p&gt;
+">对齐</a>
+      </div>
       
       <div class="item">
         <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/"" data-c="

@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
-<title>ucosii运行流程 | YvaineFire_block</title>
+<title>函数指针 | YvaineFire_block</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1596094053967">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
@@ -38,8 +38,8 @@
 
 
 
-  <meta name="description" content="ucosii运行流程" />
-  <meta name="keywords" content="ucosii" />
+  <meta name="description" content="函数指针" />
+  <meta name="keywords" content="C语言" />
 </head>
 
 <body>
@@ -235,32 +235,10 @@
   <div class="toc-wrapper auto-number auto"
     id="toc_wrapper">
     <ul class="markdownIt-TOC">
-<li><a href="#ucosii%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B">ucosii运行流程</a>
+<li>
 <ul>
-<li><a href="#%E4%B8%80%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%E4%B8%AD%E6%96%AD%E9%A2%9D%E5%88%9D%E5%A7%8B%E5%8C%96">一.系统时钟中断额初始化</a></li>
-<li><a href="#%E4%BA%8C%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%88%9D%E5%A7%8B%E5%8C%96">二.操作系统初始化</a>
-<ul>
-<li><a href="#1osinithookbegin">1.OSInitHookBegin()</a></li>
-<li><a href="#2os_initmisc">2.OS_InitMisc()</a></li>
-<li><a href="#3os_initrdylist">3.OS_InitRdyList()</a></li>
-<li><a href="#4os_inittcblist">4.OS_InitTCBList ()</a></li>
-<li><a href="#5os_initeventlist">5.OS_InitEventList()</a></li>
-</ul>
-</li>
-<li><a href="#%E4%B8%89%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%88%9B%E5%BB%BA">三.任务的创建</a>
-<ul>
-<li><a href="#1%E4%BB%BB%E5%8A%A1%E5%87%BD%E6%95%B0%E7%9A%84%E6%A0%BC%E5%BC%8F">1.任务函数的格式</a></li>
-<li><a href="#2ostaskcreate">2.OSTaskCreate(）</a></li>
-</ul>
-</li>
-<li><a href="#%E5%9B%9B%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%90%AF%E5%8A%A8">四.操作系统的启动</a>
-<ul>
-<li><a href="#1%E5%88%A4%E6%96%ADosrunning-os_false">1.判断OSRunning == OS_FALSE</a></li>
-<li><a href="#2os_schednew">2.OS_SchedNew()</a></li>
-<li><a href="#3%E8%AE%BE%E7%BD%AEospriocurostcbhighrdyostcbcur">3.设置OSPrioCur，OSTCBHighRdy，OSTCBCur</a></li>
-<li><a href="#4osstarthighrdy">4.OSStartHighRdy()</a></li>
-</ul>
-</li>
+<li><a href="#%E4%B8%80%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E5%92%8C%E5%87%BD%E6%95%B0%E9%A6%96%E5%9C%B0%E5%9D%80">一.函数指针和函数首地址</a></li>
+<li><a href="#%E4%BA%8C%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E7%9A%84%E5%AE%9A%E4%B9%89%E6%96%B9%E5%BC%8F">二.函数指针的定义方式</a></li>
 </ul>
 </li>
 </ul>
@@ -528,8 +506,8 @@
           <div class="section bg-color post post-page">
             <section class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/">
-      ucosii运行流程
+    <a class="post-title-link" href="https://yvainefire.github.io/post/han-shu-zhi-zhen/">
+      函数指针
     </a>
   </h1>
   <div class="post-meta">
@@ -537,7 +515,7 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span class="language" data-lan="publish">发布于</span>
-      <span class="publish-time" data-t="2020-07-28 21:04:04">2020-07-28</span>
+      <span class="publish-time" data-t="2020-07-30 15:07:53">2020-07-30</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
@@ -546,8 +524,8 @@
       <span class="pc-show language" data-lan="category-in">分类于</span>
       
       
-      <a href="https://yvainefire.github.io/tag/yXnUrLTZ2/">
-        <span>ucosii</span>
+      <a href="https://yvainefire.github.io/tag/EFlfRjAl4/">
+        <span>C语言</span>
       </a>
       
       
@@ -556,147 +534,52 @@
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>6<span class="language" data-lan="minute">分钟</span></span>
+      <span>2<span class="language" data-lan="minute">分钟</span></span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>1352<span class="pc-show language" data-lan="words">字数</span></span>
+      <span>309<span class="pc-show language" data-lan="words">字数</span></span>
     </span>
     
   </div>
 </section>
             <div class="post-body next-md-body" id="post_body">
-              <h1 id="ucosii运行流程">ucosii运行流程</h1>
-<h2 id="一系统时钟中断额初始化">一.系统时钟中断额初始化</h2>
-<p>SysTick中断初始化，在轮转调度过程中，需要一个时钟中断来进行任务的切换。时钟中断的频率就是系统的心跳，也被称为时基，它决定了操作系统进行任务切换的频率。</p>
-<h2 id="二操作系统初始化">二.操作系统初始化</h2>
-<h3 id="1osinithookbegin">1.OSInitHookBegin()</h3>
-<p>主要进行一些扩展功能的初始化</p>
-<h3 id="2os_initmisc">2.OS_InitMisc()</h3>
-<p>主要作用：进行杂项变量的初始化，主要有以下内容需要被初始化</p>
-<pre><code class="language-c">OSIntNesting    		中断嵌套层数清零
-OSLockNesting			
-OSTaskCtr				任务计数清零
-OSRunning				操作系统运行标志位清零
-OSCtxSwCtr				任务切换计数清零
-OSIdleCtr				
+              <h2 id="一函数指针和函数首地址">一.函数指针和函数首地址</h2>
+<p>地址的联系</p>
+<p>如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，<strong>这段存储空间的首地址称为这个函数的地址</strong>。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针变量就叫<strong>作函数指针变量</strong>，简称函数指针。</p>
+<h2 id="二函数指针的定义方式">二.函数指针的定义方式</h2>
+<p>然而函数指针的定义和普通指针的定义事不同的。</p>
+<p>函数指针的定义方式：</p>
+<pre><code>函数返回值类型 (* 指针变量名) (函数参数列表);
 </code></pre>
-<h3 id="3os_initrdylist">3.OS_InitRdyList()</h3>
-<p>就绪队列的初始化，所谓就绪队列指由就绪任务构成的队列，但是这里实际上初始化的并不是队列，就绪队列里面保存的也不是就绪任务的TCB。</p>
-<pre><code class="language-c">//以下是就绪队列实现的定义和初始化的代码
-typedef unsigned char INT8U;
-
-typedef  INT8U    OS_PRIO;
-
-OS_EXT  OS_PRIO           OSRdyTbl[OS_RDY_TBL_SIZE];
-
-for (i = 0u; i &lt; OS_RDY_TBL_SIZE; i++) {
-        OSRdyTbl[i] = 0u;
-    }
-
-</code></pre>
-<p>从这里可以看出，就绪队列的本质是一个8位无符号整型数组，仅仅保存的是一个整型，而不是TCB或者TCB指针。</p>
-<p>为什么仅仅保存整型就可以表示就绪队列呢？这个以后再说。</p>
-<p>除了初始化就绪队列，还初始化了两个与优先级相关的变量以及两个和任务TCB相关的量。<br>
-OSPrioCur	   		保存当前任务的优先级<br>
-OSPrioHighRdy      保存当前就绪队列优先级最高的任务的优先级<br>
-OSTCBCur 	          保存当前任务的TCB指针<br>
-OSTCBHighRdy      保存当前就绪队列中最高优先级任务的TCB指针</p>
-<h3 id="4os_inittcblist">4.OS_InitTCBList ()</h3>
-<p>初始化TCB链表，这里主要强调的链表，主要是把在头文件里声明的</p>
-<p>OS_TCB	OSTCBTbl[OS_MAX_TASKS + OS_N_SYS_TASKS];		这个TCB数组拆开然后用指针将其连接起来。</p>
-<pre><code class="language-c">for (ix = 0u; ix &lt; (OS_MAX_TASKS + OS_N_SYS_TASKS - 1u); ix++) {    /* Init. list of free TCBs     */
-        ix_next =  ix + 1u;
-        ptcb1   = &amp;OSTCBTbl[ix];
-        ptcb2   = &amp;OSTCBTbl[ix_next];
-        ptcb1-&gt;OSTCBNext = ptcb2;
+<p>例：</p>
+<pre><code class="language-c"># include &lt;stdio.h&gt;
+int Max(int, int);  //函数声明
+int main(void){    
+    int(*p)(int, int);  //定义一个函数指针    
+    int a, b, c;    
+    p = Max;  //把函数Max赋给指针变量p, 使p指向Max函数    
+    
+    printf(&quot;please enter a and b:&quot;);    
+    scanf(&quot;%d%d&quot;, &amp;a, &amp;b);    
+    c = (*p)(a, b);  //通过函数指针调用Max函数    
+    printf(&quot;a = %d\nb = %d\nmax = %d\n&quot;, a, b, c);   
+    
+    return 0;
 }
-
-ptcb1                   = &amp;OSTCBTbl[ix];
-ptcb1-&gt;OSTCBNext        = (OS_TCB *)0;                       /* Last OS_TCB                        */
-OSTCBFreeList           = &amp;OSTCBTbl[0];
-</code></pre>
-<p>除了进行free TCBs的初始化，还会进行以下两个变量的初始化</p>
-<pre><code>OS_MemClr((INT8U *)&amp;OSTCBPrioTbl[0], sizeof(OSTCBPrioTbl));  /* Clear the priority table           */
-/*这里采取的强制转换很有意思。
-OSTCBList	= (OS_TCB *)0;
-</code></pre>
-<p>OSTCBPrioTbl[]是用来存放对应的下标为优先级的任务的TCB指针，若该对应下标的任务已经被创建才会有相应的TCB指针，否则保持初始化的空值。这个表的作用是为了快速找个某一优先级对应的任务的任务指针。</p>
-<p>OSTCBList就是指向任务块链表的头指针，这里面的任务包括当前所有存在的任务，就绪的，未就绪的。</p>
-<h3 id="5os_initeventlist">5.OS_InitEventList()</h3>
-<p>事件控制块链表的初始化，这个属于扩展的功能，与任务之间的通信相关，所以就先不讨论了，等到任务通信这个模块再进行讨论。</p>
-<h2 id="三任务的创建">三.任务的创建</h2>
-<h3 id="1任务函数的格式">1.任务函数的格式</h3>
-<p>在ucosii中任务的形式如下：</p>
-<p>实际上任务就是一个不带返回值具有死循环的函数</p>
-<pre><code class="language-c">void task(void *p_arg)
-{		
-		while(1)
-		{
-
-		}
-		
+int Max(int x, int y)  //定义Max函数
+{    
+    int z;    
+    if (x &gt; y) {        
+        z = x;    
+    }else 
+    {        
+        z = y;    
+    }    
+    return z;
 }
 </code></pre>
-<h3 id="2ostaskcreate">2.OSTaskCreate(）</h3>
-<p>任务的创建</p>
-<pre><code class="language-c">INT8U  OSTaskCreate (void   (*task)(void *p_arg),
-                     void    *p_arg,
-                     OS_STK  *ptos,
-                     INT8U    prio)
-    //任务函数
-    //任务所需的参数
-    //堆栈
-    //优先级
-</code></pre>
-<ul>
-<li>
-<p>确保未在ISR中进行任务的创建。利用中断的嵌套层数OSIntNesting进行判断</p>
-</li>
-<li>
-<p>对相应优先级的任务对应的OSTCBPrioTbl[prio]进行占位。由于ucosii仅支持的同一优先级的任务仅有一个，所以需先判断正在创建的任务的优先级是否已经被占用了。</p>
-</li>
-<li>
-<p>堆栈初始化</p>
-<pre><code class="language-c"> OS_STK *OSTaskStkInit (void (*task)(void *p_arg), 
- void *p_arg, OS_STK *ptos, INT16U opt)
-</code></pre>
-<p>所谓堆栈的初始化实际上就是对相关的寄存器进行模拟压栈的操作，并返回压栈后的栈顶指针。模拟压栈就是模仿任务切换时对相应寄存器进行的压栈操作。在这里主要的功能是确定堆栈栈顶指针的位置，同时把设置LR寄存器的值，并保存任务函数的地址，以及任务函数的参数指针。而其余的几个寄存器的值在这时是无意义的，不必关心其模拟压栈的内容。</p>
-</li>
-<li>
-<p>TCB初始化</p>
-<p>OS_TCBInit()</p>
-<ul>
-<li>从OSTCBFreeList获得一个空的tcb</li>
-<li>把任务的相关信息放到这个空的tcb的相应位置</li>
-<li>把被占位的OSTCBPrioTbl[]进行赋值，ptcb</li>
-<li>把该tcb链入TCB链表</li>
-<li>把该任务放进就绪队列</li>
-</ul>
-</li>
-<li>
-<p>是否开始调度</p>
-<p>在这里还不会进行调度，因为调度的条件是OSRunning == OS_TRUE，而现在OSRunning == OS_FALSE。</p>
-<p>OS_Sched()     //Schedule only if all ISRs done</p>
-<ul>
-<li>OS_SchedNew()  获得当前就绪队列中的最高的优先级，采用优先级位图的方式直接获得</li>
-<li>判断当前执行的任务是否为最高优先级的任务，若不是则调用OS_TASK_SW()则进行任务切换。</li>
-</ul>
-</li>
-</ul>
-<h2 id="四操作系统的启动">四.操作系统的启动</h2>
-<p>OSStart()</p>
-<!-- more -->
-<h3 id="1判断osrunning-os_false">1.判断OSRunning == OS_FALSE</h3>
-<h3 id="2os_schednew">2.OS_SchedNew()</h3>
-<p>获得当前就绪队列中的最高的优先级，采用优先级位图的方式直接获得</p>
-<h3 id="3设置ospriocurostcbhighrdyostcbcur">3.设置OSPrioCur，OSTCBHighRdy，OSTCBCur</h3>
-<h3 id="4osstarthighrdy">4.OSStartHighRdy()</h3>
-<p>设置PendSV的中断优先级</p>
-<p>初始化PSP</p>
-<p>设置OSRunning标志为1</p>
-<p>开启PendSV中断。</p>
 
             </div>
             
@@ -709,7 +592,7 @@ OSTCBList	= (OS_TCB *)0;
     </li>
     <li class="post-copyright-link">
       <strong class="language" data-lan="link">本文链接：</strong>
-      <a href="https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/" title="ucosii运行流程">https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/</a>
+      <a href="https://yvainefire.github.io/post/han-shu-zhi-zhen/" title="函数指针">https://yvainefire.github.io/post/han-shu-zhi-zhen/</a>
     </li>
     <li class="post-copyright-license">
       <strong class="language" data-lan="copyright">版权声明： </strong>
@@ -718,18 +601,22 @@ OSTCBList	= (OS_TCB *)0;
   </ul>
   <div class="tags">
     
-      <a href="https://yvainefire.github.io/tag/yXnUrLTZ2/"># ucosii</a>
+      <a href="https://yvainefire.github.io/tag/EFlfRjAl4/"># C语言</a>
     
   </div>
   <div class="nav">
     <div class="nav-prev">
       
         <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="对齐" href="https://yvainefire.github.io/post/dui-qi/">对齐</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="对齐" href="https://yvainefire.github.io/post/dui-qi/">上一篇</a>
+        <a class="nav-pc-next" title="多进程" href="https://yvainefire.github.io/post/duo-jin-cheng/">多进程</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="多进程" href="https://yvainefire.github.io/post/duo-jin-cheng/">上一篇</a>
       
     </div>
     <div class="nav-next">
+      
+        <a class="nav-pc-next" title="对齐" href="https://yvainefire.github.io/post/dui-qi/">对齐</a>
+        <a class="nav-mobile-next" title="对齐" href="https://yvainefire.github.io/post/dui-qi/">下一篇</a>
+        <i class="fa fa-chevron-right"></i>
       
     </div>
   </div>
