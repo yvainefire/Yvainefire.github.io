@@ -9,7 +9,7 @@
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
 <title>ucosii运行流程 | YvaineFire_block</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1596096104711">
+<link rel="shortcut icon" href="/favicon.ico?v=1596187776345">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -206,7 +206,7 @@
     <div class="sidebar-item-box">
       <a href="/archives/">
         
-        <span class="site-item-stat-count">4</span>
+        <span class="site-item-stat-count">5</span>
         <span class="site-item-stat-name language" data-lan="article">文章</span>
       </a>
     </div>
@@ -1191,6 +1191,212 @@ OSTCBList	= (OS_TCB *)0;
       <hr>
     </div>
     <div class="result" id="result">
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/linux-tao-jie-zi-bian-cheng/"" data-c="
+          &lt;h2 id=&#34;一posix标准&#34;&gt;一.POSIX标准&lt;/h2&gt;
+&lt;p&gt;POSIX表示可移植操作系统接口，是IEEE为各种UNIX操作系统上运行的软件定义的一系列API标准的总称。&lt;/p&gt;
+&lt;h2 id=&#34;二socket基本概念&#34;&gt;二.Socket基本概念&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;套接字：协议操作的接口，而非协议本身。应用层通过这个接口使用传输层提供的服务，进行接收和发送数据包。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;主动套接字和被动套接字&lt;/p&gt;
+&lt;p&gt;主动套接字：发起连接的套接字&lt;/p&gt;
+&lt;p&gt;被动套接字：等待传入的套接字&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;套接字的基本类型&lt;/p&gt;
+&lt;p&gt;SOCKET_DGRAM：双向不可靠数据流&lt;/p&gt;
+&lt;p&gt;SOCKET_STREAM：双向可靠数据流&lt;/p&gt;
+&lt;p&gt;SOCKET_RAW：低级协议或为物联网络提供的套接字&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;三套接字的地址结构类型&#34;&gt;三.套接字的地址结构类型&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;两种套接字&lt;/p&gt;
+&lt;p&gt;​	   a.通用套接字&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;struct sockaddr{
+    unsigned short sa_family;/*地址族*/
+    char sa_data[14];
+};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;​		b.ipv4套接字&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;struct sockaddr_in{    
+    short int sin_family;/*地址族*/
+    unsigned short int sin_port;/*端口号*/
+    struct in_addr sin_addr;/*IP地址*/
+    unsigned char sin_zero[8];/*零数据*/
+}；
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;​		c.ipv6套接字&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;struct sockaddr_in6
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;地址族：决定了决定了套接字的种类&lt;/p&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;1&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/family.png&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;p&gt;通用套接字和特殊套接字之间可以进行相互的转换，这两种表现形式实际上是等价的。socketaddr_in用于用户设置的地址信息，sockaddr则用于作为bind,connet,recfvfrom等函数的参数。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;地址转换函数&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;int inet_pton(int family,const char *src,void *dst);
+
+const char *inet_ntop(int family,const void *src,char *dst,size_t cnt);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;dst是指向struct in_addr或struct in6_addr 的指针，必须事先分配空间src是指向点分10进制的字符串指针&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;四几个重要的函数&#34;&gt;四.几个重要的函数&lt;/h2&gt;
+&lt;h3 id=&#34;1socket函数&#34;&gt;1.socket函数&lt;/h3&gt;
+&lt;p&gt;int socket(int family,int type,int protocol)&lt;/p&gt;
+&lt;p&gt;作用：创建一个新的套接字&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;family：网络协议族（IPV4,IPV6,UNIX）&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;type：协议类型 (字节流，数据报，有序分组套接字，原始套接字）&lt;/p&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;2&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/type.png&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;protocol：特定的协议类型（TCP,UDP,SCTP）&lt;/p&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;3&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/protocol.png&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;4&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/relation.png&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;p&gt;UDP是数据报套接字&lt;/p&gt;
+&lt;p&gt;TCP是字节流套接字&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：返回值为非负则说明申请一个套接字成功，出错返回-1&lt;/p&gt;
+&lt;h3 id=&#34;2bind函数&#34;&gt;2.bind函数&lt;/h3&gt;
+&lt;p&gt;int bind(int sockfd,const struct sockaddr *myaddr,socklen_t addrlen);&lt;/p&gt;
+&lt;p&gt;作用：把套接字绑定在相应的ip和端口&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sockfd：开始创建的套接字描述符&lt;/li&gt;
+&lt;li&gt;myaddr：指向特定协议的地址结构指针，指本地地址和端口号&lt;/li&gt;
+&lt;li&gt;addrlen：地址长度&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;对于客户机而言：绑定一个特定的IP就相当于为该套接字发送的IP数据报指定了源IP地址，但是这个IP应该是属于这个主机的某个端口。如果没有调用bind函数进行绑定，则内核会为相应的套接字选择一个临时的端口，常用于客户机上。&lt;/p&gt;
+&lt;p&gt;对于服务器而言：绑定一个特定的IP就限定了该套接字只接收那些客户机的IP数据报。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;绑定的具体含义&lt;/strong&gt;：绑定涉及到三个对象，套接字，地址和端口。其中套接字是捆绑的主体，地址和端口是绑定在套接字上的客体。&lt;/p&gt;
+&lt;p&gt;返回值：成功返回0，出错返回-1&lt;/p&gt;
+&lt;h3 id=&#34;3connect函数&#34;&gt;3.connect函数&lt;/h3&gt;
+&lt;p&gt;int connect(int sockfd,const struct sockaddr *servaddr,socklen_t addrlen)&lt;/p&gt;
+&lt;p&gt;作用：客户机用connect函数来建立与TCP服务器的连接。&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sockfd：&lt;strong&gt;创建的套接字，这里可以是已绑定的，也可以是还未绑定的，未绑定的套接字，内核会自动为它进行分配相应的ip和端口号。&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;servaddr：指向要建立连接的服务器的ip地址和端口号，这两个信息一般来说是周知的。&lt;/li&gt;
+&lt;li&gt;addrlen：地址的长度。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：成功返回0，出错返回-1&lt;/p&gt;
+&lt;p&gt;注意：当循环调用connect并尝试知道有一个成功的连接时，在每次connect失败后都必须closed掉当前的套接字描述符并重新调用socket。&lt;/p&gt;
+&lt;h3 id=&#34;4listen函数&#34;&gt;4.listen函数&lt;/h3&gt;
+&lt;p&gt;int listen (int sockfd,int backlog);&lt;/p&gt;
+&lt;p&gt;作用：把为建立连接的套接字转化为一个被动套接字，指示内核应接受指向该套接字的连接请求。在接收到客户机的SYN时在未连接的队列中创建一个新的单元，在三次握手完成后就将未连接的队列连接到已连接的队列，并返回1表示连接成功。listen函数总的来说就是做监听作用。&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sockfd：指示套接字的描述符&lt;/li&gt;
+&lt;li&gt;backlog：指定监听连接的数量，已连接的队列和未连接的队列之和不超过backlog的值。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：&lt;/p&gt;
+&lt;p&gt;成功返回0，出错返回-1&lt;/p&gt;
+&lt;h3 id=&#34;5accept函数&#34;&gt;5.accept函数&lt;/h3&gt;
+&lt;p&gt;int accept(int sockfd,struct sockaddr *&lt;em&gt;cliaddr,socklen_t&lt;/em&gt; *addrlen);&lt;/p&gt;
+&lt;p&gt;作用：成功返回后，系统从完成队列中取出socket，为每个连接创建一个新的连接套接字，服务器只对新的连接使用该套接字，**原来的监听套接字仍然保留用作其它的连接请求。**其返回值是内核自动生成的一个全新的描述符。&lt;strong&gt;一个服务器通常只有一个监听套接字&lt;/strong&gt;，内核为服务器的每个进程创建一个新的套接字用以保持连接，在连接结束后就会自动关闭这个连接套接字，而监听套接字在服务器的整个生命周期一直存在。&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sockfd：监听套接字的描述符，用于TCP协议&lt;/li&gt;
+&lt;li&gt;cliaddr：这个sockadd指针会在accept函数里面进行设置&lt;/li&gt;
+&lt;li&gt;addrlen：这个长度指针也会在accept函数里面进行设置&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：&lt;/p&gt;
+&lt;p&gt;若成功则描述结果为非负也就是内核为接受的客服连接创建的一个已连接套接字，出错则为-1&lt;/p&gt;
+&lt;p&gt;关于accept函数listen函数及其维护的两个队列的相关说明&lt;/p&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;5&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E9%98%9F%E5%88%97.jpg&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;p&gt;listen函数进行监听&lt;/p&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;6&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2.png&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;p&gt;在三次握手的第一个SYN到达时，服务器为其分配缓存和等资源，然后回发SYN，随机生成的开始序号以及ACK并等待客户端的ACK，在客户端的ACK到来后表示三路握手完成。&lt;/p&gt;
+&lt;h3 id=&#34;6close函数&#34;&gt;6.close函数&lt;/h3&gt;
+&lt;p&gt;int close(int sockfd)&lt;/p&gt;
+&lt;p&gt;作用：默认行为是关闭该套接字的，然后返回调用进程。&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;套接字的描述符&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：&lt;/p&gt;
+&lt;p&gt;若成功则返回0，出错返回-1&lt;/p&gt;
+&lt;h3 id=&#34;7recv函数&#34;&gt;7.recv函数&lt;/h3&gt;
+&lt;p&gt;ssize_t recv(int sockfd,void *buf,size_t len,int flags)&lt;/p&gt;
+&lt;p&gt;作用：从TCP接收数据，返回实际的数据长度，这里的sockfd里面包含了接收的数据的IP地址。如果只有一个进程使用，立即终止连接并撤销该套接字，如果多个进程共享该套接字，将引用数减一，如果引用数降到零，则撤销它。&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sockfd：套接字描述符&lt;/li&gt;
+&lt;li&gt;buf：接收数据的存放缓存，指向内存的指针&lt;/li&gt;
+&lt;li&gt;len：接收的数据的长度&lt;/li&gt;
+&lt;li&gt;flags：一般为0&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：若成功则返回读的字数，出错返回-1&lt;/p&gt;
+&lt;h3 id=&#34;8recvfrom函数&#34;&gt;8.recvfrom函数&lt;/h3&gt;
+&lt;p&gt;ssize_t recvfrom(int sockfd,void *&lt;em&gt;buf,size_t len,int flags,struct sockaddr&lt;/em&gt; *src_addr,socklen_t *addrlen)&lt;/p&gt;
+&lt;p&gt;作用：在UDP连接上发送数据，成功就返回数据的长度，由于UDP是为建立连接的，所以事先不知道数据是从哪发来的，所以这里需要额外的参数来保存接收数据的IP和端口号。&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sockfd：套接字描述符&lt;/li&gt;
+&lt;li&gt;buf：接收数据的存放缓存，指向内存的指针&lt;/li&gt;
+&lt;li&gt;len：接收的数据的长度&lt;/li&gt;
+&lt;li&gt;flags：一般为0&lt;/li&gt;
+&lt;li&gt;src_addr：保存远端的地址（发送方，对当前而言的接收方）即IP和端口号&lt;/li&gt;
+&lt;li&gt;addrlen：远端的地址的长度的指针&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：若成功则返回读的字数，出错返回-1&lt;/p&gt;
+&lt;h3 id=&#34;9send函数&#34;&gt;9.send函数&lt;/h3&gt;
+&lt;p&gt;int send(int sockfd,const void *buf,size_t len,int flags)&lt;/p&gt;
+&lt;p&gt;作用：在TCP连接上发送数据，成功就返回数据的长度，所以这里也不需要额外指接收数据的IP和端口号，因为套接字描述符里面有绑定。&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sockfd：套接字描述符&lt;/li&gt;
+&lt;li&gt;buf：发送缓存&lt;/li&gt;
+&lt;li&gt;len：发送数据的长度&lt;/li&gt;
+&lt;li&gt;flags：一般为0&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：若成功则返回写的字数，出错返回-1&lt;/p&gt;
+&lt;h3 id=&#34;10sendto函数&#34;&gt;10.sendto函数&lt;/h3&gt;
+&lt;p&gt;int sendto(int  sockfd,const void *&lt;em&gt;buf,size_t len,int flags,const struct sockaddr&lt;/em&gt; *dest_addr,socklen_t addrlen)&lt;/p&gt;
+&lt;p&gt;作用：在UDP连接上发送数据，成功就返回数据的长度。因为UDP套接字里没有绑定发送的IP地址和端口号，所以这里需要额外指接收数据的IP和端口号。&lt;/p&gt;
+&lt;p&gt;参数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sockfd：套接字描述符&lt;/li&gt;
+&lt;li&gt;buf：发送缓存&lt;/li&gt;
+&lt;li&gt;len：发送数据的长度&lt;/li&gt;
+&lt;li&gt;flags：一般为0&lt;/li&gt;
+&lt;li&gt;dest_addr：发送的数据的地址，由前面的recform获得&lt;/li&gt;
+&lt;li&gt;addrlen：远端的地址的长度&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;返回值：若成功则返回写的字数，出错返回-1&lt;/p&gt;
+&lt;h2 id=&#34;五循环服务器udp编程&#34;&gt;五.循环服务器UDP编程&lt;/h2&gt;
+&lt;h3 id=&#34;1服务器端&#34;&gt;1.服务器端&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;建立UDP套接字&lt;/li&gt;
+&lt;li&gt;绑定套接字到特定的地址（将套接字与对应的地址，端口号相关联）&lt;/li&gt;
+&lt;li&gt;等待并接收客户端的信息&lt;/li&gt;
+&lt;li&gt;处理客户端请求&lt;/li&gt;
+&lt;li&gt;发送信息回客户端&lt;/li&gt;
+&lt;li&gt;关闭套接字&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;2客户端&#34;&gt;2.客户端&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;建立UDP套接字&lt;/li&gt;
+&lt;li&gt;发送信息给服务器&lt;/li&gt;
+&lt;li&gt;接收来自服务器的信息&lt;/li&gt;
+&lt;li&gt;关闭套接字&lt;/li&gt;
+&lt;/ol&gt;
+">Linux套接字编程</a>
+      </div>
       
       <div class="item">
         <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/duo-jin-cheng/"" data-c="
