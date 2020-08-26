@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2020-07-31T11:08:45.394Z</updated>
+    <updated>2020-08-26T02:40:44.118Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -10,6 +10,171 @@
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[ Ucosii的任务调度和优先级位图法]]></title>
+        <id>https://yvainefire.github.io/post/ucosii-de-ren-wu-diao-du-he-you-xian-ji-wei-tu-fa/</id>
+        <link href="https://yvainefire.github.io/post/ucosii-de-ren-wu-diao-du-he-you-xian-ji-wei-tu-fa/">
+        </link>
+        <updated>2020-08-25T13:13:31.000Z</updated>
+        <content type="html"><![CDATA[<h1 id=""></h1>
+<h2 id="一osrdygrp和osrdytbl">一.OSRdyGrp和OSRdyTbl</h2>
+<p>OS_EXT	INT8U	OSRdyGrp;</p>
+<p>OS_EXT	INT8U	OSRdyTbl[OS_LOWESET_PRIO/8+1];</p>
+<ol>
+<li>
+<p>可以看出里OSRdyGrp是一个8位的整型</p>
+<p>将其表示为2进制，则可用每一位表示1个组的状态，即1或0，为1的实时表示这个组中至少有一个优先级有就绪任务，为0则表示没有。</p>
+<p>实际上也可以把OSRdyGrp的每一位想成一个8进制数的第二位，即可能是0-7的任意一位。</p>
+</li>
+<li>
+<p>OSRdyTbl[]是一个8位的整型数组，且其数组的元素的个数为除8再加1。</p>
+<p>除8与8位整型对应，同样用一个8位的整型的2进制数来表示除以8这8个数，相当于压缩了。</p>
+<p>每一个整型8位2进制数，其中为1的位表示当前位的优先级有就绪的任务。</p>
+<p>也可以把这个数组的每一个元素的每一位2进制数看作是一个8进制数的第一位。</p>
+</li>
+</ol>
+<p>综上OSRdyGrp相当于确定了类似十进制数的十位而OSRdyTbl[]相当于确定了类似十进制数的个位。</p>
+<p>我们的目标是寻找已经就绪的最高优先级。即找到OSRdyGrp中第一个出现1的位相当于这里已经确定了十位，再找到确定了十位后在OSRdyTbl[十位]中最早出现1的个位。</p>
+<p>如何确定这两个最早出现的位，同时又确保时间无关性？</p>
+<p>如何用for循环直接去找的话没法做到时间的无关性的。</p>
+<p>这里就必须引入一个优先级判定表</p>
+<h2 id="二优先级判定表">二.优先级判定表</h2>
+<pre><code class="language-c">INT8U  const  OSUnMapTbl[256] = {
+    0u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x00 to 0x0F                   */
+    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x10 to 0x1F                   */
+    5u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x20 to 0x2F                   */
+    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x30 to 0x3F                   */
+    6u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x40 to 0x4F                   */
+    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x50 to 0x5F                   */
+    5u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x60 to 0x6F                   */
+    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x70 to 0x7F                   */
+    7u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x80 to 0x8F                   */
+    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x90 to 0x9F                   */
+    5u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xA0 to 0xAF                   */
+    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xB0 to 0xBF                   */
+    6u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xC0 to 0xCF                   */
+    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xD0 to 0xDF                   */
+    5u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xE0 to 0xEF                   */
+    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u  /* 0xF0 to 0xFF                   */
+};
+</code></pre>
+<p>数组共有256个元素其下标为0-255，表示一个8位2进制数所能表示的值。数组的每一个元素表示这个下标对应的10进制数的2进制表示形式中第一个出现1的位所在的位数。比如说下标为16的数，其二进制的表示形式为10000，所以最先出现1的位数是第4位，从上表中可以找到下标为16即0X10对于的元素为1u。</p>
+<p>所以根据这个优先级表，可以在时间无关的限制下找到OSRdyGrp和OSRdyTbl[]最早出现1的位的位值。也就找到了当前最高优先级的值。</p>
+<p>下一个问题就是如何把这两个值拼接为一个10进制数，因为优先级使用的时候都是以10进制数的形式去找到对应优先级的指针，即当前到调度的任务的指针。</p>
+<p>前面已经说明可以将其看作一个8进制数，所以就是相当于把一个分别知道第一位A和第二位B的且只有两位的8进制数转换为一个10进制数。</p>
+<p>A*8+B 使用位运算 = A &lt;&lt; 3 + B</p>
+<p>转换为程序中的变量进行表示：</p>
+<p>y = OSUnMapTbl[OSRdyGrp] &lt;&lt; 3</p>
+<p>x = OSUnMapTbl[OSRdyTbl[y]]</p>
+<p>优先级 = x + y</p>
+<h2 id="三结合ucosii的运用优先级位图">三.结合ucosii的运用优先级位图</h2>
+<p>1.把一个新创建的任务放入就绪队列</p>
+<p>放入就绪队列的意义就是指把OSRdyTbl[]这个8位2进制整型数组的对应位置1，以表示该优先级有对应的任务就绪。</p>
+<p>所以问题就是把这个任务原本具有的10进制的优先级在OSRdyTbl[]上体现出来，同时为了找到OSRdyTbl[]上的行，还必须使用OSRdyGrp，所以也需要更新OSRdyGrp。</p>
+<p>OSRdyTbl[]这个数组本身就可以理解为一个2位的8进制数。实际上就是把任务的10进制数转换为2位的8进制数，并把8进制数的第一位和第二位分开，第二位用于确定行数，第一位用于确定列数。</p>
+<p>在TCB的结构中有4个变量用来存储这两位,并在OSTCBInit()这个函数中为这几个变量赋值</p>
+<pre><code class="language-c">ptcb-&gt;OSTCBY = (INT8U) (prio &gt;&gt; 3);//取第二组3位，分离8进制第二位
+ptcb-&gt;OSTCBBitY = OSMapTbl[ptcb-&gt;OSTCBY];
+ptcb-&gt;OSTCBX = (INT8U) (prio &amp; 0x07);//取第一组3位，分离8进制第一位
+ptcb-&gt;OSTCBBitX = OSMapTbl[ptcb-&gt;OSTCBX];
+</code></pre>
+<p>bit是为了将这个分离出来的数用掩码表示即用8位二进制数每一位有且仅有1位为1的时候表示0-7（即7表示为10000000），为了方便对OSRdyGrp和OSRdyTbl[]直接使用位运算进行更新。</p>
+<p>更新OSRdyGrp和OSRdyTbl[]的操作</p>
+<pre><code class="language-c">OSRdyGrp |= ptcb-&gt;OSTCBBitY;
+OSRdyTBl[ptcb-&gt;OSTCBY] |= ptcb-&gt;OSTCBBitX;
+</code></pre>
+<p>2.找到当前最高优先级的任务</p>
+<p>所谓优先级最高的任务的调度，也就是要找到最高优先级，因为在ucosii中为了设计的简单和确保实时性，所以一个优先级只有有一个任务，即不可能有同样优先级的任务。所以找到了当前的最高优先级就找到了其对应的任务。</p>
+<pre><code class="language-c">OS_SchedNew(){
+	INT8U y;
+	y = OSUnMapTbl[OSRdyGrp]; //找到行
+	OSPrioHighRdy = y &lt;&lt; 8 + OSUnMapTbl[OSRdyGrp[y]];	
+
+}
+</code></pre>
+<h2 id="四任务调度">四.任务调度</h2>
+<p>任务调度的函数：</p>
+<pre><code class="language-c">void  OS_Sched (void)
+{
+#if OS_CRITICAL_METHOD == 3u              /* Allocate storage for CPU status register     */
+    OS_CPU_SR  cpu_sr = 0u;
+#endif
+
+
+    OS_ENTER_CRITICAL();
+    if (OSIntNesting == 0u) {             /* Schedule only if all ISRs done and ...       */
+        if (OSLockNesting == 0u) {                     /* ... scheduler is not locked     */
+            OS_SchedNew();
+            OSTCBHighRdy = OSTCBPrioTbl[OSPrioHighRdy];
+            if (OSPrioHighRdy != OSPrioCur) {          /* No Ctx Sw if current task is highest rdy   */
+#if OS_TASK_PROFILE_EN &gt; 0u
+                OSTCBHighRdy-&gt;OSTCBCtxSwCtr++;         /* Inc. # of context switches to this task */
+#endif
+                OSCtxSwCtr++;             			/* Increment context switch counter   */
+                OS_TASK_SW();                          /* Perform a context switch        */
+            }
+        }
+    }
+    OS_EXIT_CRITICAL();
+}
+</code></pre>
+<p>任务调度不能发生在中断中</p>
+<p>任务调度需要调度锁是开启状态</p>
+<p>任务是否需要切换，最高优先级是否改变优先级</p>
+<p>找到当前最高优先级的任务OS_SchedNew();</p>
+<p>任务调度过程发生在临界区中</p>
+<h2 id="五上下文的切换">五.上下文的切换</h2>
+<p>上下文切换的目的就是CPU需要切换到另一个任务是需要保存当前任务的运行状态并恢复另一个任务的运行状态。</p>
+<p>上下文切换分为：</p>
+<ul>
+<li>
+<p>主动上下文切换：任务执行过程中自动挂起自己OSTaskSuspend()</p>
+</li>
+<li>
+<p>被动上下文切换：又叫中断触发任务切换，是指在由于中断引起抢占当时正在执行的任务，保存正在执行的任务的运行信息并且在中断响应完之后重新进行调度，恢复当前优先级最高的任务引起的上文的切换。</p>
+</li>
+</ul>
+<p>1.主动上下文切换</p>
+<ul>
+<li>
+<p>保存当前正在执行的任务的运行信息</p>
+<p>保存信息的顺序：</p>
+<p>PC,LR,R12-R0,CPSR</p>
+<p>注意当调用这个函数的时候，会自动把当前执行指令的地址PC下一条指令保存到LR，PC转为这个函数第一条指令的地址，所以保存要下一条指令的值即PC的值，只能通过保存链接寄存器LR的值来达到这一目的。</p>
+<p>再保存LR这里实际上和第一个保存的PC的值是一样的，但是为什么要保持两次呢，因为只是在这种情况下这两个值是一样得。如果涉及到处理器运行状态的改变就可能不同了。</p>
+<p>对于CPSR的处理，也要注意，只有MRS指令可以读CPSR，所以要先用MRS指令将其读到一个寄存器中，再将其放入 堆栈中。</p>
+<pre><code class="language-c">
+</code></pre>
+</li>
+<li>
+<p>修改要运行的任务指针为最高优先级任务的指针</p>
+<p>OSTCBCur = OSTCBHighRdy</p>
+<pre><code class="language-c">
+</code></pre>
+</li>
+<li>
+<p>修改当前任务的优先级为最高优先级</p>
+<p>OSPrioCur = OSPrioHighRdy</p>
+<pre><code class="language-c">
+</code></pre>
+</li>
+<li>
+<p>修改当前的堆栈指针SP为当前最高优先级的任务的堆栈指针</p>
+<p>OSPrioHighRdy这个结构体的第一个就是它的堆栈指针，所以也就是它的地址</p>
+<p>SP = OSPrioHighRdy这个地址的值</p>
+<pre><code class="language-c">
+</code></pre>
+</li>
+<li>
+<p>恢复当前最高优先级的任务的运行信息</p>
+<p>注意出栈的顺序与入栈的顺寻相反</p>
+<p>出栈的时候LR用于更新PC,同时还要恢复CPSR的值，即^符号</p>
+<pre><code class="language-c">
+</code></pre>
+</li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Linux套接字编程]]></title>
         <id>https://yvainefire.github.io/post/linux-tao-jie-zi-bian-cheng/</id>
@@ -432,7 +597,7 @@ int Max(int x, int y)  //定义Max函数
         </link>
         <updated>2020-07-28T13:04:04.000Z</updated>
         <summary type="html"><![CDATA[<h1 id="ucosii运行流程">ucosii运行流程</h1>
-<h2 id="一系统时钟中断额初始化">一.系统时钟中断额初始化</h2>
+<h2 id="一系统时钟中断的初始化">一.系统时钟中断的初始化</h2>
 <p>SysTick中断初始化，在轮转调度过程中，需要一个时钟中断来进行任务的切换。时钟中断的频率就是系统的心跳，也被称为时基，它决定了操作系统进行任务切换的频率。</p>
 <h2 id="二操作系统初始化">二.操作系统初始化</h2>
 <h3 id="1osinithookbegin">1.OSInitHookBegin()</h3>
@@ -526,7 +691,12 @@ OSTCBList	= (OS_TCB *)0;
 <pre><code class="language-c"> OS_STK *OSTaskStkInit (void (*task)(void *p_arg), 
  void *p_arg, OS_STK *ptos, INT16U opt)
 </code></pre>
-<p>所谓堆栈的初始化实际上就是对相关的寄存器进行模拟压栈的操作，并返回压栈后的栈顶指针。模拟压栈就是模仿任务切换时对相应寄存器进行的压栈操作。在这里主要的功能是确定堆栈栈顶指针的位置，同时把设置LR寄存器的值，并保存任务函数的地址，以及任务函数的参数指针。而其余的几个寄存器的值在这时是无意义的，不必关心其模拟压栈的内容。</p>
+<p>所谓堆栈的初始化实际上就是对相关的寄存器进行模拟压栈的操作，并返回压栈后的栈顶指针。模拟压栈就是模仿任务切换时对相应寄存器进行的压栈操作。在这里主要的功能是确定堆栈栈顶指针的位置，同时把设置LR寄存器的值，并保存任务函数的地址，以及任务函数的参数指针。而其余的几个寄存器的值在这时是无意义的，不必关心其模拟压栈的内容。<br>
+但是堆栈初始化相对任务切换时的堆栈也有一定的区别：<br>
+第一个保存的值本该是PC，但实际上是目前是还没有运行过的，所以保存的是函数的入口地址，即task的地址。<br>
+r0保存的值也需要特别注意，r0保存的值是函数的参数指针<br>
+cpsr要保存的值也需要手动设置，设置为svc模式同时打开irq和fiq<br>
+返回值也要注意是，当前指针的的栈顶位置。</p>
 </li>
 <li>
 <p>TCB初始化</p>
@@ -553,7 +723,7 @@ OSTCBList	= (OS_TCB *)0;
 <p>OSStart()</p>
 ]]></summary>
         <content type="html"><![CDATA[<h1 id="ucosii运行流程">ucosii运行流程</h1>
-<h2 id="一系统时钟中断额初始化">一.系统时钟中断额初始化</h2>
+<h2 id="一系统时钟中断的初始化">一.系统时钟中断的初始化</h2>
 <p>SysTick中断初始化，在轮转调度过程中，需要一个时钟中断来进行任务的切换。时钟中断的频率就是系统的心跳，也被称为时基，它决定了操作系统进行任务切换的频率。</p>
 <h2 id="二操作系统初始化">二.操作系统初始化</h2>
 <h3 id="1osinithookbegin">1.OSInitHookBegin()</h3>
@@ -647,7 +817,12 @@ OSTCBList	= (OS_TCB *)0;
 <pre><code class="language-c"> OS_STK *OSTaskStkInit (void (*task)(void *p_arg), 
  void *p_arg, OS_STK *ptos, INT16U opt)
 </code></pre>
-<p>所谓堆栈的初始化实际上就是对相关的寄存器进行模拟压栈的操作，并返回压栈后的栈顶指针。模拟压栈就是模仿任务切换时对相应寄存器进行的压栈操作。在这里主要的功能是确定堆栈栈顶指针的位置，同时把设置LR寄存器的值，并保存任务函数的地址，以及任务函数的参数指针。而其余的几个寄存器的值在这时是无意义的，不必关心其模拟压栈的内容。</p>
+<p>所谓堆栈的初始化实际上就是对相关的寄存器进行模拟压栈的操作，并返回压栈后的栈顶指针。模拟压栈就是模仿任务切换时对相应寄存器进行的压栈操作。在这里主要的功能是确定堆栈栈顶指针的位置，同时把设置LR寄存器的值，并保存任务函数的地址，以及任务函数的参数指针。而其余的几个寄存器的值在这时是无意义的，不必关心其模拟压栈的内容。<br>
+但是堆栈初始化相对任务切换时的堆栈也有一定的区别：<br>
+第一个保存的值本该是PC，但实际上是目前是还没有运行过的，所以保存的是函数的入口地址，即task的地址。<br>
+r0保存的值也需要特别注意，r0保存的值是函数的参数指针<br>
+cpsr要保存的值也需要手动设置，设置为svc模式同时打开irq和fiq<br>
+返回值也要注意是，当前指针的的栈顶位置。</p>
 </li>
 <li>
 <p>TCB初始化</p>
