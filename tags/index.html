@@ -9,7 +9,7 @@
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
 <title>YvaineFire_block</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1598409633426">
+<link rel="shortcut icon" href="/favicon.ico?v=1603358568739">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -188,7 +188,7 @@
     <div class="sidebar-item-box">
       <a href="/archives/">
         
-        <span class="site-item-stat-count">6</span>
+        <span class="site-item-stat-count">7</span>
         <span class="site-item-stat-name language" data-lan="article">文章</span>
       </a>
     </div>
@@ -239,6 +239,8 @@
         
       
         
+      
+        
           
             
       
@@ -273,6 +275,8 @@
         
       
         
+      
+        
           
         
       
@@ -303,6 +307,8 @@
       <a class="cloud-tag" href="https://yvainefire.github.io/tag/EFlfRjAl4/" rel="2">C语言</a>
     
       
+      
+        
       
         
       
@@ -596,6 +602,44 @@
       <hr>
     </div>
     <div class="result" id="result">
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/ji-chong-ccde-bian-yi-qi/"" data-c="
+          &lt;p&gt;操作系统封住一些可向外提供的函数形成函数库，并提供相应的API，供应用软件调用。库函数通常由一个或多个链接文件的形式提供。然而对于不同的操作系统可能具有不同的库函数，特别是C标准库。&lt;/p&gt;
+&lt;p&gt;POSIX标准主要就是针对&lt;a href=&#34;https://link.zhihu.com/?target=http%3A//www.unix.org/apis.html&#34;&gt;UNIX API&lt;/a&gt;而制订，&lt;strong&gt;不管函数如何包装、功能如何实现，但API按照标准约定来（比如函数变量等符号名称、数据结构、参数类型与个数、基本工具命令名称等）&lt;/strong&gt;，Linux完全兼容POSIX标准（部分函数符合POSIX，部分函数是Linux专有，即是POSIX的超集），微软声称Windows部分兼容POSIX标准。&lt;/p&gt;
+&lt;h2 id=&#34;gcc&#34;&gt;GCC&lt;/h2&gt;
+&lt;p&gt;GCC原名GNU C Complier,开始是针对C语言进行编译，后来发展为支持多种语言编译（C++、Fortran、Pascal、Objective-C、Java、Ada、Go等），所以又叫GNU Complier Collection。&lt;/p&gt;
+&lt;p&gt;类Unix下的标准编译器，支持多种语言，但是不能直接在Windows下使用。&lt;/p&gt;
+&lt;h2 id=&#34;mingw&#34;&gt;MingW&lt;/h2&gt;
+&lt;p&gt;MinGw 是Minimalistic GNU for Windows的缩写，也就是Windows版的GCC。&lt;/p&gt;
+&lt;p&gt;实现方式：具有以W32api的头文件，把Iinux下的系统调用替换为对应的Windows下的系统调用。&lt;/p&gt;
+&lt;h2 id=&#34;cygwin&#34;&gt;Cygwin&lt;/h2&gt;
+&lt;p&gt;Cygwin是一个在windows平台上运行的类UNIX模拟环境&lt;/p&gt;
+&lt;p&gt;Cygwin就是在Windows中增加了一个中间层——兼容POSIX的模拟层。&lt;/p&gt;
+&lt;p&gt;实现方式:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;采用cygwin1.dll，作为实现POSIX系统调用的模拟层，可原生运行在Windows中。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在cygwin1.dll之上构建的大量函数库、应用程序，如libc、zlib、bash、gcc、vim、awk、sed、git等等，与UNIX/Linux几乎等同*。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Cygwin将cygwin1.dll、函数库、应用程序等文件按照UNIX/Linux的目录树架构进行组织存放，如/bin、/usr、/lib、/etc、/var、/home等等都存在于Cygwin安装路径下，用户从终端登陆进Cygwin的shell后，就可以像在UNIX/Linux系统那样使用相同的命令、工具&lt;/p&gt;
+&lt;figure data-type=&#34;image&#34; tabindex=&#34;1&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/1603356418(1).png&#34; alt=&#34;&#34; loading=&#34;lazy&#34;&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;strong&gt;Cygwin 生成的程序依然有 &lt;code&gt;fork()&lt;/code&gt; 这样的 Linux 系统调用，但目标库是 cygwin1。而 MingW 生成的程序，则全部使用从 KERNEL32 导出的标准 Windows 系统 API。&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id=&#34;llvmclang&#34;&gt;LLVM+Clang&lt;/h2&gt;
+&lt;p&gt;LLVM 是模块化、可重用的编译器以及工具链技术的集合。LLVM不同的就是对于不同的语言它都提供了同一种中间表示（AST）。&lt;/p&gt;
+&lt;p&gt;Clang是LLVM项目下的一个子项目，基于LLVM架构的C/C++/Objective-C编译器前端&lt;/p&gt;
+&lt;h2 id=&#34;msvc系列&#34;&gt;MSVC系列&lt;/h2&gt;
+&lt;p&gt;微软自己写的编译器，与VS配套使用。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://link.zhihu.com/?target=https%3A//en.wikipedia.org/wiki/Windows_library_files%22%20%5Cl%20%22MSVCRT.DLL%2C_MSVCP*.DLL_and_CRTDLL.DLL&#34;&gt;Microsoft C run-time library&lt;/a&gt;(MSVCRT.DLL)，由微软随Windows发布，给Visual C++编辑器链接使用的&lt;/p&gt;
+&lt;h2 id=&#34;嵌入式系统编译器&#34;&gt;嵌入式系统编译器&lt;/h2&gt;
+&lt;p&gt;MDKzhe&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://link.zhihu.com/?target=https%3A//en.wikipedia.org/wiki/UClibc&#34;&gt;μClibc&lt;/a&gt;等，功能经过适度裁剪的C标准库，主要用在嵌入式系统&lt;/p&gt;
+&lt;p&gt;参考：https://zhuanlan.zhihu.com/p/57258281&lt;/p&gt;
+"> 几种C/C++的编译器</a>
+      </div>
       
       <div class="item">
         <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/ucosii-de-ren-wu-diao-du-he-you-xian-ji-wei-tu-fa/"" data-c="
