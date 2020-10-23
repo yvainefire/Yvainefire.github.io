@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
-<title> Ucosii的任务调度和优先级位图法 | YvaineFire_block</title>
+<title>Python的import | YvaineFire_block</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1603441416194">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
@@ -38,7 +38,7 @@
 
 
 
-  <meta name="description" content=" Ucosii的任务调度和优先级位图法" />
+  <meta name="description" content="Python的import" />
   <meta name="keywords" content="" />
 </head>
 
@@ -237,11 +237,19 @@
     <ul class="markdownIt-TOC">
 <li>
 <ul>
-<li><a href="#%E4%B8%80osrdygrp%E5%92%8Cosrdytbl">一.OSRdyGrp和OSRdyTbl</a></li>
-<li><a href="#%E4%BA%8C%E4%BC%98%E5%85%88%E7%BA%A7%E5%88%A4%E5%AE%9A%E8%A1%A8">二.优先级判定表</a></li>
-<li><a href="#%E4%B8%89%E7%BB%93%E5%90%88ucosii%E7%9A%84%E8%BF%90%E7%94%A8%E4%BC%98%E5%85%88%E7%BA%A7%E4%BD%8D%E5%9B%BE">三.结合ucosii的运用优先级位图</a></li>
-<li><a href="#%E5%9B%9B%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6">四.任务调度</a></li>
-<li><a href="#%E4%BA%94%E4%B8%8A%E4%B8%8B%E6%96%87%E7%9A%84%E5%88%87%E6%8D%A2">五.上下文的切换</a></li>
+<li><a href="#%E5%87%A0%E4%B8%AA%E5%9F%BA%E6%9C%AC%E7%9A%84%E6%A6%82%E5%BF%B5">几个基本的概念</a></li>
+<li><a href="#import%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88">import的是什么</a></li>
+<li><a href="#import%E7%9A%84%E5%86%85%E5%AE%B9%E4%BB%8E%E5%93%AA%E5%8E%BB%E6%89%BE">import的内容从哪去找</a></li>
+<li><a href="#%E5%87%A0%E7%A7%8Dimport%E6%96%B9%E5%BC%8F">几种import方式</a>
+<ul>
+<li><a href="#import-moudle">import [moudle]</a></li>
+<li><a href="#from-module-import-name1-name2">from [module] import [name1, name2,.....]</a></li>
+<li><a href="#import-module-as-new_name">import [module] as [new_name]</a></li>
+<li><a href="#from-module-import">from [module] import *</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8%E8%BF%9B%E8%A1%8C%E7%9B%B8%E5%AF%B9%E5%BC%95%E7%94%A8">使用.进行相对引用</a></li>
+</ul>
+</li>
+<li><a href="#import%E9%99%B7%E9%98%B1">import陷阱</a></li>
 </ul>
 </li>
 </ul>
@@ -509,8 +517,8 @@
           <div class="section bg-color post post-page">
             <section class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://yvainefire.github.io/post/ucosii-de-ren-wu-diao-du-he-you-xian-ji-wei-tu-fa/">
-       Ucosii的任务调度和优先级位图法
+    <a class="post-title-link" href="https://yvainefire.github.io/post/python-de-import/">
+      Python的import
     </a>
   </h1>
   <div class="post-meta">
@@ -518,180 +526,81 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span class="language" data-lan="publish">发布于</span>
-      <span class="publish-time" data-t="2020-08-25 21:13:31">2020-08-25</span>
+      <span class="publish-time" data-t="2020-10-23 16:22:15">2020-10-23</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>10<span class="language" data-lan="minute">分钟</span></span>
+      <span>3<span class="language" data-lan="minute">分钟</span></span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>2269<span class="pc-show language" data-lan="words">字数</span></span>
+      <span>685<span class="pc-show language" data-lan="words">字数</span></span>
     </span>
     
   </div>
 </section>
             <div class="post-body next-md-body" id="post_body">
-              <h1 id=""></h1>
-<h2 id="一osrdygrp和osrdytbl">一.OSRdyGrp和OSRdyTbl</h2>
-<p>OS_EXT	INT8U	OSRdyGrp;</p>
-<p>OS_EXT	INT8U	OSRdyTbl[OS_LOWESET_PRIO/8+1];</p>
-<ol>
-<li>
-<p>可以看出里OSRdyGrp是一个8位的整型</p>
-<p>将其表示为2进制，则可用每一位表示1个组的状态，即1或0，为1的实时表示这个组中至少有一个优先级有就绪任务，为0则表示没有。</p>
-<p>实际上也可以把OSRdyGrp的每一位想成一个8进制数的第二位，即可能是0-7的任意一位。</p>
-</li>
-<li>
-<p>OSRdyTbl[]是一个8位的整型数组，且其数组的元素的个数为除8再加1。</p>
-<p>除8与8位整型对应，同样用一个8位的整型的2进制数来表示除以8这8个数，相当于压缩了。</p>
-<p>每一个整型8位2进制数，其中为1的位表示当前位的优先级有就绪的任务。</p>
-<p>也可以把这个数组的每一个元素的每一位2进制数看作是一个8进制数的第一位。</p>
-</li>
-</ol>
-<p>综上OSRdyGrp相当于确定了类似十进制数的十位而OSRdyTbl[]相当于确定了类似十进制数的个位。</p>
-<p>我们的目标是寻找已经就绪的最高优先级。即找到OSRdyGrp中第一个出现1的位相当于这里已经确定了十位，再找到确定了十位后在OSRdyTbl[十位]中最早出现1的个位。</p>
-<p>如何确定这两个最早出现的位，同时又确保时间无关性？</p>
-<p>如何用for循环直接去找的话没法做到时间的无关性的。</p>
-<p>这里就必须引入一个优先级判定表</p>
-<h2 id="二优先级判定表">二.优先级判定表</h2>
-<pre><code class="language-c">INT8U  const  OSUnMapTbl[256] = {
-    0u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x00 to 0x0F                   */
-    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x10 to 0x1F                   */
-    5u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x20 to 0x2F                   */
-    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x30 to 0x3F                   */
-    6u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x40 to 0x4F                   */
-    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x50 to 0x5F                   */
-    5u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x60 to 0x6F                   */
-    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x70 to 0x7F                   */
-    7u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x80 to 0x8F                   */
-    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0x90 to 0x9F                   */
-    5u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xA0 to 0xAF                   */
-    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xB0 to 0xBF                   */
-    6u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xC0 to 0xCF                   */
-    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xD0 to 0xDF                   */
-    5u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, /* 0xE0 to 0xEF                   */
-    4u, 0u, 1u, 0u, 2u, 0u, 1u, 0u, 3u, 0u, 1u, 0u, 2u, 0u, 1u, 0u  /* 0xF0 to 0xFF                   */
-};
+              <h2 id="几个基本的概念">几个基本的概念</h2>
+<p>模块：一个.py文件就是一个模块。一个模块中可以有函数，类，变量。</p>
+<p>包：一个包有一个子包或者一些模块组成。</p>
+<p><strong><strong>init</strong></strong>.py: 暗示自己是一个包，一个包的结构</p>
+<pre><code>sample_package / 
+├──的__init__.py 
+├──sample_module.py 
+└──sample_module_import.py
+	sample_package_son / 
+	├──的__init__.py 
+	├──son_sample_module.py 
+	└──son_sample_module_import.py
 </code></pre>
-<p>数组共有256个元素其下标为0-255，表示一个8位2进制数所能表示的值。数组的每一个元素表示这个下标对应的10进制数的2进制表示形式中第一个出现1的位所在的位数。比如说下标为16的数，其二进制的表示形式为10000，所以最先出现1的位数是第4位，从上表中可以找到下标为16即0X10对于的元素为1u。</p>
-<p>所以根据这个优先级表，可以在时间无关的限制下找到OSRdyGrp和OSRdyTbl[]最早出现1的位的位值。也就找到了当前最高优先级的值。</p>
-<p>下一个问题就是如何把这两个值拼接为一个10进制数，因为优先级使用的时候都是以10进制数的形式去找到对应优先级的指针，即当前到调度的任务的指针。</p>
-<p>前面已经说明可以将其看作一个8进制数，所以就是相当于把一个分别知道第一位A和第二位B的且只有两位的8进制数转换为一个10进制数。</p>
-<p>A*8+B 使用位运算 = A &lt;&lt; 3 + B</p>
-<p>转换为程序中的变量进行表示：</p>
-<p>y = OSUnMapTbl[OSRdyGrp] &lt;&lt; 3</p>
-<p>x = OSUnMapTbl[OSRdyTbl[y]]</p>
-<p>优先级 = x + y</p>
-<h2 id="三结合ucosii的运用优先级位图">三.结合ucosii的运用优先级位图</h2>
-<p>1.把一个新创建的任务放入就绪队列</p>
-<p>放入就绪队列的意义就是指把OSRdyTbl[]这个8位2进制整型数组的对应位置1，以表示该优先级有对应的任务就绪。</p>
-<p>所以问题就是把这个任务原本具有的10进制的优先级在OSRdyTbl[]上体现出来，同时为了找到OSRdyTbl[]上的行，还必须使用OSRdyGrp，所以也需要更新OSRdyGrp。</p>
-<p>OSRdyTbl[]这个数组本身就可以理解为一个2位的8进制数。实际上就是把任务的10进制数转换为2位的8进制数，并把8进制数的第一位和第二位分开，第二位用于确定行数，第一位用于确定列数。</p>
-<p>在TCB的结构中有4个变量用来存储这两位,并在OSTCBInit()这个函数中为这几个变量赋值</p>
-<pre><code class="language-c">ptcb-&gt;OSTCBY = (INT8U) (prio &gt;&gt; 3);//取第二组3位，分离8进制第二位
-ptcb-&gt;OSTCBBitY = OSMapTbl[ptcb-&gt;OSTCBY];
-ptcb-&gt;OSTCBX = (INT8U) (prio &amp; 0x07);//取第一组3位，分离8进制第一位
-ptcb-&gt;OSTCBBitX = OSMapTbl[ptcb-&gt;OSTCBX];
-</code></pre>
-<p>bit是为了将这个分离出来的数用掩码表示即用8位二进制数每一位有且仅有1位为1的时候表示0-7（即7表示为10000000），为了方便对OSRdyGrp和OSRdyTbl[]直接使用位运算进行更新。</p>
-<p>更新OSRdyGrp和OSRdyTbl[]的操作</p>
-<pre><code class="language-c">OSRdyGrp |= ptcb-&gt;OSTCBBitY;
-OSRdyTBl[ptcb-&gt;OSTCBY] |= ptcb-&gt;OSTCBBitX;
-</code></pre>
-<p>2.找到当前最高优先级的任务</p>
-<p>所谓优先级最高的任务的调度，也就是要找到最高优先级，因为在ucosii中为了设计的简单和确保实时性，所以一个优先级只有有一个任务，即不可能有同样优先级的任务。所以找到了当前的最高优先级就找到了其对应的任务。</p>
-<pre><code class="language-c">OS_SchedNew(){
-	INT8U y;
-	y = OSUnMapTbl[OSRdyGrp]; //找到行
-	OSPrioHighRdy = y &lt;&lt; 8 + OSUnMapTbl[OSRdyGrp[y]];	
-
-}
-</code></pre>
-<h2 id="四任务调度">四.任务调度</h2>
-<p>任务调度的函数：</p>
-<pre><code class="language-c">void  OS_Sched (void)
-{
-#if OS_CRITICAL_METHOD == 3u              /* Allocate storage for CPU status register     */
-    OS_CPU_SR  cpu_sr = 0u;
-#endif
-
-
-    OS_ENTER_CRITICAL();
-    if (OSIntNesting == 0u) {             /* Schedule only if all ISRs done and ...       */
-        if (OSLockNesting == 0u) {                     /* ... scheduler is not locked     */
-            OS_SchedNew();
-            OSTCBHighRdy = OSTCBPrioTbl[OSPrioHighRdy];
-            if (OSPrioHighRdy != OSPrioCur) {          /* No Ctx Sw if current task is highest rdy   */
-#if OS_TASK_PROFILE_EN &gt; 0u
-                OSTCBHighRdy-&gt;OSTCBCtxSwCtr++;         /* Inc. # of context switches to this task */
-#endif
-                OSCtxSwCtr++;             			/* Increment context switch counter   */
-                OS_TASK_SW();                          /* Perform a context switch        */
-            }
-        }
-    }
-    OS_EXIT_CRITICAL();
-}
-</code></pre>
-<p>任务调度不能发生在中断中</p>
-<p>任务调度需要调度锁是开启状态</p>
-<p>任务是否需要切换，最高优先级是否改变优先级</p>
-<p>找到当前最高优先级的任务OS_SchedNew();</p>
-<p>任务调度过程发生在临界区中</p>
-<h2 id="五上下文的切换">五.上下文的切换</h2>
-<p>上下文切换的目的就是CPU需要切换到另一个任务是需要保存当前任务的运行状态并恢复另一个任务的运行状态。</p>
-<p>上下文切换分为：</p>
+<h2 id="import的是什么">import的是什么</h2>
+<p>引入的是包，引入的是包中的模块，引入的是模块中的方法</p>
+<h2 id="import的内容从哪去找">import的内容从哪去找</h2>
 <ul>
 <li>
-<p>主动上下文切换：任务执行过程中自动挂起自己OSTaskSuspend()</p>
+<p>sys.path目录下，sys.path也就是python的系统环境参数，该目录下具有一些系统自带的包，以及手动导入的包。不包含自己写的.py构成的模块。</p>
 </li>
 <li>
-<p>被动上下文切换：又叫中断触发任务切换，是指在由于中断引起抢占当时正在执行的任务，保存正在执行的任务的运行信息并且在中断响应完之后重新进行调度，恢复当前优先级最高的任务引起的上文的切换。</p>
+<p>当前运行的.py目录</p>
 </li>
 </ul>
-<p>1.主动上下文切换</p>
-<ul>
-<li>
-<p>保存当前正在执行的任务的运行信息</p>
-<p>保存信息的顺序：</p>
-<p>PC,LR,R12-R0,CPSR</p>
-<p>注意当调用这个函数的时候，会自动把当前执行指令的地址PC下一条指令保存到LR，PC转为这个函数第一条指令的地址，所以保存要下一条指令的值即PC的值，只能通过保存链接寄存器LR的值来达到这一目的。</p>
-<p>再保存LR这里实际上和第一个保存的PC的值是一样的，但是为什么要保持两次呢，因为只是在这种情况下这两个值是一样得。如果涉及到处理器运行状态的改变就可能不同了。</p>
-<p>对于CPSR的处理，也要注意，只有MRS指令可以读CPSR，所以要先用MRS指令将其读到一个寄存器中，再将其放入 堆栈中。</p>
-<pre><code class="language-c">
+<h2 id="几种import方式">几种import方式</h2>
+<h3 id="import-moudle">import [moudle]</h3>
+<p>引入整个包，但是直接使用import来引用当前目录下的模块（这里是实际上也是相对引用）可能会报错。因为虽然import会去sys.path目录或者运行文件所在的目录下去寻找，但是因为pycharm不会将当前文件目录自动加入自己的sourse_path。右键make_directory as--&gt;Sources Root将当前工作的文件夹加入source_path就可以了。</p>
+<p>同时还需要注意在使用该模块中的方法的使，需要先给出这个moudle名。</p>
+<p>eg:</p>
+<pre><code class="language-python">#假设M中有一个method()方法
+import M
+M.method()
+
 </code></pre>
-</li>
-<li>
-<p>修改要运行的任务指针为最高优先级任务的指针</p>
-<p>OSTCBCur = OSTCBHighRdy</p>
-<pre><code class="language-c">
+<h3 id="from-module-import-name1-name2">from [module] import [name1, name2,.....]</h3>
+<p>引入一个包或一个模块的部分内容，可以是一个包里的几个模块，也可以是一个模块中的几种方法。</p>
+<h3 id="import-module-as-new_name">import [module] as [new_name]</h3>
+<p>对于莫些方法或者模块的名字太长，使用的时候可以给一个别名。</p>
+<p>eg：</p>
+<pre><code class="language-python">import matplotlib.pyplot as pyplot
+import numpy as np
 </code></pre>
-</li>
-<li>
-<p>修改当前任务的优先级为最高优先级</p>
-<p>OSPrioCur = OSPrioHighRdy</p>
-<pre><code class="language-c">
+<h3 id="from-module-import">from [module] import *</h3>
+<p>引入一个包或者一个模块中的所有内容，不建议这样做，因为可能会出现不同的模块中有相同的方法，可能就会造成名字冲突的现象出现。</p>
+<h3 id="使用进行相对引用">使用.进行相对引用</h3>
+<p>以上所说的基本上都是绝对查找，主要去使用sys.path下的包。python还支持相对当前运行环境目录下的相对产找。</p>
+<pre><code class="language-python">.  		表示本级目录		 from . imprt xx
+..  	表示上一级目录		from .. imprt xx
+...		表示上两级目录		from ... imprt xx
+以此类推
+
 </code></pre>
-</li>
-<li>
-<p>修改当前的堆栈指针SP为当前最高优先级的任务的堆栈指针</p>
-<p>OSPrioHighRdy这个结构体的第一个就是它的堆栈指针，所以也就是它的地址</p>
-<p>SP = OSPrioHighRdy这个地址的值</p>
-<pre><code class="language-c">
-</code></pre>
-</li>
-<li>
-<p>恢复当前最高优先级的任务的运行信息</p>
-<p>注意出栈的顺序与入栈的顺寻相反</p>
-<p>出栈的时候LR用于更新PC,同时还要恢复CPSR的值，即^符号</p>
-<pre><code class="language-c">
-</code></pre>
-</li>
-</ul>
+<p>注意只能使用from [module] import的格式</p>
+<h2 id="import陷阱">import陷阱</h2>
+<p>循环import：两个.py互相引用对方文件里的内容</p>
+<p>解决办法：引用整个module，而不引用单个方法</p>
+<p>利用执行的时候才会检查是否存在，所以先引用这个module，因为module是必然存在的，至于这个module里的内容它是不会关心的。</p>
+<p>参考：https://medium.com/pyladies-taiwan/python-%E7%9A%84-import-%E9%99%B7%E9%98%B1-3538e74f57e3</p>
 
             </div>
             
@@ -704,7 +613,7 @@ OSRdyTBl[ptcb-&gt;OSTCBY] |= ptcb-&gt;OSTCBBitX;
     </li>
     <li class="post-copyright-link">
       <strong class="language" data-lan="link">本文链接：</strong>
-      <a href="https://yvainefire.github.io/post/ucosii-de-ren-wu-diao-du-he-you-xian-ji-wei-tu-fa/" title=" Ucosii的任务调度和优先级位图法">https://yvainefire.github.io/post/ucosii-de-ren-wu-diao-du-he-you-xian-ji-wei-tu-fa/</a>
+      <a href="https://yvainefire.github.io/post/python-de-import/" title="Python的import">https://yvainefire.github.io/post/python-de-import/</a>
     </li>
     <li class="post-copyright-license">
       <strong class="language" data-lan="copyright">版权声明： </strong>
@@ -717,15 +626,11 @@ OSRdyTBl[ptcb-&gt;OSTCBY] |= ptcb-&gt;OSTCBBitX;
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title=" 几种C/C++的编译器" href="https://yvainefire.github.io/post/ji-chong-ccde-bian-yi-qi/"> 几种C/C++的编译器</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title=" 几种C/C++的编译器" href="https://yvainefire.github.io/post/ji-chong-ccde-bian-yi-qi/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Linux套接字编程" href="https://yvainefire.github.io/post/linux-tao-jie-zi-bian-cheng/">Linux套接字编程</a>
-        <a class="nav-mobile-next" title="Linux套接字编程" href="https://yvainefire.github.io/post/linux-tao-jie-zi-bian-cheng/">下一篇</a>
+        <a class="nav-pc-next" title=" 几种C/C++的编译器" href="https://yvainefire.github.io/post/ji-chong-ccde-bian-yi-qi/"> 几种C/C++的编译器</a>
+        <a class="nav-mobile-next" title=" 几种C/C++的编译器" href="https://yvainefire.github.io/post/ji-chong-ccde-bian-yi-qi/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>

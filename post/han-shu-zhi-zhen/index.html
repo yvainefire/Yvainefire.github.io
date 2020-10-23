@@ -9,7 +9,7 @@
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
 <title>函数指针 | YvaineFire_block</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1603358568739">
+<link rel="shortcut icon" href="/favicon.ico?v=1603441416194">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -206,7 +206,7 @@
     <div class="sidebar-item-box">
       <a href="/archives/">
         
-        <span class="site-item-stat-count">7</span>
+        <span class="site-item-stat-count">8</span>
         <span class="site-item-stat-name language" data-lan="article">文章</span>
       </a>
     </div>
@@ -1078,6 +1078,69 @@ int Max(int x, int y)  //定义Max函数
       <hr>
     </div>
     <div class="result" id="result">
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/python-de-import/"" data-c="
+          &lt;h2 id=&#34;几个基本的概念&#34;&gt;几个基本的概念&lt;/h2&gt;
+&lt;p&gt;模块：一个.py文件就是一个模块。一个模块中可以有函数，类，变量。&lt;/p&gt;
+&lt;p&gt;包：一个包有一个子包或者一些模块组成。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;strong&gt;init&lt;/strong&gt;&lt;/strong&gt;.py: 暗示自己是一个包，一个包的结构&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sample_package / 
+├──的__init__.py 
+├──sample_module.py 
+└──sample_module_import.py
+	sample_package_son / 
+	├──的__init__.py 
+	├──son_sample_module.py 
+	└──son_sample_module_import.py
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;import的是什么&#34;&gt;import的是什么&lt;/h2&gt;
+&lt;p&gt;引入的是包，引入的是包中的模块，引入的是模块中的方法&lt;/p&gt;
+&lt;h2 id=&#34;import的内容从哪去找&#34;&gt;import的内容从哪去找&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;sys.path目录下，sys.path也就是python的系统环境参数，该目录下具有一些系统自带的包，以及手动导入的包。不包含自己写的.py构成的模块。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;当前运行的.py目录&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;几种import方式&#34;&gt;几种import方式&lt;/h2&gt;
+&lt;h3 id=&#34;import-moudle&#34;&gt;import [moudle]&lt;/h3&gt;
+&lt;p&gt;引入整个包，但是直接使用import来引用当前目录下的模块（这里是实际上也是相对引用）可能会报错。因为虽然import会去sys.path目录或者运行文件所在的目录下去寻找，但是因为pycharm不会将当前文件目录自动加入自己的sourse_path。右键make_directory as--&amp;gt;Sources Root将当前工作的文件夹加入source_path就可以了。&lt;/p&gt;
+&lt;p&gt;同时还需要注意在使用该模块中的方法的使，需要先给出这个moudle名。&lt;/p&gt;
+&lt;p&gt;eg:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;#假设M中有一个method()方法
+import M
+M.method()
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;from-module-import-name1-name2&#34;&gt;from [module] import [name1, name2,.....]&lt;/h3&gt;
+&lt;p&gt;引入一个包或一个模块的部分内容，可以是一个包里的几个模块，也可以是一个模块中的几种方法。&lt;/p&gt;
+&lt;h3 id=&#34;import-module-as-new_name&#34;&gt;import [module] as [new_name]&lt;/h3&gt;
+&lt;p&gt;对于莫些方法或者模块的名字太长，使用的时候可以给一个别名。&lt;/p&gt;
+&lt;p&gt;eg：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import matplotlib.pyplot as pyplot
+import numpy as np
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;from-module-import&#34;&gt;from [module] import *&lt;/h3&gt;
+&lt;p&gt;引入一个包或者一个模块中的所有内容，不建议这样做，因为可能会出现不同的模块中有相同的方法，可能就会造成名字冲突的现象出现。&lt;/p&gt;
+&lt;h3 id=&#34;使用进行相对引用&#34;&gt;使用.进行相对引用&lt;/h3&gt;
+&lt;p&gt;以上所说的基本上都是绝对查找，主要去使用sys.path下的包。python还支持相对当前运行环境目录下的相对产找。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;.  		表示本级目录		 from . imprt xx
+..  	表示上一级目录		from .. imprt xx
+...		表示上两级目录		from ... imprt xx
+以此类推
+
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;注意只能使用from [module] import的格式&lt;/p&gt;
+&lt;h2 id=&#34;import陷阱&#34;&gt;import陷阱&lt;/h2&gt;
+&lt;p&gt;循环import：两个.py互相引用对方文件里的内容&lt;/p&gt;
+&lt;p&gt;解决办法：引用整个module，而不引用单个方法&lt;/p&gt;
+&lt;p&gt;利用执行的时候才会检查是否存在，所以先引用这个module，因为module是必然存在的，至于这个module里的内容它是不会关心的。&lt;/p&gt;
+&lt;p&gt;参考：https://medium.com/pyladies-taiwan/python-%E7%9A%84-import-%E9%99%B7%E9%98%B1-3538e74f57e3&lt;/p&gt;
+">Python的import</a>
+      </div>
       
       <div class="item">
         <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/ji-chong-ccde-bian-yi-qi/"" data-c="

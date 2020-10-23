@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2020-10-22T09:23:20.396Z</updated>
+    <updated>2020-10-23T08:23:39.468Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -10,6 +10,72 @@
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
     <rights>All rights reserved 2020, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[Python的import]]></title>
+        <id>https://yvainefire.github.io/post/python-de-import/</id>
+        <link href="https://yvainefire.github.io/post/python-de-import/">
+        </link>
+        <updated>2020-10-23T08:22:15.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="几个基本的概念">几个基本的概念</h2>
+<p>模块：一个.py文件就是一个模块。一个模块中可以有函数，类，变量。</p>
+<p>包：一个包有一个子包或者一些模块组成。</p>
+<p><strong><strong>init</strong></strong>.py: 暗示自己是一个包，一个包的结构</p>
+<pre><code>sample_package / 
+├──的__init__.py 
+├──sample_module.py 
+└──sample_module_import.py
+	sample_package_son / 
+	├──的__init__.py 
+	├──son_sample_module.py 
+	└──son_sample_module_import.py
+</code></pre>
+<h2 id="import的是什么">import的是什么</h2>
+<p>引入的是包，引入的是包中的模块，引入的是模块中的方法</p>
+<h2 id="import的内容从哪去找">import的内容从哪去找</h2>
+<ul>
+<li>
+<p>sys.path目录下，sys.path也就是python的系统环境参数，该目录下具有一些系统自带的包，以及手动导入的包。不包含自己写的.py构成的模块。</p>
+</li>
+<li>
+<p>当前运行的.py目录</p>
+</li>
+</ul>
+<h2 id="几种import方式">几种import方式</h2>
+<h3 id="import-moudle">import [moudle]</h3>
+<p>引入整个包，但是直接使用import来引用当前目录下的模块（这里是实际上也是相对引用）可能会报错。因为虽然import会去sys.path目录或者运行文件所在的目录下去寻找，但是因为pycharm不会将当前文件目录自动加入自己的sourse_path。右键make_directory as--&gt;Sources Root将当前工作的文件夹加入source_path就可以了。</p>
+<p>同时还需要注意在使用该模块中的方法的使，需要先给出这个moudle名。</p>
+<p>eg:</p>
+<pre><code class="language-python">#假设M中有一个method()方法
+import M
+M.method()
+
+</code></pre>
+<h3 id="from-module-import-name1-name2">from [module] import [name1, name2,.....]</h3>
+<p>引入一个包或一个模块的部分内容，可以是一个包里的几个模块，也可以是一个模块中的几种方法。</p>
+<h3 id="import-module-as-new_name">import [module] as [new_name]</h3>
+<p>对于莫些方法或者模块的名字太长，使用的时候可以给一个别名。</p>
+<p>eg：</p>
+<pre><code class="language-python">import matplotlib.pyplot as pyplot
+import numpy as np
+</code></pre>
+<h3 id="from-module-import">from [module] import *</h3>
+<p>引入一个包或者一个模块中的所有内容，不建议这样做，因为可能会出现不同的模块中有相同的方法，可能就会造成名字冲突的现象出现。</p>
+<h3 id="使用进行相对引用">使用.进行相对引用</h3>
+<p>以上所说的基本上都是绝对查找，主要去使用sys.path下的包。python还支持相对当前运行环境目录下的相对产找。</p>
+<pre><code class="language-python">.  		表示本级目录		 from . imprt xx
+..  	表示上一级目录		from .. imprt xx
+...		表示上两级目录		from ... imprt xx
+以此类推
+
+</code></pre>
+<p>注意只能使用from [module] import的格式</p>
+<h2 id="import陷阱">import陷阱</h2>
+<p>循环import：两个.py互相引用对方文件里的内容</p>
+<p>解决办法：引用整个module，而不引用单个方法</p>
+<p>利用执行的时候才会检查是否存在，所以先引用这个module，因为module是必然存在的，至于这个module里的内容它是不会关心的。</p>
+<p>参考：https://medium.com/pyladies-taiwan/python-%E7%9A%84-import-%E9%99%B7%E9%98%B1-3538e74f57e3</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[ 几种C/C++的编译器]]></title>
         <id>https://yvainefire.github.io/post/ji-chong-ccde-bian-yi-qi/</id>
