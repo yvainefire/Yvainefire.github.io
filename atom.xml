@@ -2,14 +2,154 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2020-10-23T08:23:39.468Z</updated>
+    <updated>2021-03-08T13:52:05.397Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
     <subtitle>Rush Rush</subtitle>
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2020, YvaineFire_block</rights>
+    <rights>All rights reserved 2021, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[C++杂项知识]]></title>
+        <id>https://yvainefire.github.io/post/cza-xiang-zhi-shi/</id>
+        <link href="https://yvainefire.github.io/post/cza-xiang-zhi-shi/">
+        </link>
+        <updated>2021-03-08T13:51:44.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1namespace">1.namespace</h2>
+<p>namespace(命名空间)：是一种将库名称封装起来的方法。避免发生命名冲突。所谓命名冲突是指，应用程序的两个不同的实体有相同的名称。</p>
+<h3 id="使用namespace来解决命名冲突的问题">使用namespace来解决命名冲突的问题</h3>
+<pre><code class="language-c">using namesapce 命名空间名;
+</code></pre>
+<p>这样会使后续的代码将使用指定的命名空间中的名称。</p>
+<p>一般使用标准库的命名空间：std</p>
+<h3 id="自定义命名空间的方式">自定义命名空间的方式</h3>
+<p>namespace 命名空间名{</p>
+<p>​		函数1...</p>
+<p>​		函数2...</p>
+<p>​		变量1...</p>
+<p>​		变量2...</p>
+<p>}</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[C++文件的读写]]></title>
+        <id>https://yvainefire.github.io/post/cwen-jian-de-du-xie/</id>
+        <link href="https://yvainefire.github.io/post/cwen-jian-de-du-xie/">
+        </link>
+        <updated>2021-03-08T13:51:12.000Z</updated>
+        <content type="html"><![CDATA[<p>包含 fstream 头文件</p>
+<h2 id="输出">输出</h2>
+<h3 id="定义输出的文件变量">定义输出的文件变量</h3>
+<p>ofstream outfile_name(&quot;文件地址&quot;);</p>
+<p><strong>文件不存在时，会创建一个新的文件</strong></p>
+<p>文件存在的时候，可以通过参数对其设置是在原文件尾部追加还是直接覆盖。默认为覆盖，添加如下参数变为追加</p>
+<p>ofstream outfile_name(&quot;文件地址&quot;, ios_base::app);</p>
+<h3 id="判断文件是否打开成功">判断文件是否打开成功</h3>
+<pre><code class="language-c++">if (!out_file_name)
+	文件打开失败
+......
+</code></pre>
+<h3 id="使用文件进行输出">使用文件进行输出</h3>
+<pre><code class="language-c++">outfile_name &lt;&lt; 输出内容;		
+</code></pre>
+<h2 id="输入">输入</h2>
+<h3 id="定义输入的文件变量">定义输入的文件变量</h3>
+<p>ifstream infile_name(&quot;文件地址&quot;);</p>
+<h3 id="判断文件是否打开成功-2">判断文件是否打开成功</h3>
+<pre><code class="language-c++">if (!in_file_name)
+	文件打开失败
+......
+</code></pre>
+<h3 id="使用文件进行输入">使用文件进行输入</h3>
+<pre><code>in_flie_name &gt;&gt; 变量名
+</code></pre>
+<h2 id="同时输出和输入">同时输出和输入</h2>
+<h3 id="定义输入输出文件">定义输入输出文件</h3>
+<p>fstream in_and_out_file_name(&quot;文件地址&quot;)</p>
+<h3 id="判断文件是否打开成功-3">判断文件是否打开成功</h3>
+<pre><code class="language-c++">if (!in_and_out_file_name)
+	文件打开失败
+......
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[C++的一些重要的基本类型]]></title>
+        <id>https://yvainefire.github.io/post/cde-yi-xie-chong-yao-de-ji-ben-lei-xing/</id>
+        <link href="https://yvainefire.github.io/post/cde-yi-xie-chong-yao-de-ji-ben-lei-xing/">
+        </link>
+        <updated>2021-03-08T13:50:48.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="1string">1.string</h2>
+<h3 id="string的定义">string的定义</h3>
+<p>string string_name;</p>
+<p>是C++标准库提供的类型，需要包含string库</p>
+<h3 id="string的初始化">string的初始化</h3>
+<p>string_name = &quot;字符串&quot;</p>
+<h2 id="2array">2.Array</h2>
+<h3 id="数组的定义">数组的定义</h3>
+<p>类型 数组名[数组的大小]</p>
+<p>注意：数组的大小必须是一个常量表达式，在编译时就能确定的表达式。</p>
+<p><strong>不需要特定的头文件</strong></p>
+<h3 id="数组的初始化">数组的初始化</h3>
+<ul>
+<li>
+<p>采用循环的方式对数组的每个元素进行初始化</p>
+<pre><code class="language-c++">for....
+	array_test[i] = ...
+</code></pre>
+</li>
+<li>
+<p>在定义的时候，采用初始化列表的形式进行初始化</p>
+<pre><code class="language-c++">int array_test[5]={1,2,3,4,5};
+</code></pre>
+</li>
+</ul>
+<h2 id="3vector">3.Vector</h2>
+<h3 id="vector的定义">Vector的定义</h3>
+<p>Vector&lt;类型&gt;	Vector名(Vector的大小)</p>
+<p>注意：Vector的大小不需要是一个常量表达式</p>
+<p><strong>需要一个特定的头文件 vector</strong></p>
+<h3 id="vector的初始化">Vector的初始化</h3>
+<ul>
+<li>
+<p>采用循环的方式对Vector进行初始化</p>
+<pre><code class="language-c++">for....
+	Vector_test[i] = ...
+</code></pre>
+</li>
+<li>
+<p>采用数组对Vector进行初始化</p>
+<pre><code class="language-c++">vector&lt;int&gt; vector_test(array_test,array_test+size_of_array)
+</code></pre>
+<p><strong>注意不能使用初始化列表对齐进行初始化</strong></p>
+</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ C++的输入输出]]></title>
+        <id>https://yvainefire.github.io/post/cde-shu-ru-shu-chu/</id>
+        <link href="https://yvainefire.github.io/post/cde-shu-ru-shu-chu/">
+        </link>
+        <updated>2021-03-08T13:50:03.000Z</updated>
+        <content type="html"><![CDATA[<p>输出/输出库：iostream</p>
+<h2 id="1输出">1.输出</h2>
+<p>cout：将信息写到用户的终端中</p>
+<p>格式：</p>
+<ul>
+<li>cout &lt;&lt; &quot;输出内容1&quot;;</li>
+<li>cout &lt;&lt; &quot;输出内容1&quot; &lt;&lt;  &quot;输出内容2&quot; ......;</li>
+<li>cout &lt;&lt; 变量;</li>
+</ul>
+<h2 id="2输入">2.输入</h2>
+<p>cin：读取用户在终端上的内容</p>
+<p>格式：</p>
+<ul>
+<li>cin &gt;&gt; user_name;</li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[Python的import]]></title>
         <id>https://yvainefire.github.io/post/python-de-import/</id>
@@ -656,314 +796,6 @@ int Max(int x, int y)  //定义Max函数
     return z;
 }
 </code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[对齐]]></title>
-        <id>https://yvainefire.github.io/post/dui-qi/</id>
-        <link href="https://yvainefire.github.io/post/dui-qi/">
-        </link>
-        <updated>2020-07-30T07:03:36.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="一字节对齐的概念">一.字节对齐的概念</h2>
-<p>计算机系统对基本数据类型的合法地址做了一些限制，这种限制称为对齐。</p>
-<p>如：要求某些数据的地址只能以1或2或8或16的倍数。</p>
-<h2 id="二字节对齐的原因">二.字节对齐的原因</h2>
-<h3 id="1性能">1.性能</h3>
-<p>字节对齐的根本原因在于提高数据的访问的效率。主要在于减少数据访问的次数，因为不是所有的硬件平台都能访问任意地址上的任意数据，某些硬件平台只能在某些地址处取某些特定类型的数据，否则抛出硬件异常。如x86的一个总线周期只能访问偶地址的数据，所以若不进行对齐，一个原本可以一次访存获得的数据则需要2次甚至更多次才能得到。</p>
-<h3 id="2平台原因">2.平台原因</h3>
-<p>不是所有的硬件平台都能访问到任意地址上的任意数据</p>
-<h2 id="三几种对齐的方式">三.几种对齐的方式</h2>
-<h3 id="1数据类型自身的对齐自然对齐">1.数据类型自身的对齐(自然对齐)</h3>
-<p>存放变量的地址为该变量在改平台上对应的数据类型大小的整数倍。</p>
-<h3 id="2结构体或类的自身对齐">2.结构体或类的自身对齐</h3>
-<p>结构体或类的首地址是其成员中自身对齐值最大的那个值的整数倍。</p>
-<h3 id="3指定对齐值">3.指定对齐值</h3>
-<p>#pragma pack (value)时的指定对齐值value。</p>
-<p>例：#pragma pack (5)</p>
-<p>int a = 4;</p>
-<p>int b = 9;</p>
-<p>即：按照5字节进行对齐</p>
-<h3 id="4数据成员结构体和类的有效对齐值">4.数据成员，结构体和类的有效对齐值</h3>
-<p>有效对齐值 = min{自身对齐值，当前指定对齐值}</p>
-<h2 id="四结构体数据的对齐问题">四.结构体数据的对齐问题</h2>
-<p>数据结构中的数据变量都是按照定义的先后顺寻进行存放的。第一个数据变量的起始地址就是数据结构的起始地址。结构体的成员变量要对齐存放，结构体本身也要根据自身的有效对齐值圆整 (即结构体成员变量占用总长度为结构体有效对齐值的整数倍) 。</p>
-<ol>
-<li>结构体字节对齐的细节和具体编译器实现相关，但一般而言满足三个准则： 结构体变量的首地址能够被其最宽基本类型成员的大小所整除；</li>
-<li>结构体每个成员相对结构体首地址的偏移量(offset注意偏移量是从0开始的)都是min{本成员大小,当前有效对齐值}的整数倍，如有需要编译器会在成员之间加上填充字节(internal adding)；</li>
-<li>结构体的总大小为结构体最宽基本类型成员大小的整数倍，如有需要编译器会在最末一个成员之后加上填充字节{trailing padding}。</li>
-</ol>
-<p>第一条：编译器在给结构体开辟空间时，首先找到结构体中最宽的基本数据类型，然后寻找内存地址能被该基本数据类型所整除的位置，作为结构体的首地址。将这个最宽的基本数据类型的大小作为上面介绍的对齐模数。</p>
-<p>第二条：为结构体的一个成员开辟空间之前，编译器首先检查预开辟空间的首地址相对于结构体首地址的偏移是否是min{本成员大小,当前有效对齐值}的整数倍，若是，则存放本成员，反之，则在本成员和上一个成员之间填充一定的字节，以达到整数倍的要求，也就是将预开辟空间的首地址后移几个字节。</p>
-<p>第三条：结构体总大小是包括填充字节，最后一个成员满足上面两条以外，还必须满足第三条，否则就必须在最后填充几个字节以达到本条要求。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[ucosii运行流程]]></title>
-        <id>https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/</id>
-        <link href="https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/">
-        </link>
-        <updated>2020-07-28T13:04:04.000Z</updated>
-        <summary type="html"><![CDATA[<h1 id="ucosii运行流程">ucosii运行流程</h1>
-<h2 id="一系统时钟中断的初始化">一.系统时钟中断的初始化</h2>
-<p>SysTick中断初始化，在轮转调度过程中，需要一个时钟中断来进行任务的切换。时钟中断的频率就是系统的心跳，也被称为时基，它决定了操作系统进行任务切换的频率。</p>
-<h2 id="二操作系统初始化">二.操作系统初始化</h2>
-<h3 id="1osinithookbegin">1.OSInitHookBegin()</h3>
-<p>主要进行一些扩展功能的初始化</p>
-<h3 id="2os_initmisc">2.OS_InitMisc()</h3>
-<p>主要作用：进行杂项变量的初始化，主要有以下内容需要被初始化</p>
-<pre><code class="language-c">OSIntNesting    		中断嵌套层数清零
-OSLockNesting			
-OSTaskCtr				任务计数清零
-OSRunning				操作系统运行标志位清零
-OSCtxSwCtr				任务切换计数清零
-OSIdleCtr				
-</code></pre>
-<h3 id="3os_initrdylist">3.OS_InitRdyList()</h3>
-<p>就绪队列的初始化，所谓就绪队列指由就绪任务构成的队列，但是这里实际上初始化的并不是队列，就绪队列里面保存的也不是就绪任务的TCB。</p>
-<pre><code class="language-c">//以下是就绪队列实现的定义和初始化的代码
-typedef unsigned char INT8U;
-
-typedef  INT8U    OS_PRIO;
-
-OS_EXT  OS_PRIO           OSRdyTbl[OS_RDY_TBL_SIZE];
-
-for (i = 0u; i &lt; OS_RDY_TBL_SIZE; i++) {
-        OSRdyTbl[i] = 0u;
-    }
-
-</code></pre>
-<p>从这里可以看出，就绪队列的本质是一个8位无符号整型数组，仅仅保存的是一个整型，而不是TCB或者TCB指针。</p>
-<p>为什么仅仅保存整型就可以表示就绪队列呢？这个以后再说。</p>
-<p>除了初始化就绪队列，还初始化了两个与优先级相关的变量以及两个和任务TCB相关的量。<br>
-OSPrioCur	   		保存当前任务的优先级<br>
-OSPrioHighRdy      保存当前就绪队列优先级最高的任务的优先级<br>
-OSTCBCur 	          保存当前任务的TCB指针<br>
-OSTCBHighRdy      保存当前就绪队列中最高优先级任务的TCB指针</p>
-<h3 id="4os_inittcblist">4.OS_InitTCBList ()</h3>
-<p>初始化TCB链表，这里主要强调的链表，主要是把在头文件里声明的</p>
-<p>OS_TCB	OSTCBTbl[OS_MAX_TASKS + OS_N_SYS_TASKS];		这个TCB数组拆开然后用指针将其连接起来。</p>
-<pre><code class="language-c">for (ix = 0u; ix &lt; (OS_MAX_TASKS + OS_N_SYS_TASKS - 1u); ix++) {    /* Init. list of free TCBs     */
-        ix_next =  ix + 1u;
-        ptcb1   = &amp;OSTCBTbl[ix];
-        ptcb2   = &amp;OSTCBTbl[ix_next];
-        ptcb1-&gt;OSTCBNext = ptcb2;
-}
-
-ptcb1                   = &amp;OSTCBTbl[ix];
-ptcb1-&gt;OSTCBNext        = (OS_TCB *)0;                       /* Last OS_TCB                        */
-OSTCBFreeList           = &amp;OSTCBTbl[0];
-</code></pre>
-<p>除了进行free TCBs的初始化，还会进行以下两个变量的初始化</p>
-<pre><code>OS_MemClr((INT8U *)&amp;OSTCBPrioTbl[0], sizeof(OSTCBPrioTbl));  /* Clear the priority table           */
-/*这里采取的强制转换很有意思。
-OSTCBList	= (OS_TCB *)0;
-</code></pre>
-<p>OSTCBPrioTbl[]是用来存放对应的下标为优先级的任务的TCB指针，若该对应下标的任务已经被创建才会有相应的TCB指针，否则保持初始化的空值。这个表的作用是为了快速找个某一优先级对应的任务的任务指针。</p>
-<p>OSTCBList就是指向任务块链表的头指针，这里面的任务包括当前所有存在的任务，就绪的，未就绪的。</p>
-<h3 id="5os_initeventlist">5.OS_InitEventList()</h3>
-<p>事件控制块链表的初始化，这个属于扩展的功能，与任务之间的通信相关，所以就先不讨论了，等到任务通信这个模块再进行讨论。</p>
-<h2 id="三任务的创建">三.任务的创建</h2>
-<h3 id="1任务函数的格式">1.任务函数的格式</h3>
-<p>在ucosii中任务的形式如下：</p>
-<p>实际上任务就是一个不带返回值具有死循环的函数</p>
-<pre><code class="language-c">void task(void *p_arg)
-{		
-		while(1)
-		{
-
-		}
-		
-}
-</code></pre>
-<h3 id="2ostaskcreate">2.OSTaskCreate(）</h3>
-<p>任务的创建</p>
-<pre><code class="language-c">INT8U  OSTaskCreate (void   (*task)(void *p_arg),
-                     void    *p_arg,
-                     OS_STK  *ptos,
-                     INT8U    prio)
-    //任务函数
-    //任务所需的参数
-    //堆栈
-    //优先级
-</code></pre>
-<ul>
-<li>
-<p>确保未在ISR中进行任务的创建。利用中断的嵌套层数OSIntNesting进行判断</p>
-</li>
-<li>
-<p>对相应优先级的任务对应的OSTCBPrioTbl[prio]进行占位。由于ucosii仅支持的同一优先级的任务仅有一个，所以需先判断正在创建的任务的优先级是否已经被占用了。</p>
-</li>
-<li>
-<p>堆栈初始化</p>
-<pre><code class="language-c"> OS_STK *OSTaskStkInit (void (*task)(void *p_arg), 
- void *p_arg, OS_STK *ptos, INT16U opt)
-</code></pre>
-<p>所谓堆栈的初始化实际上就是对相关的寄存器进行模拟压栈的操作，并返回压栈后的栈顶指针。模拟压栈就是模仿任务切换时对相应寄存器进行的压栈操作。在这里主要的功能是确定堆栈栈顶指针的位置，同时把设置LR寄存器的值，并保存任务函数的地址，以及任务函数的参数指针。而其余的几个寄存器的值在这时是无意义的，不必关心其模拟压栈的内容。<br>
-但是堆栈初始化相对任务切换时的堆栈也有一定的区别：<br>
-第一个保存的值本该是PC，但实际上是目前是还没有运行过的，所以保存的是函数的入口地址，即task的地址。<br>
-r0保存的值也需要特别注意，r0保存的值是函数的参数指针<br>
-cpsr要保存的值也需要手动设置，设置为svc模式同时打开irq和fiq<br>
-返回值也要注意是，当前指针的的栈顶位置。</p>
-</li>
-<li>
-<p>TCB初始化</p>
-<p>OS_TCBInit()</p>
-<ul>
-<li>从OSTCBFreeList获得一个空的tcb</li>
-<li>把任务的相关信息放到这个空的tcb的相应位置</li>
-<li>把被占位的OSTCBPrioTbl[]进行赋值，ptcb</li>
-<li>把该tcb链入TCB链表</li>
-<li>把该任务放进就绪队列</li>
-</ul>
-</li>
-<li>
-<p>是否开始调度</p>
-<p>在这里还不会进行调度，因为调度的条件是OSRunning == OS_TRUE，而现在OSRunning == OS_FALSE。</p>
-<p>OS_Sched()     //Schedule only if all ISRs done</p>
-<ul>
-<li>OS_SchedNew()  获得当前就绪队列中的最高的优先级，采用优先级位图的方式直接获得</li>
-<li>判断当前执行的任务是否为最高优先级的任务，若不是则调用OS_TASK_SW()则进行任务切换。</li>
-</ul>
-</li>
-</ul>
-<h2 id="四操作系统的启动">四.操作系统的启动</h2>
-<p>OSStart()</p>
-]]></summary>
-        <content type="html"><![CDATA[<h1 id="ucosii运行流程">ucosii运行流程</h1>
-<h2 id="一系统时钟中断的初始化">一.系统时钟中断的初始化</h2>
-<p>SysTick中断初始化，在轮转调度过程中，需要一个时钟中断来进行任务的切换。时钟中断的频率就是系统的心跳，也被称为时基，它决定了操作系统进行任务切换的频率。</p>
-<h2 id="二操作系统初始化">二.操作系统初始化</h2>
-<h3 id="1osinithookbegin">1.OSInitHookBegin()</h3>
-<p>主要进行一些扩展功能的初始化</p>
-<h3 id="2os_initmisc">2.OS_InitMisc()</h3>
-<p>主要作用：进行杂项变量的初始化，主要有以下内容需要被初始化</p>
-<pre><code class="language-c">OSIntNesting    		中断嵌套层数清零
-OSLockNesting			
-OSTaskCtr				任务计数清零
-OSRunning				操作系统运行标志位清零
-OSCtxSwCtr				任务切换计数清零
-OSIdleCtr				
-</code></pre>
-<h3 id="3os_initrdylist">3.OS_InitRdyList()</h3>
-<p>就绪队列的初始化，所谓就绪队列指由就绪任务构成的队列，但是这里实际上初始化的并不是队列，就绪队列里面保存的也不是就绪任务的TCB。</p>
-<pre><code class="language-c">//以下是就绪队列实现的定义和初始化的代码
-typedef unsigned char INT8U;
-
-typedef  INT8U    OS_PRIO;
-
-OS_EXT  OS_PRIO           OSRdyTbl[OS_RDY_TBL_SIZE];
-
-for (i = 0u; i &lt; OS_RDY_TBL_SIZE; i++) {
-        OSRdyTbl[i] = 0u;
-    }
-
-</code></pre>
-<p>从这里可以看出，就绪队列的本质是一个8位无符号整型数组，仅仅保存的是一个整型，而不是TCB或者TCB指针。</p>
-<p>为什么仅仅保存整型就可以表示就绪队列呢？这个以后再说。</p>
-<p>除了初始化就绪队列，还初始化了两个与优先级相关的变量以及两个和任务TCB相关的量。<br>
-OSPrioCur	   		保存当前任务的优先级<br>
-OSPrioHighRdy      保存当前就绪队列优先级最高的任务的优先级<br>
-OSTCBCur 	          保存当前任务的TCB指针<br>
-OSTCBHighRdy      保存当前就绪队列中最高优先级任务的TCB指针</p>
-<h3 id="4os_inittcblist">4.OS_InitTCBList ()</h3>
-<p>初始化TCB链表，这里主要强调的链表，主要是把在头文件里声明的</p>
-<p>OS_TCB	OSTCBTbl[OS_MAX_TASKS + OS_N_SYS_TASKS];		这个TCB数组拆开然后用指针将其连接起来。</p>
-<pre><code class="language-c">for (ix = 0u; ix &lt; (OS_MAX_TASKS + OS_N_SYS_TASKS - 1u); ix++) {    /* Init. list of free TCBs     */
-        ix_next =  ix + 1u;
-        ptcb1   = &amp;OSTCBTbl[ix];
-        ptcb2   = &amp;OSTCBTbl[ix_next];
-        ptcb1-&gt;OSTCBNext = ptcb2;
-}
-
-ptcb1                   = &amp;OSTCBTbl[ix];
-ptcb1-&gt;OSTCBNext        = (OS_TCB *)0;                       /* Last OS_TCB                        */
-OSTCBFreeList           = &amp;OSTCBTbl[0];
-</code></pre>
-<p>除了进行free TCBs的初始化，还会进行以下两个变量的初始化</p>
-<pre><code>OS_MemClr((INT8U *)&amp;OSTCBPrioTbl[0], sizeof(OSTCBPrioTbl));  /* Clear the priority table           */
-/*这里采取的强制转换很有意思。
-OSTCBList	= (OS_TCB *)0;
-</code></pre>
-<p>OSTCBPrioTbl[]是用来存放对应的下标为优先级的任务的TCB指针，若该对应下标的任务已经被创建才会有相应的TCB指针，否则保持初始化的空值。这个表的作用是为了快速找个某一优先级对应的任务的任务指针。</p>
-<p>OSTCBList就是指向任务块链表的头指针，这里面的任务包括当前所有存在的任务，就绪的，未就绪的。</p>
-<h3 id="5os_initeventlist">5.OS_InitEventList()</h3>
-<p>事件控制块链表的初始化，这个属于扩展的功能，与任务之间的通信相关，所以就先不讨论了，等到任务通信这个模块再进行讨论。</p>
-<h2 id="三任务的创建">三.任务的创建</h2>
-<h3 id="1任务函数的格式">1.任务函数的格式</h3>
-<p>在ucosii中任务的形式如下：</p>
-<p>实际上任务就是一个不带返回值具有死循环的函数</p>
-<pre><code class="language-c">void task(void *p_arg)
-{		
-		while(1)
-		{
-
-		}
-		
-}
-</code></pre>
-<h3 id="2ostaskcreate">2.OSTaskCreate(）</h3>
-<p>任务的创建</p>
-<pre><code class="language-c">INT8U  OSTaskCreate (void   (*task)(void *p_arg),
-                     void    *p_arg,
-                     OS_STK  *ptos,
-                     INT8U    prio)
-    //任务函数
-    //任务所需的参数
-    //堆栈
-    //优先级
-</code></pre>
-<ul>
-<li>
-<p>确保未在ISR中进行任务的创建。利用中断的嵌套层数OSIntNesting进行判断</p>
-</li>
-<li>
-<p>对相应优先级的任务对应的OSTCBPrioTbl[prio]进行占位。由于ucosii仅支持的同一优先级的任务仅有一个，所以需先判断正在创建的任务的优先级是否已经被占用了。</p>
-</li>
-<li>
-<p>堆栈初始化</p>
-<pre><code class="language-c"> OS_STK *OSTaskStkInit (void (*task)(void *p_arg), 
- void *p_arg, OS_STK *ptos, INT16U opt)
-</code></pre>
-<p>所谓堆栈的初始化实际上就是对相关的寄存器进行模拟压栈的操作，并返回压栈后的栈顶指针。模拟压栈就是模仿任务切换时对相应寄存器进行的压栈操作。在这里主要的功能是确定堆栈栈顶指针的位置，同时把设置LR寄存器的值，并保存任务函数的地址，以及任务函数的参数指针。而其余的几个寄存器的值在这时是无意义的，不必关心其模拟压栈的内容。<br>
-但是堆栈初始化相对任务切换时的堆栈也有一定的区别：<br>
-第一个保存的值本该是PC，但实际上是目前是还没有运行过的，所以保存的是函数的入口地址，即task的地址。<br>
-r0保存的值也需要特别注意，r0保存的值是函数的参数指针<br>
-cpsr要保存的值也需要手动设置，设置为svc模式同时打开irq和fiq<br>
-返回值也要注意是，当前指针的的栈顶位置。</p>
-</li>
-<li>
-<p>TCB初始化</p>
-<p>OS_TCBInit()</p>
-<ul>
-<li>从OSTCBFreeList获得一个空的tcb</li>
-<li>把任务的相关信息放到这个空的tcb的相应位置</li>
-<li>把被占位的OSTCBPrioTbl[]进行赋值，ptcb</li>
-<li>把该tcb链入TCB链表</li>
-<li>把该任务放进就绪队列</li>
-</ul>
-</li>
-<li>
-<p>是否开始调度</p>
-<p>在这里还不会进行调度，因为调度的条件是OSRunning == OS_TRUE，而现在OSRunning == OS_FALSE。</p>
-<p>OS_Sched()     //Schedule only if all ISRs done</p>
-<ul>
-<li>OS_SchedNew()  获得当前就绪队列中的最高的优先级，采用优先级位图的方式直接获得</li>
-<li>判断当前执行的任务是否为最高优先级的任务，若不是则调用OS_TASK_SW()则进行任务切换。</li>
-</ul>
-</li>
-</ul>
-<h2 id="四操作系统的启动">四.操作系统的启动</h2>
-<p>OSStart()</p>
-<!-- more -->
-<h3 id="1判断osrunning-os_false">1.判断OSRunning == OS_FALSE</h3>
-<h3 id="2os_schednew">2.OS_SchedNew()</h3>
-<p>获得当前就绪队列中的最高的优先级，采用优先级位图的方式直接获得</p>
-<h3 id="3设置ospriocurostcbhighrdyostcbcur">3.设置OSPrioCur，OSTCBHighRdy，OSTCBCur</h3>
-<h3 id="4osstarthighrdy">4.OSStartHighRdy()</h3>
-<p>设置PendSV的中断优先级</p>
-<p>初始化PSP</p>
-<p>设置OSRunning标志为1</p>
-<p>开启PendSV中断。</p>
 ]]></content>
     </entry>
 </feed>

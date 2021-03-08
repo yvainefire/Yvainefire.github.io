@@ -9,7 +9,7 @@
 <meta name="description" content="Rush Rush">
 <meta name="theme-color" content="#000">
 <title>Python的import | YvaineFire_block</title>
-<link rel="shortcut icon" href="/favicon.ico?v=1603441416194">
+<link rel="shortcut icon" href="/favicon.ico?v=1615211517871">
 <link rel="stylesheet" href="/media/css/mist.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
 <link
@@ -206,7 +206,7 @@
     <div class="sidebar-item-box">
       <a href="/archives/">
         
-        <span class="site-item-stat-count">8</span>
+        <span class="site-item-stat-count">12</span>
         <span class="site-item-stat-name language" data-lan="article">文章</span>
       </a>
     </div>
@@ -625,6 +625,10 @@ import numpy as np
   </div>
   <div class="nav">
     <div class="nav-prev">
+      
+        <i class="fa fa-chevron-left"></i>
+        <a class="nav-pc-next" title=" C++的输入输出" href="https://yvainefire.github.io/post/cde-shu-ru-shu-chu/"> C++的输入输出</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title=" C++的输入输出" href="https://yvainefire.github.io/post/cde-shu-ru-shu-chu/">上一篇</a>
       
     </div>
     <div class="nav-next">
@@ -1093,6 +1097,134 @@ import numpy as np
       <hr>
     </div>
     <div class="result" id="result">
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/cza-xiang-zhi-shi/"" data-c="
+          &lt;h2 id=&#34;1namespace&#34;&gt;1.namespace&lt;/h2&gt;
+&lt;p&gt;namespace(命名空间)：是一种将库名称封装起来的方法。避免发生命名冲突。所谓命名冲突是指，应用程序的两个不同的实体有相同的名称。&lt;/p&gt;
+&lt;h3 id=&#34;使用namespace来解决命名冲突的问题&#34;&gt;使用namespace来解决命名冲突的问题&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;using namesapce 命名空间名;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这样会使后续的代码将使用指定的命名空间中的名称。&lt;/p&gt;
+&lt;p&gt;一般使用标准库的命名空间：std&lt;/p&gt;
+&lt;h3 id=&#34;自定义命名空间的方式&#34;&gt;自定义命名空间的方式&lt;/h3&gt;
+&lt;p&gt;namespace 命名空间名{&lt;/p&gt;
+&lt;p&gt;​		函数1...&lt;/p&gt;
+&lt;p&gt;​		函数2...&lt;/p&gt;
+&lt;p&gt;​		变量1...&lt;/p&gt;
+&lt;p&gt;​		变量2...&lt;/p&gt;
+&lt;p&gt;}&lt;/p&gt;
+">C++杂项知识</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/cwen-jian-de-du-xie/"" data-c="
+          &lt;p&gt;包含 fstream 头文件&lt;/p&gt;
+&lt;h2 id=&#34;输出&#34;&gt;输出&lt;/h2&gt;
+&lt;h3 id=&#34;定义输出的文件变量&#34;&gt;定义输出的文件变量&lt;/h3&gt;
+&lt;p&gt;ofstream outfile_name(&amp;quot;文件地址&amp;quot;);&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;文件不存在时，会创建一个新的文件&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;文件存在的时候，可以通过参数对其设置是在原文件尾部追加还是直接覆盖。默认为覆盖，添加如下参数变为追加&lt;/p&gt;
+&lt;p&gt;ofstream outfile_name(&amp;quot;文件地址&amp;quot;, ios_base::app);&lt;/p&gt;
+&lt;h3 id=&#34;判断文件是否打开成功&#34;&gt;判断文件是否打开成功&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c++&#34;&gt;if (!out_file_name)
+	文件打开失败
+......
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;使用文件进行输出&#34;&gt;使用文件进行输出&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c++&#34;&gt;outfile_name &amp;lt;&amp;lt; 输出内容;		
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;输入&#34;&gt;输入&lt;/h2&gt;
+&lt;h3 id=&#34;定义输入的文件变量&#34;&gt;定义输入的文件变量&lt;/h3&gt;
+&lt;p&gt;ifstream infile_name(&amp;quot;文件地址&amp;quot;);&lt;/p&gt;
+&lt;h3 id=&#34;判断文件是否打开成功-2&#34;&gt;判断文件是否打开成功&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c++&#34;&gt;if (!in_file_name)
+	文件打开失败
+......
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3 id=&#34;使用文件进行输入&#34;&gt;使用文件进行输入&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;in_flie_name &amp;gt;&amp;gt; 变量名
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2 id=&#34;同时输出和输入&#34;&gt;同时输出和输入&lt;/h2&gt;
+&lt;h3 id=&#34;定义输入输出文件&#34;&gt;定义输入输出文件&lt;/h3&gt;
+&lt;p&gt;fstream in_and_out_file_name(&amp;quot;文件地址&amp;quot;)&lt;/p&gt;
+&lt;h3 id=&#34;判断文件是否打开成功-3&#34;&gt;判断文件是否打开成功&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c++&#34;&gt;if (!in_and_out_file_name)
+	文件打开失败
+......
+&lt;/code&gt;&lt;/pre&gt;
+">C++文件的读写</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/cde-yi-xie-chong-yao-de-ji-ben-lei-xing/"" data-c="
+          &lt;h2 id=&#34;1string&#34;&gt;1.string&lt;/h2&gt;
+&lt;h3 id=&#34;string的定义&#34;&gt;string的定义&lt;/h3&gt;
+&lt;p&gt;string string_name;&lt;/p&gt;
+&lt;p&gt;是C++标准库提供的类型，需要包含string库&lt;/p&gt;
+&lt;h3 id=&#34;string的初始化&#34;&gt;string的初始化&lt;/h3&gt;
+&lt;p&gt;string_name = &amp;quot;字符串&amp;quot;&lt;/p&gt;
+&lt;h2 id=&#34;2array&#34;&gt;2.Array&lt;/h2&gt;
+&lt;h3 id=&#34;数组的定义&#34;&gt;数组的定义&lt;/h3&gt;
+&lt;p&gt;类型 数组名[数组的大小]&lt;/p&gt;
+&lt;p&gt;注意：数组的大小必须是一个常量表达式，在编译时就能确定的表达式。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;不需要特定的头文件&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;数组的初始化&#34;&gt;数组的初始化&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;采用循环的方式对数组的每个元素进行初始化&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c++&#34;&gt;for....
+	array_test[i] = ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;在定义的时候，采用初始化列表的形式进行初始化&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c++&#34;&gt;int array_test[5]={1,2,3,4,5};
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;3vector&#34;&gt;3.Vector&lt;/h2&gt;
+&lt;h3 id=&#34;vector的定义&#34;&gt;Vector的定义&lt;/h3&gt;
+&lt;p&gt;Vector&amp;lt;类型&amp;gt;	Vector名(Vector的大小)&lt;/p&gt;
+&lt;p&gt;注意：Vector的大小不需要是一个常量表达式&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;需要一个特定的头文件 vector&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;vector的初始化&#34;&gt;Vector的初始化&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;采用循环的方式对Vector进行初始化&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c++&#34;&gt;for....
+	Vector_test[i] = ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;采用数组对Vector进行初始化&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&#34;language-c++&#34;&gt;vector&amp;lt;int&amp;gt; vector_test(array_test,array_test+size_of_array)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;注意不能使用初始化列表对齐进行初始化&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+">C++的一些重要的基本类型</a>
+      </div>
+      
+      <div class="item">
+        <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/cde-shu-ru-shu-chu/"" data-c="
+          &lt;p&gt;输出/输出库：iostream&lt;/p&gt;
+&lt;h2 id=&#34;1输出&#34;&gt;1.输出&lt;/h2&gt;
+&lt;p&gt;cout：将信息写到用户的终端中&lt;/p&gt;
+&lt;p&gt;格式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;cout &amp;lt;&amp;lt; &amp;quot;输出内容1&amp;quot;;&lt;/li&gt;
+&lt;li&gt;cout &amp;lt;&amp;lt; &amp;quot;输出内容1&amp;quot; &amp;lt;&amp;lt;  &amp;quot;输出内容2&amp;quot; ......;&lt;/li&gt;
+&lt;li&gt;cout &amp;lt;&amp;lt; 变量;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2输入&#34;&gt;2.输入&lt;/h2&gt;
+&lt;p&gt;cin：读取用户在终端上的内容&lt;/p&gt;
+&lt;p&gt;格式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;cin &amp;gt;&amp;gt; user_name;&lt;/li&gt;
+&lt;/ul&gt;
+"> C++的输入输出</a>
+      </div>
       
       <div class="item">
         <a class="result-title" style="opacity: 0;" href="https://yvainefire.github.io/post/python-de-import/"" data-c="
