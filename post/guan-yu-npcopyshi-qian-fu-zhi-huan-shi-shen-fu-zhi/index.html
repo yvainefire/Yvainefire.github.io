@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>函数指针 | YvaineFire_block</title>
+<title>关于np.copy()是浅复制还是深复制? | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,10 +18,10 @@
 
 
 
-    <meta name="description" content="一.函数指针和函数首地址
-地址的联系
-如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，这段存储空间的首地址称为这个函数的地址。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针..." />
-    <meta name="keywords" content="C语言" />
+    <meta name="description" content="
+官方文档：
+Note that np.copy is a shallow copy and will not copy object elements within arrays. This is mainly important for..." />
+    <meta name="keywords" content="" />
   </head>
   <body>
     <div id="app" class="main">
@@ -92,62 +92,25 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">函数指针</h2>
-            <div class="post-date">2020-07-30</div>
+            <h2 class="post-title">关于np.copy()是浅复制还是深复制?</h2>
+            <div class="post-date">2021-03-30</div>
             
             <div class="post-content" v-pre>
-              <h2 id="一函数指针和函数首地址">一.函数指针和函数首地址</h2>
-<p>地址的联系</p>
-<p>如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，<strong>这段存储空间的首地址称为这个函数的地址</strong>。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针变量就叫<strong>作函数指针变量</strong>，简称函数指针。</p>
-<h2 id="二函数指针的定义方式">二.函数指针的定义方式</h2>
-<p>然而函数指针的定义和普通指针的定义事不同的。</p>
-<p>函数指针的定义方式：</p>
-<pre><code>函数返回值类型 (* 指针变量名) (函数参数列表);
-</code></pre>
-<p>例：</p>
-<pre><code class="language-c"># include &lt;stdio.h&gt;
-int Max(int, int);  //函数声明
-int main(void){    
-    int(*p)(int, int);  //定义一个函数指针    
-    int a, b, c;    
-    p = Max;  //把函数Max赋给指针变量p, 使p指向Max函数    
-    
-    printf(&quot;please enter a and b:&quot;);    
-    scanf(&quot;%d%d&quot;, &amp;a, &amp;b);    
-    c = (*p)(a, b);  //通过函数指针调用Max函数    
-    printf(&quot;a = %d\nb = %d\nmax = %d\n&quot;, a, b, c);   
-    
-    return 0;
-}
-int Max(int x, int y)  //定义Max函数
-{    
-    int z;    
-    if (x &gt; y) {        
-        z = x;    
-    }else 
-    {        
-        z = y;    
-    }    
-    return z;
-}
-</code></pre>
+              <h1 id=""></h1>
+<h2 id="官方文档">官方文档：</h2>
+<p>Note that np.copy is a shallow copy and will not copy object elements within arrays. This is mainly important for arrays containing Python objects. The new array will contain the same object which may lead to surprises if that object can be modified (is mutable)</p>
+<p>但是如果复制的对象不是object elements，则可以看作是deepcopy，最安全的方法还是使用copy.deepcopy()。</p>
+<h2 id="eg">eg:</h2>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/pytest.png" alt="" loading="lazy"></figure>
 
             </div>
-            
-              <div class="tag-container">
-                
-                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
-                    C语言
-                  </a>
-                
-              </div>
             
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/dui-qi/">
+                <a href="https://yvainefire.github.io/post/cza-xiang-zhi-shi/">
                   <h3 class="post-title">
-                    对齐
+                    C++杂项知识
                   </h3>
                 </a>
               </div>
