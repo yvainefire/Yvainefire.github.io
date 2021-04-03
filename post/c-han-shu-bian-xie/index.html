@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>C++ 函数编写 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1617434631419">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="使用带默认参数的函数
+C++提供了带默认参数的函数。
+eg:
+void function_paramt(int a, int b, int c = 1)
+{
+	....
+	....
+}
+
+在函数的定义或声明中可以为其添加默认的参数，当调用这..." />
+    <meta name="keywords" content="c++" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1617434631419" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">C++ 函数编写</h2>
+            <div class="post-date">2021-04-03</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="使用带默认参数的函数">使用带默认参数的函数</h2>
+<p>C++提供了带默认参数的函数。</p>
+<p>eg:</p>
+<pre><code class="language-c++">void function_paramt(int a, int b, int c = 1)
+{
+	....
+	....
+}
+</code></pre>
+<p>在函数的定义或声明中可以为其添加默认的参数，当调用这个函数的时候，如果没有第三个参数的形参，则默认等于1。否则以形参的值为准。</p>
+<p>注意在使用带默认参数的函数时有两条规则：</p>
+<ul>
+<li>对默认参数的解析是从右往左开开始，所以从左往右第一个使用默认参数的参数其右边的所以参数都必须使用默认参数。</li>
+<li>在函数的声明和定义中只能够有一个地方使用了默认参数，建议在函数声明的位置使用默认参数。</li>
+</ul>
+<h2 id="使用inline声明函数">使用inline声明函数</h2>
+<p>为了提高函数的效率减少函数之间调用所产生的开销，可以使用inline来声明一个函数，从而使该函数内部调用的函数，在编译的时候能展开，从而减少了一个函数对另一个函数的调用。</p>
+<p>inline的作用简单来说就是对函数进行展开。</p>
+<p>eg:</p>
+<pre><code class="language-c++">inline void il_templet(int a, int b)
+{
+	fun1();
+	fun2();
+	.......
+}
+</code></pre>
+<p>注意：inline只是对编译器提出的一种请求，并不是强制性的。所以编译是否会执行，还需要根据编译器而定。</p>
+<h2 id="函数的重载">函数的重载</h2>
+<p>不同于C语言，C++可以对函数进行重载，所谓重载也就是指对一个同名的函数可以根据其参数的不同而进行区别。这里参数不同可以指参数的类型不同，参数的数量不同。</p>
+<p>在调用函数的时候，根据调用时所给定的形参来选择相应的函数进行调用。</p>
+<p>eg:</p>
+<pre><code class="language-c++">void func_overlaoding_1();
+void func_overlaoding_1(int a);
+void func_overlaoding_1(string a);
+void func_overlaoding_1(int a, int b);
+......
+</code></pre>
+<p>注意：返回类型并不作为区分函数重载的依据，因为调用函数的时候，用时候并不会使用到其返回类型，这就导致了编译器不能对齐进行解析。</p>
+<h2 id="模板函数">模板函数</h2>
+<p>当一个几个函数函数体相似，而仅仅是函数中某个变量的数据类型不一样的时，可以使用定义一个函数模板方式，来减少定义多个类似的函数。</p>
+<p>定义一个函数模板，最开始以关键字template开头，然后用&lt; &gt;包含多个标识符。</p>
+<p>eg:</p>
+<pre><code class="language-c++">template &lt;typename elemType&gt;
+void template_function(int a, vector&lt;elemType&gt; &amp;vec)
+{
+.......
+}
+</code></pre>
+<p>使用一个函数模板，先定义模板中未定义的参数的类型</p>
+<p>eg:</p>
+<pre><code class="language-c++">vector&lt;int&gt; ivec;
+template_function(a, ivec);
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/gqQsGW93l/" class="tag">
+                    c++
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/point-and-reference/">
+                  <h3 class="post-title">
+                    C++ point &amp; reference
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

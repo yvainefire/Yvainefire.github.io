@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2021-03-30T13:25:51.880Z</updated>
+    <updated>2021-04-03T07:23:56.639Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -10,6 +10,135 @@
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[C++ 函数编写]]></title>
+        <id>https://yvainefire.github.io/post/c-han-shu-bian-xie/</id>
+        <link href="https://yvainefire.github.io/post/c-han-shu-bian-xie/">
+        </link>
+        <updated>2021-04-03T07:23:11.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="使用带默认参数的函数">使用带默认参数的函数</h2>
+<p>C++提供了带默认参数的函数。</p>
+<p>eg:</p>
+<pre><code class="language-c++">void function_paramt(int a, int b, int c = 1)
+{
+	....
+	....
+}
+</code></pre>
+<p>在函数的定义或声明中可以为其添加默认的参数，当调用这个函数的时候，如果没有第三个参数的形参，则默认等于1。否则以形参的值为准。</p>
+<p>注意在使用带默认参数的函数时有两条规则：</p>
+<ul>
+<li>对默认参数的解析是从右往左开开始，所以从左往右第一个使用默认参数的参数其右边的所以参数都必须使用默认参数。</li>
+<li>在函数的声明和定义中只能够有一个地方使用了默认参数，建议在函数声明的位置使用默认参数。</li>
+</ul>
+<h2 id="使用inline声明函数">使用inline声明函数</h2>
+<p>为了提高函数的效率减少函数之间调用所产生的开销，可以使用inline来声明一个函数，从而使该函数内部调用的函数，在编译的时候能展开，从而减少了一个函数对另一个函数的调用。</p>
+<p>inline的作用简单来说就是对函数进行展开。</p>
+<p>eg:</p>
+<pre><code class="language-c++">inline void il_templet(int a, int b)
+{
+	fun1();
+	fun2();
+	.......
+}
+</code></pre>
+<p>注意：inline只是对编译器提出的一种请求，并不是强制性的。所以编译是否会执行，还需要根据编译器而定。</p>
+<h2 id="函数的重载">函数的重载</h2>
+<p>不同于C语言，C++可以对函数进行重载，所谓重载也就是指对一个同名的函数可以根据其参数的不同而进行区别。这里参数不同可以指参数的类型不同，参数的数量不同。</p>
+<p>在调用函数的时候，根据调用时所给定的形参来选择相应的函数进行调用。</p>
+<p>eg:</p>
+<pre><code class="language-c++">void func_overlaoding_1();
+void func_overlaoding_1(int a);
+void func_overlaoding_1(string a);
+void func_overlaoding_1(int a, int b);
+......
+</code></pre>
+<p>注意：返回类型并不作为区分函数重载的依据，因为调用函数的时候，用时候并不会使用到其返回类型，这就导致了编译器不能对齐进行解析。</p>
+<h2 id="模板函数">模板函数</h2>
+<p>当一个几个函数函数体相似，而仅仅是函数中某个变量的数据类型不一样的时，可以使用定义一个函数模板方式，来减少定义多个类似的函数。</p>
+<p>定义一个函数模板，最开始以关键字template开头，然后用&lt; &gt;包含多个标识符。</p>
+<p>eg:</p>
+<pre><code class="language-c++">template &lt;typename elemType&gt;
+void template_function(int a, vector&lt;elemType&gt; &amp;vec)
+{
+.......
+}
+</code></pre>
+<p>使用一个函数模板，先定义模板中未定义的参数的类型</p>
+<p>eg:</p>
+<pre><code class="language-c++">vector&lt;int&gt; ivec;
+template_function(a, ivec);
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[C++ point & reference]]></title>
+        <id>https://yvainefire.github.io/post/point-and-reference/</id>
+        <link href="https://yvainefire.github.io/post/point-and-reference/">
+        </link>
+        <updated>2021-04-02T13:33:00.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="reference">reference</h2>
+<p>引用类型：通过将声明符写成&amp;d的形式来定义引用声明，d是定义的变量的名称。</p>
+<p>eg:</p>
+<pre><code class="language-c++">int ival = 1024;
+int &amp;refVal = ival;
+</code></pre>
+<p>引用类型不是对初始对象的拷贝，而是将初值对象与其绑定在一起。而且一旦该引用类型初始化完成，它将一直与处置对象绑定，不能更改它所绑定的引用对象。同时对绑定的所有操作等价于对初始对象的所有操作。</p>
+<p>引用本身不是一个对象，所以不能定义引用的引用。</p>
+<h2 id="pointer">pointer</h2>
+<p>指针是指向另外一种类型的复合类型。通过将声明符写成*d的形式，其中d是变量的名。</p>
+<p>eg：</p>
+<pre><code class="language-c++">int *ip;
+double *dp;
+</code></pre>
+<p>注意：指针所指向对象的类型和指针声明的类型必须保持一致。对空指针进行操作可能会出现未知的错误。</p>
+<h3 id="空指针">空指针</h3>
+<p>空指针是指不指向任何对象的指针</p>
+<p>常见空指针的声明方法</p>
+<pre><code class="language-c++">//为了避免误解，最好把*写在变量的前面而不要写在类型前面
+int *p1 = nullptr;
+int *p2 = 0;
+int *p3 = NULL;
+
+
+</code></pre>
+<p>注意：还有一种情况是指向动态分配的空间的地址被回收了之后的指针也是空指针。</p>
+<h3 id="void">void *</h3>
+<p>可以存放任意对象的地址，也就是说可以存放任意对象的指针</p>
+<h3 id="函数指针">函数指针</h3>
+<p>函数指针是指向函数的指针。它必须指明所指函数的返回类型及参数列表。</p>
+<p>使用函数指针的方式一：</p>
+<ul>
+<li>
+<p>先声明一个函数指针</p>
+<p>eg:</p>
+<pre><code class="language-c++">const vector&lt;int&gt; (*seq_ptr)(int);
+</code></pre>
+</li>
+<li>
+<p>在用一个类型与之匹配的函数对其进行初始化</p>
+</li>
+</ul>
+<p>使用函数指针的方式二：</p>
+<ul>
+<li>
+<p>用typedef定义函数指针</p>
+<p>eg:</p>
+<pre><code class="language-c++">typedef vector&lt;int&gt; (*fun_pointer)(int);
+</code></pre>
+</li>
+<li>
+<p>用定义的这个函数指针的函数名，作为一个新的类型去声明一个函数指针</p>
+<p>eg:</p>
+<pre><code class="language-c++">fun_pointer fp_1;
+</code></pre>
+</li>
+<li>
+<p>再用一个与之对的函数对其进行初始化</p>
+</li>
+</ul>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[关于np.copy()是浅复制还是深复制?]]></title>
         <id>https://yvainefire.github.io/post/guan-yu-npcopyshi-qian-fu-zhi-huan-shi-shen-fu-zhi/</id>
@@ -434,339 +563,6 @@ OSRdyTBl[ptcb-&gt;OSTCBY] |= ptcb-&gt;OSTCBBitX;
 </code></pre>
 </li>
 </ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[Linux套接字编程]]></title>
-        <id>https://yvainefire.github.io/post/linux-tao-jie-zi-bian-cheng/</id>
-        <link href="https://yvainefire.github.io/post/linux-tao-jie-zi-bian-cheng/">
-        </link>
-        <updated>2020-07-30T08:16:42.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="一posix标准">一.POSIX标准</h2>
-<p>POSIX表示可移植操作系统接口，是IEEE为各种UNIX操作系统上运行的软件定义的一系列API标准的总称。</p>
-<h2 id="二socket基本概念">二.Socket基本概念</h2>
-<ol>
-<li>
-<p>套接字：协议操作的接口，而非协议本身。应用层通过这个接口使用传输层提供的服务，进行接收和发送数据包。</p>
-</li>
-<li>
-<p>主动套接字和被动套接字</p>
-<p>主动套接字：发起连接的套接字</p>
-<p>被动套接字：等待传入的套接字</p>
-</li>
-<li>
-<p>套接字的基本类型</p>
-<p>SOCKET_DGRAM：双向不可靠数据流</p>
-<p>SOCKET_STREAM：双向可靠数据流</p>
-<p>SOCKET_RAW：低级协议或为物联网络提供的套接字</p>
-</li>
-</ol>
-<h2 id="三套接字的地址结构类型">三.套接字的地址结构类型</h2>
-<ol>
-<li>
-<p>两种套接字</p>
-<p>​	   a.通用套接字</p>
-<pre><code class="language-c">struct sockaddr{
-    unsigned short sa_family;/*地址族*/
-    char sa_data[14];
-};
-</code></pre>
-<p>​		b.ipv4套接字</p>
-<pre><code class="language-c">struct sockaddr_in{    
-    short int sin_family;/*地址族*/
-    unsigned short int sin_port;/*端口号*/
-    struct in_addr sin_addr;/*IP地址*/
-    unsigned char sin_zero[8];/*零数据*/
-}；
-</code></pre>
-<p>​		c.ipv6套接字</p>
-<pre><code class="language-c">struct sockaddr_in6
-</code></pre>
-<p>地址族：决定了决定了套接字的种类</p>
-<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/family.png" alt="" loading="lazy"></figure>
-<p>通用套接字和特殊套接字之间可以进行相互的转换，这两种表现形式实际上是等价的。socketaddr_in用于用户设置的地址信息，sockaddr则用于作为bind,connet,recfvfrom等函数的参数。</p>
-</li>
-<li>
-<p>地址转换函数</p>
-<pre><code class="language-c">int inet_pton(int family,const char *src,void *dst);
-
-const char *inet_ntop(int family,const void *src,char *dst,size_t cnt);
-</code></pre>
-<p>dst是指向struct in_addr或struct in6_addr 的指针，必须事先分配空间src是指向点分10进制的字符串指针</p>
-</li>
-</ol>
-<h2 id="四几个重要的函数">四.几个重要的函数</h2>
-<h3 id="1socket函数">1.socket函数</h3>
-<p>int socket(int family,int type,int protocol)</p>
-<p>作用：创建一个新的套接字</p>
-<p>参数：</p>
-<ul>
-<li>
-<p>family：网络协议族（IPV4,IPV6,UNIX）</p>
-</li>
-<li>
-<p>type：协议类型 (字节流，数据报，有序分组套接字，原始套接字）</p>
-<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/type.png" alt="" loading="lazy"></figure>
-</li>
-<li>
-<p>protocol：特定的协议类型（TCP,UDP,SCTP）</p>
-<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/protocol.png" alt="" loading="lazy"></figure>
-</li>
-<li>
-<figure data-type="image" tabindex="4"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/relation.png" alt="" loading="lazy"></figure>
-<p>UDP是数据报套接字</p>
-<p>TCP是字节流套接字</p>
-</li>
-</ul>
-<p>返回值：返回值为非负则说明申请一个套接字成功，出错返回-1</p>
-<h3 id="2bind函数">2.bind函数</h3>
-<p>int bind(int sockfd,const struct sockaddr *myaddr,socklen_t addrlen);</p>
-<p>作用：把套接字绑定在相应的ip和端口</p>
-<p>参数：</p>
-<ul>
-<li>sockfd：开始创建的套接字描述符</li>
-<li>myaddr：指向特定协议的地址结构指针，指本地地址和端口号</li>
-<li>addrlen：地址长度</li>
-</ul>
-<p>对于客户机而言：绑定一个特定的IP就相当于为该套接字发送的IP数据报指定了源IP地址，但是这个IP应该是属于这个主机的某个端口。如果没有调用bind函数进行绑定，则内核会为相应的套接字选择一个临时的端口，常用于客户机上。</p>
-<p>对于服务器而言：绑定一个特定的IP就限定了该套接字只接收那些客户机的IP数据报。</p>
-<p><strong>绑定的具体含义</strong>：绑定涉及到三个对象，套接字，地址和端口。其中套接字是捆绑的主体，地址和端口是绑定在套接字上的客体。</p>
-<p>返回值：成功返回0，出错返回-1</p>
-<h3 id="3connect函数">3.connect函数</h3>
-<p>int connect(int sockfd,const struct sockaddr *servaddr,socklen_t addrlen)</p>
-<p>作用：客户机用connect函数来建立与TCP服务器的连接。</p>
-<p>参数：</p>
-<ul>
-<li>sockfd：<strong>创建的套接字，这里可以是已绑定的，也可以是还未绑定的，未绑定的套接字，内核会自动为它进行分配相应的ip和端口号。</strong></li>
-<li>servaddr：指向要建立连接的服务器的ip地址和端口号，这两个信息一般来说是周知的。</li>
-<li>addrlen：地址的长度。</li>
-</ul>
-<p>返回值：成功返回0，出错返回-1</p>
-<p>注意：当循环调用connect并尝试知道有一个成功的连接时，在每次connect失败后都必须closed掉当前的套接字描述符并重新调用socket。</p>
-<h3 id="4listen函数">4.listen函数</h3>
-<p>int listen (int sockfd,int backlog);</p>
-<p>作用：把为建立连接的套接字转化为一个被动套接字，指示内核应接受指向该套接字的连接请求。在接收到客户机的SYN时在未连接的队列中创建一个新的单元，在三次握手完成后就将未连接的队列连接到已连接的队列，并返回1表示连接成功。listen函数总的来说就是做监听作用。</p>
-<p>参数：</p>
-<ul>
-<li>sockfd：指示套接字的描述符</li>
-<li>backlog：指定监听连接的数量，已连接的队列和未连接的队列之和不超过backlog的值。</li>
-</ul>
-<p>返回值：</p>
-<p>成功返回0，出错返回-1</p>
-<h3 id="5accept函数">5.accept函数</h3>
-<p>int accept(int sockfd,struct sockaddr *<em>cliaddr,socklen_t</em> *addrlen);</p>
-<p>作用：成功返回后，系统从完成队列中取出socket，为每个连接创建一个新的连接套接字，服务器只对新的连接使用该套接字，**原来的监听套接字仍然保留用作其它的连接请求。**其返回值是内核自动生成的一个全新的描述符。<strong>一个服务器通常只有一个监听套接字</strong>，内核为服务器的每个进程创建一个新的套接字用以保持连接，在连接结束后就会自动关闭这个连接套接字，而监听套接字在服务器的整个生命周期一直存在。</p>
-<p>参数：</p>
-<ul>
-<li>
-<p>sockfd：监听套接字的描述符，用于TCP协议</p>
-</li>
-<li>
-<p>cliaddr：这个sockadd指针会在accept函数里面进行设置</p>
-</li>
-<li>
-<p>addrlen：这个长度指针也会在accept函数里面进行设置</p>
-</li>
-</ul>
-<p>返回值：</p>
-<p>若成功则描述结果为非负也就是内核为接受的客服连接创建的一个已连接套接字，出错则为-1</p>
-<p>关于accept函数listen函数及其维护的两个队列的相关说明</p>
-<figure data-type="image" tabindex="5"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E9%98%9F%E5%88%97.jpg" alt="" loading="lazy"></figure>
-<p>TCP转换图：</p>
-<figure data-type="image" tabindex="6"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2.png" alt="" loading="lazy"></figure>
-<p>在状态转换图中并未出现把未连接的套接字转换为被动套接字这个过程。</p>
-<p>三次握手示意图：</p>
-<figure data-type="image" tabindex="7"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B.png" alt="" loading="lazy"></figure>
-<p>三次握手的第一个SYN到达时，服务器为其分配缓存和等资源，然后回发SYN，随机生成的开始序号以及ACK并等待客户端的ACK，在客户端的ACK到来后表示三路握手完成。</p>
-<p>具体说明：</p>
-<p>用socket创建套接字后，它是一个未连接套接字这里创建的也就是用于监听的套接字，在主动调用listen函数后就把创建的这个套接字做监听使用也就是监听套接字，也就是前面所说的把一个未连接的套接字转换为了被动套接字，所以监听套接字实际上在这个时候就等于被动套接字。在三次握手的客户端的SYN到达时，就会把这个被动套接字（监听套接字）的信息自动复制（内核自动完成）一份到为完成的队列，然后监听套接字再去监听其它的连接，这个未完成的套接字就继续做三次握手剩下的内容。在完成三次握手后就把这一项从未完成队列转移到完成队列。</p>
-<h3 id="6close函数">6.close函数</h3>
-<p>int close(int sockfd)</p>
-<p>作用：默认行为是关闭该套接字的，然后返回调用进程。</p>
-<p>参数：</p>
-<ul>
-<li>套接字的描述符</li>
-</ul>
-<p>返回值：</p>
-<p>若成功则返回0，出错返回-1</p>
-<h3 id="7recv函数">7.recv函数</h3>
-<p>ssize_t recv(int sockfd,void *buf,size_t len,int flags)</p>
-<p>作用：从TCP接收数据，返回实际的数据长度，这里的sockfd里面包含了接收的数据的IP地址。如果只有一个进程使用，立即终止连接并撤销该套接字，如果多个进程共享该套接字，将引用数减一，如果引用数降到零，则撤销它。</p>
-<p>参数：</p>
-<ul>
-<li>
-<p>sockfd：套接字描述符</p>
-</li>
-<li>
-<p>buf：接收数据的存放缓存，指向内存的指针</p>
-</li>
-<li>
-<p>len：接收的数据的长度</p>
-</li>
-<li>
-<p>flags：一般为0</p>
-</li>
-</ul>
-<p>返回值：若成功则返回读的字数，出错返回-1</p>
-<h3 id="8recvfrom函数">8.recvfrom函数</h3>
-<p>ssize_t recvfrom(int sockfd,void *<em>buf,size_t len,int flags,struct sockaddr</em> *src_addr,socklen_t *addrlen)</p>
-<p>作用：在UDP连接上发送数据，成功就返回数据的长度，由于UDP是为建立连接的，所以事先不知道数据是从哪发来的，所以这里需要额外的参数来保存接收数据的IP和端口号。</p>
-<p>参数：</p>
-<ul>
-<li>
-<p>sockfd：套接字描述符</p>
-</li>
-<li>
-<p>buf：接收数据的存放缓存，指向内存的指针</p>
-</li>
-<li>
-<p>len：接收的数据的长度</p>
-</li>
-<li>
-<p>flags：一般为0</p>
-</li>
-<li>
-<p>src_addr：保存远端的地址（发送方，对当前而言的接收方）即IP和端口号</p>
-</li>
-<li>
-<p>addrlen：远端的地址的长度的指针</p>
-</li>
-</ul>
-<p>返回值：若成功则返回读的字数，出错返回-1</p>
-<h3 id="9send函数">9.send函数</h3>
-<p>int send(int sockfd,const void *buf,size_t len,int flags)</p>
-<p>作用：在TCP连接上发送数据，成功就返回数据的长度，所以这里也不需要额外指接收数据的IP和端口号，因为套接字描述符里面有绑定。</p>
-<p>参数：</p>
-<ul>
-<li>
-<p>sockfd：套接字描述符</p>
-</li>
-<li>
-<p>buf：发送缓存</p>
-</li>
-<li>
-<p>len：发送数据的长度</p>
-</li>
-<li>
-<p>flags：一般为0</p>
-</li>
-</ul>
-<p>返回值：若成功则返回写的字数，出错返回-1</p>
-<h3 id="10sendto函数">10.sendto函数</h3>
-<p>int sendto(int  sockfd,const void *<em>buf,size_t len,int flags,const struct sockaddr</em> *dest_addr,socklen_t addrlen)</p>
-<p>作用：在UDP连接上发送数据，成功就返回数据的长度。因为UDP套接字里没有绑定发送的IP地址和端口号，所以这里需要额外指接收数据的IP和端口号。</p>
-<p>参数：</p>
-<ul>
-<li>
-<p>sockfd：套接字描述符</p>
-</li>
-<li>
-<p>buf：发送缓存</p>
-</li>
-<li>
-<p>len：发送数据的长度</p>
-</li>
-<li>
-<p>flags：一般为0</p>
-</li>
-<li>
-<p>dest_addr：发送的数据的地址，由前面的recform获得</p>
-</li>
-<li>
-<p>addrlen：远端的地址的长度</p>
-</li>
-</ul>
-<p>返回值：若成功则返回写的字数，出错返回-1</p>
-<h2 id="五循环服务器udp编程">五.循环服务器UDP编程</h2>
-<h3 id="1服务器端">1.服务器端</h3>
-<ol>
-<li>
-<p>建立UDP套接字</p>
-</li>
-<li>
-<p>绑定套接字到特定的地址（将套接字与对应的地址，端口号相关联）</p>
-</li>
-<li>
-<p>等待并接收客户端的信息</p>
-</li>
-<li>
-<p>处理客户端请求</p>
-</li>
-<li>
-<p>发送信息回客户端</p>
-</li>
-<li>
-<p>关闭套接字</p>
-</li>
-</ol>
-<h3 id="2客户端">2.客户端</h3>
-<ol>
-<li>
-<p>建立UDP套接字</p>
-</li>
-<li>
-<p>发送信息给服务器</p>
-</li>
-<li>
-<p>接收来自服务器的信息</p>
-</li>
-<li>
-<p>关闭套接字</p>
-</li>
-</ol>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[多进程]]></title>
-        <id>https://yvainefire.github.io/post/duo-jin-cheng/</id>
-        <link href="https://yvainefire.github.io/post/duo-jin-cheng/">
-        </link>
-        <updated>2020-07-30T07:25:38.000Z</updated>
-        <content type="html"><![CDATA[<p>#一. fork函数</p>
-<h2 id="1关于fork函数">1.关于fork()函数</h2>
-<p>pid_t fork(void);</p>
-<p>创建一个新的进程，对于原进程而言该进程是子进程。</p>
-<p>注意子进程和父进程的关系</p>
-<h2 id="2关于返回值">2.关于返回值</h2>
-<p>返回值有两个</p>
-<p>对于子进程而言返回值为0</p>
-<p>对于父进程而言，返回值是子进程的进程号</p>
-<p><strong>为什么返回值会设置两个</strong>：因为对于一个父进程而言，是很难获得其子进程的进程号的，毕竟 一个父进程可能会有多个子进程。所以对于父进程而言，返回值设置其子进程的进程号，方便  父进程进行记录。而对于子进程而言，就很容易找到其父进程对应的进程号，使用getppid()函数。<br>
-出错返回-1</p>
-<h2 id="3关于拷贝">3.关于拷贝</h2>
-<p>os会分配新的内存空间和内核数据结构给子进程</p>
-<p>父进程中的部分代码，数据会拷贝到子进程中包括父进程的数据空间，堆，栈，还包括缓冲区的数据。这些拷贝的东西都是父本，所以是不会进行数据共享的，包括信号量。对于代码拷贝一定要注意：只拷贝位于fork()之后的代码，同时这里的拷贝不是真正的拷贝，只能说是代码的共享。这里特别注意循环结构，</p>
-<p><strong>父子进程是相对的</strong>！！！！</p>
-<p><strong>特别注意在带循环的进程创建的时候，在父进程创建子进程后，子进程拷贝的代码是for()位置当前未执行完的代码，即还需要考虑仍需执行的循环的次数。若该子进程会进行fork()创建对他而言的子进程，则在以此子进程为主进程的进程中，此子进程充当父进程。即父子进程是相对的额，是根据两进程的相对关系而言的。这里特别要注意，使用for进行fork()时一共创建的进程不是1+n个！！！</strong></p>
-<p>两段代码：<br>
-代码1</p>
-<pre><code class="language-c">for(int i=0;i&lt;3;i++)  
-{    
-    if(pid=fork())    
-    {      
-        printf(&quot;%d\n&quot;,getpid());    
-    }    
-    else    
-    {      
-        printf(&quot;%d\n&quot;,getpid());    
-    }      
-}
-</code></pre>
-<p>代码2</p>
-<pre><code class="language-c">int i=1;
-
-  while((pid=fork()))    
-  {            
-      printf(&quot;pid:%d i:%d\n&quot;,getpid(),i);      
-      if(i&gt;5)      
-      {                  
-          break;      
-      }                      
-      i++;        
-  }    
-
-printf(&quot;pid:%d\n&quot;,getpid());
-</code></pre>
 ]]></content>
     </entry>
 </feed>
