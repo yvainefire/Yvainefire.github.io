@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>C++面向对象 成员初始化 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1617885201924">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）
+构造函数的特点：
+
+名称和class的名称一样
+构造函数的不应该指定返回类型
+构造函数允许被重载
+构造函数在类被定义后根据传入参数的类型进行选择并调用
+..." />
+    <meta name="keywords" content="c++" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1617885201924" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">C++面向对象 成员初始化</h2>
+            <div class="post-date">2021-04-08</div>
+            
+            <div class="post-content" v-pre>
+              <p>C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）</p>
+<p>构造函数的特点：</p>
+<ul>
+<li>名称和class的名称一样</li>
+<li>构造函数的不应该指定返回类型</li>
+<li>构造函数允许被重载</li>
+<li>构造函数在类被定义后根据传入参数的类型进行选择并调用</li>
+</ul>
+<h2 id="default-constructor">default constructor</h2>
+<p>不需要任何参数，不接受参数或者是提供默认参数</p>
+<pre><code class="language-c++">class_name(int a=1, int b=2){
+	data_member_1 = a;
+	data_member_2 = b;
+}
+</code></pre>
+<h2 id="member-initialization-list">Member Initialization List</h2>
+<p>C++的的构造函数除了具有一般函数的特征外。还可以具有初始化列表。初始化列表更在函数参数的括号后面，以 : 开头</p>
+<pre><code class="language-c++">class_name(int a, int b):data_member_1(a),data_member_2(b)
+{
+
+}
+</code></pre>
+<h2 id="c构造函数的两个阶段">C++构造函数的两个阶段</h2>
+<h3 id="初始化阶段">初始化阶段</h3>
+<ul>
+<li>调用初始化列表</li>
+<li>未初始化的类成员（不在初始化列表）调用默认构造函数</li>
+</ul>
+<h3 id="计算阶段">计算阶段</h3>
+<p>在执行完初始化阶段后，执行构造体函体内的赋值操作，进行初始化。</p>
+<p><strong>具体顺序</strong>：成员变量被初始化的顺序是由成员变量在class里面声明的顺序决定的，先声明的先初始化。初始化的顺序是先利用初始化参数表进行初始化，根据初始化参数表提供的参数类型，选择相应的构造函数进行初始化，可以把初始化参数表种没有提到的参数，默认是其调用了不含参数的构造函数，也就是说所有的未初始化的成员变量如果有不含参数的构造方法都会在调用初始化参数列表时调用一种构造方法进行构造。然后再根据构造函数里面的计算赋值阶段。</p>
+<p>eg:</p>
+<pre><code class="language-c++">class BaseTest1{
+public:
+    BaseTest1();
+    BaseTest1(const BaseTest1&amp; t1);
+    BaseTest1&amp; operator=(const BaseTest1&amp; t1);
+private:
+    int a;
+};
+
+BaseTest1::BaseTest1()
+{
+    cout &lt;&lt; &quot;BaseTest1 Constructor&quot; &lt;&lt; endl;
+    this-&gt;a = 0;
+}
+
+BaseTest1::BaseTest1(const BaseTest1 &amp;t1)
+{
+    cout &lt;&lt; &quot;BaseTest1 Copy Constructor&quot; &lt;&lt; endl;
+    this-&gt;a = t1.a;
+}
+
+BaseTest1&amp; BaseTest1::operator=(const BaseTest1 &amp;t1)
+{
+    cout &lt;&lt; &quot;BaseTest1 assignment&quot; &lt;&lt; endl;
+    this-&gt;a = t1.a;
+    return *this;
+}
+
+class BaseTest2
+{
+public:
+    BaseTest2()
+    {
+        cout &lt;&lt; &quot;BaseTest2 Constructor&quot; &lt;&lt; endl;
+        this-&gt;a = 0;
+    }
+    BaseTest2(const BaseTest2&amp; t)
+    {
+        cout &lt;&lt; &quot;BaseTest2 Copy Constructor&quot; &lt;&lt; endl;
+        this-&gt;a = t.a;
+    }
+    BaseTest2&amp; operator=(const BaseTest2&amp; t)
+    {
+        cout &lt;&lt; &quot;BaseTest2 assignment&quot; &lt;&lt; endl;
+        this-&gt;a = t.a;
+        return *this;
+    }
+private:
+    int a;
+};
+
+
+class Test{
+public:
+    Test(BaseTest1&amp; t1, BaseTest2&amp; t2):test1(t1)
+    {
+        this-&gt;test2 = t2;
+    }
+
+public:
+    BaseTest2 test2;
+    BaseTest1 test1;
+};
+
+
+int main(int argc, char* args[])
+{
+    BaseTest1 test1;
+    BaseTest2 test2;
+    Test test(test1, test2);
+}
+————————————————
+版权声明：代码为CSDN博主「惜暮」的原创
+代码链接：https://blog.csdn.net/u010853261/article/details/85036025
+</code></pre>
+<p>执行结果：</p>
+<pre><code>BaseTest1 Constructor
+BaseTest2 Constructor
+BaseTest2 Constructor
+BaseTest1 Copy Constructor
+BaseTest2 assignment
+</code></pre>
+<p>使用初始化列表可以减少计算阶段的赋值操作，毕竟大多数时候成员变量在调用初始化列表的时候都会采用一种构造方法进行初始化。</p>
+<p>注意：在列表调用初始化阶段时如果涉及到成员变量的作为参数，则一定要注意成员变量在class中定义的顺序，防止未定义的情况出现。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/gqQsGW93l/" class="tag">
+                    c++
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/stl-biao-zhun-ku/">
+                  <h3 class="post-title">
+                    STL标准库
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

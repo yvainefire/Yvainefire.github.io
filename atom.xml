@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2021-04-08T08:30:13.669Z</updated>
+    <updated>2021-04-08T12:33:24.159Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -10,6 +10,130 @@
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[C++面向对象 成员初始化]]></title>
+        <id>https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/</id>
+        <link href="https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/">
+        </link>
+        <updated>2021-04-08T12:33:04.000Z</updated>
+        <content type="html"><![CDATA[<p>C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）</p>
+<p>构造函数的特点：</p>
+<ul>
+<li>名称和class的名称一样</li>
+<li>构造函数的不应该指定返回类型</li>
+<li>构造函数允许被重载</li>
+<li>构造函数在类被定义后根据传入参数的类型进行选择并调用</li>
+</ul>
+<h2 id="default-constructor">default constructor</h2>
+<p>不需要任何参数，不接受参数或者是提供默认参数</p>
+<pre><code class="language-c++">class_name(int a=1, int b=2){
+	data_member_1 = a;
+	data_member_2 = b;
+}
+</code></pre>
+<h2 id="member-initialization-list">Member Initialization List</h2>
+<p>C++的的构造函数除了具有一般函数的特征外。还可以具有初始化列表。初始化列表更在函数参数的括号后面，以 : 开头</p>
+<pre><code class="language-c++">class_name(int a, int b):data_member_1(a),data_member_2(b)
+{
+
+}
+</code></pre>
+<h2 id="c构造函数的两个阶段">C++构造函数的两个阶段</h2>
+<h3 id="初始化阶段">初始化阶段</h3>
+<ul>
+<li>调用初始化列表</li>
+<li>未初始化的类成员（不在初始化列表）调用默认构造函数</li>
+</ul>
+<h3 id="计算阶段">计算阶段</h3>
+<p>在执行完初始化阶段后，执行构造体函体内的赋值操作，进行初始化。</p>
+<p><strong>具体顺序</strong>：成员变量被初始化的顺序是由成员变量在class里面声明的顺序决定的，先声明的先初始化。初始化的顺序是先利用初始化参数表进行初始化，根据初始化参数表提供的参数类型，选择相应的构造函数进行初始化，可以把初始化参数表种没有提到的参数，默认是其调用了不含参数的构造函数，也就是说所有的未初始化的成员变量如果有不含参数的构造方法都会在调用初始化参数列表时调用一种构造方法进行构造。然后再根据构造函数里面的计算赋值阶段。</p>
+<p>eg:</p>
+<pre><code class="language-c++">class BaseTest1{
+public:
+    BaseTest1();
+    BaseTest1(const BaseTest1&amp; t1);
+    BaseTest1&amp; operator=(const BaseTest1&amp; t1);
+private:
+    int a;
+};
+
+BaseTest1::BaseTest1()
+{
+    cout &lt;&lt; &quot;BaseTest1 Constructor&quot; &lt;&lt; endl;
+    this-&gt;a = 0;
+}
+
+BaseTest1::BaseTest1(const BaseTest1 &amp;t1)
+{
+    cout &lt;&lt; &quot;BaseTest1 Copy Constructor&quot; &lt;&lt; endl;
+    this-&gt;a = t1.a;
+}
+
+BaseTest1&amp; BaseTest1::operator=(const BaseTest1 &amp;t1)
+{
+    cout &lt;&lt; &quot;BaseTest1 assignment&quot; &lt;&lt; endl;
+    this-&gt;a = t1.a;
+    return *this;
+}
+
+class BaseTest2
+{
+public:
+    BaseTest2()
+    {
+        cout &lt;&lt; &quot;BaseTest2 Constructor&quot; &lt;&lt; endl;
+        this-&gt;a = 0;
+    }
+    BaseTest2(const BaseTest2&amp; t)
+    {
+        cout &lt;&lt; &quot;BaseTest2 Copy Constructor&quot; &lt;&lt; endl;
+        this-&gt;a = t.a;
+    }
+    BaseTest2&amp; operator=(const BaseTest2&amp; t)
+    {
+        cout &lt;&lt; &quot;BaseTest2 assignment&quot; &lt;&lt; endl;
+        this-&gt;a = t.a;
+        return *this;
+    }
+private:
+    int a;
+};
+
+
+class Test{
+public:
+    Test(BaseTest1&amp; t1, BaseTest2&amp; t2):test1(t1)
+    {
+        this-&gt;test2 = t2;
+    }
+
+public:
+    BaseTest2 test2;
+    BaseTest1 test1;
+};
+
+
+int main(int argc, char* args[])
+{
+    BaseTest1 test1;
+    BaseTest2 test2;
+    Test test(test1, test2);
+}
+————————————————
+版权声明：代码为CSDN博主「惜暮」的原创
+代码链接：https://blog.csdn.net/u010853261/article/details/85036025
+</code></pre>
+<p>执行结果：</p>
+<pre><code>BaseTest1 Constructor
+BaseTest2 Constructor
+BaseTest2 Constructor
+BaseTest1 Copy Constructor
+BaseTest2 assignment
+</code></pre>
+<p>使用初始化列表可以减少计算阶段的赋值操作，毕竟大多数时候成员变量在调用初始化列表的时候都会采用一种构造方法进行初始化。</p>
+<p>注意：在列表调用初始化阶段时如果涉及到成员变量的作为参数，则一定要注意成员变量在class中定义的顺序，防止未定义的情况出现。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[STL标准库]]></title>
         <id>https://yvainefire.github.io/post/stl-biao-zhun-ku/</id>
@@ -345,29 +469,6 @@ int *p3 = NULL;
 </code></pre>
 <p><strong>注意不能使用初始化列表对齐进行初始化</strong></p>
 </li>
-</ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[ C++的输入输出]]></title>
-        <id>https://yvainefire.github.io/post/cde-shu-ru-shu-chu/</id>
-        <link href="https://yvainefire.github.io/post/cde-shu-ru-shu-chu/">
-        </link>
-        <updated>2021-03-08T13:50:03.000Z</updated>
-        <content type="html"><![CDATA[<p>输出/输出库：iostream</p>
-<h2 id="1输出">1.输出</h2>
-<p>cout：将信息写到用户的终端中</p>
-<p>格式：</p>
-<ul>
-<li>cout &lt;&lt; &quot;输出内容1&quot;;</li>
-<li>cout &lt;&lt; &quot;输出内容1&quot; &lt;&lt;  &quot;输出内容2&quot; ......;</li>
-<li>cout &lt;&lt; 变量;</li>
-</ul>
-<h2 id="2输入">2.输入</h2>
-<p>cin：读取用户在终端上的内容</p>
-<p>格式：</p>
-<ul>
-<li>cin &gt;&gt; user_name;</li>
 </ul>
 ]]></content>
     </entry>
