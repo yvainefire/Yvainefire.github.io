@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C语言 | YvaineFire_block</title>
+<title>C++ 面向对象 类的声明和定义 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,7 +18,16 @@
 
 
 
-    <meta name="description" content="Rush Rush B">
+    <meta name="description" content="类的声明
+类的声明以关键是 class开始，
+class class_name;
+
+类的前置声明只是告诉编译器有这个类的存在，同时可以定义类指针
+类的定义
+class 声明  +  声明后的主体
+class class_template{
+..." />
+    <meta name="keywords" content="c++" />
   </head>
   <body>
     <div id="app" class="main">
@@ -88,43 +97,71 @@
 
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
-          <h2 class="current-tag">标签: C语言</h2>
-          
-            <article class="post-item">
-              <div class="left">
-                <a href="https://yvainefire.github.io/post/han-shu-zhi-zhen/">
-                  <h2 class="post-title">函数指针</h2>
-                </a>
-                <div class="post-date">
-                  2020-07-30
-                </div>
-                <div class="post-abstract">
-                  
-                </div>
-              </div>
-              
-            </article>
-          
-            <article class="post-item">
-              <div class="left">
-                <a href="https://yvainefire.github.io/post/dui-qi/">
-                  <h2 class="post-title">对齐</h2>
-                </a>
-                <div class="post-date">
-                  2020-07-30
-                </div>
-                <div class="post-abstract">
-                  
-                </div>
-              </div>
-              
-            </article>
-          
+          <div class="post-detail">
+            <h2 class="post-title">C++ 面向对象 类的声明和定义</h2>
+            <div class="post-date">2021-04-08</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="类的声明">类的声明</h2>
+<p>类的声明以关键是 class开始，</p>
+<pre><code class="language-c++">class class_name;
+</code></pre>
+<p>类的前置声明只是告诉编译器有这个类的存在，同时可以定义类指针</p>
+<h2 id="类的定义">类的定义</h2>
+<p>class 声明  +  声明后的主体</p>
+<pre><code class="language-c++">class class_template{
+pubilic:
 
-          <div class="pagination-container">
-  
-  
-</div>
+private:
+
+}
+</code></pre>
+<p>主体内包括data member和member function，同时这两种都具有public或者private属性，public属性的可以被类外访问，private属性的只能被类里面的东西访问。</p>
+<p>member function 必须在类里面声明，但不一定在类里面定义。在类里面定义的时候会被默认定义为inline函数。在类外定义是需要特殊指定是哪个类的函数。</p>
+<pre><code class="language-c++">class class_template{
+pubilic:
+	void function_1(int a);
+	void function_2(int b);
+
+	void funciton_2(int b)
+	{
+		.......
+	}
+private:
+	int c;
+}
+
+void class_template::function_2(int a)
+{
+	.......
+}
+</code></pre>
+<p>data member必须通过特殊的方式进行初始化即构造函数（constructor）</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/gqQsGW93l/" class="tag">
+                    c++
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/c-fan-xing-zhi-zhen/">
+                  <h3 class="post-title">
+                    C++ 泛型指针
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
 
         </div>
       </div>
