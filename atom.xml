@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2021-04-08T12:37:01.862Z</updated>
+    <updated>2021-04-08T12:48:17.364Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -16,13 +16,23 @@
         <link href="https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/">
         </link>
         <updated>2021-04-08T12:33:04.000Z</updated>
-        <content type="html"><![CDATA[<p>C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）</p>
+        <content type="html"><![CDATA[<h2 id="constructor">constructor</h2>
+<p>C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）</p>
 <p>构造函数的特点：</p>
 <ul>
 <li>名称和class的名称一样</li>
 <li>构造函数的不应该指定返回类型</li>
 <li>构造函数允许被重载</li>
 <li>构造函数在类被定义后根据传入参数的类型进行选择并调用</li>
+</ul>
+<h2 id="destructor">destructor</h2>
+<p>与构造函数对应的就是析构函数（destructor），对构造函数中分配的资源进行释放回收，完成heap内存的管理。</p>
+<p>析构函数的特点：</p>
+<ul>
+<li>析构函数的名称是class名前加个~</li>
+<li>析构函数没有返回值</li>
+<li>析构函数不带任何参数</li>
+<li>析构函数不能被重载</li>
 </ul>
 <h2 id="default-constructor">default constructor</h2>
 <p>不需要任何参数，不接受参数或者是提供默认参数</p>
@@ -38,6 +48,13 @@
 
 }
 </code></pre>
+<h2 id="memberwise-initialzation">Memberwise Initialzation</h2>
+<p>用一个class object 来初始化另一个object</p>
+<p>eg:</p>
+<pre><code class="language-c++">class_name obj_1(paraments);
+class_name obj_2 = obj_1;
+</code></pre>
+<p>采用</p>
 <h2 id="c构造函数的两个阶段">C++构造函数的两个阶段</h2>
 <h3 id="初始化阶段">初始化阶段</h3>
 <ul>

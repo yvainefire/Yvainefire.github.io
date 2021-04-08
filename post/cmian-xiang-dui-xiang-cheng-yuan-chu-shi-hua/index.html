@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1617885377579">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1617886095434">
 <link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
 
 
@@ -18,14 +18,14 @@
 
 
 
-    <meta name="description" content="C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）
+    <meta name="description" content="constructor
+C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）
 构造函数的特点：
 
 名称和class的名称一样
 构造函数的不应该指定返回类型
 构造函数允许被重载
-构造函数在类被定义后根据传入参数的类型进行选择并调用
-..." />
+构造函数在类被定义后根据传入参..." />
     <meta name="keywords" content="c++" />
   </head>
   <body>
@@ -35,7 +35,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://yvainefire.github.io">
-        <img src="https://yvainefire.github.io/images/avatar.png?v=1617885377579" class="site-logo">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1617886095434" class="site-logo">
         <h1 class="site-title">YvaineFire_block</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -101,13 +101,23 @@
             <div class="post-date">2021-04-08</div>
             
             <div class="post-content" v-pre>
-              <p>C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）</p>
+              <h2 id="constructor">constructor</h2>
+<p>C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）</p>
 <p>构造函数的特点：</p>
 <ul>
 <li>名称和class的名称一样</li>
 <li>构造函数的不应该指定返回类型</li>
 <li>构造函数允许被重载</li>
 <li>构造函数在类被定义后根据传入参数的类型进行选择并调用</li>
+</ul>
+<h2 id="destructor">destructor</h2>
+<p>与构造函数对应的就是析构函数（destructor），对构造函数中分配的资源进行释放回收，完成heap内存的管理。</p>
+<p>析构函数的特点：</p>
+<ul>
+<li>析构函数的名称是class名前加个~</li>
+<li>析构函数没有返回值</li>
+<li>析构函数不带任何参数</li>
+<li>析构函数不能被重载</li>
 </ul>
 <h2 id="default-constructor">default constructor</h2>
 <p>不需要任何参数，不接受参数或者是提供默认参数</p>
@@ -123,6 +133,13 @@
 
 }
 </code></pre>
+<h2 id="memberwise-initialzation">Memberwise Initialzation</h2>
+<p>用一个class object 来初始化另一个object</p>
+<p>eg:</p>
+<pre><code class="language-c++">class_name obj_1(paraments);
+class_name obj_2 = obj_1;
+</code></pre>
+<p>采用</p>
 <h2 id="c构造函数的两个阶段">C++构造函数的两个阶段</h2>
 <h3 id="初始化阶段">初始化阶段</h3>
 <ul>
