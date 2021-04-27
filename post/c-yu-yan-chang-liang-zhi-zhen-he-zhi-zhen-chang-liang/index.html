@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title> C++的输入输出 | YvaineFire_block</title>
+<title>C语言 常量指针和指针常量 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,14 +18,12 @@
 
 
 
-    <meta name="description" content="输出/输出库：iostream
-1.输出
-cout：将信息写到用户的终端中
-格式：
-
-cout &lt;&lt; &quot;输出内容1&quot;;
-cout &lt;&lt; &quot;输出内容1&quot; &lt;&lt;  &q..." />
-    <meta name="keywords" content="c++" />
+    <meta name="description" content="常量指针
+指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。
+int A = 1;
+int B = 2;
+const int * C = &amp;A; //定义一..." />
+    <meta name="keywords" content="C语言" />
   </head>
   <body>
     <div id="app" class="main">
@@ -96,32 +94,36 @@ cout &lt;&lt; &quot;输出内容1&quot; &lt;&lt;  &q..." />
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title"> C++的输入输出</h2>
-            <div class="post-date">2021-03-08</div>
+            <h2 class="post-title">C语言 常量指针和指针常量</h2>
+            <div class="post-date">2021-04-27</div>
             
             <div class="post-content" v-pre>
-              <p>输出/输出库：iostream</p>
-<h2 id="1输出">1.输出</h2>
-<p>cout：将信息写到用户的终端中</p>
-<p>格式：</p>
-<ul>
-<li>cout &lt;&lt; &quot;输出内容1&quot;;</li>
-<li>cout &lt;&lt; &quot;输出内容1&quot; &lt;&lt;  &quot;输出内容2&quot; ......;</li>
-<li>cout &lt;&lt; 变量;</li>
-</ul>
-<h2 id="2输入">2.输入</h2>
-<p>cin：读取用户在终端上的内容</p>
-<p>格式：</p>
-<ul>
-<li>cin &gt;&gt; user_name;</li>
-</ul>
+              <h2 id="常量指针">常量指针</h2>
+<p>指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。</p>
+<pre><code class="language-c">int A = 1;
+int B = 2;
+const int * C = &amp;A; //定义一个常量指针
+int const * B = &amp;A; //定义一个常量指针
+</code></pre>
+<h2 id="指针常量">指针常量</h2>
+<p>指针常量是指这个指针是一个常量，即不能将这个指针指向其它的地址，即不能改变这个指针本身。</p>
+<pre><code class="language-c">int A = 1;
+int B = 2;
+int * const n =&amp;A; //定义一个指针常量
+</code></pre>
+<p><strong>注：区分常量指针和指针常量，可以通过const在 * 的左边还是右边。</strong></p>
+<h2 id="常量指针常量">常量指针常量</h2>
+<p>同时具有常量指针和指针常量的特点，既无法修改指针指向的内容也无法修改指针本身。</p>
+<pre><code class="language-c">int A = 1;
+const int * const C = &amp;A;
+</code></pre>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://yvainefire.github.io/tag/gqQsGW93l/" class="tag">
-                    c++
+                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
+                    C语言
                   </a>
                 
               </div>
@@ -129,9 +131,9 @@ cout &lt;&lt; &quot;输出内容1&quot; &lt;&lt;  &q..." />
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/python-de-import/">
+                <a href="https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/">
                   <h3 class="post-title">
-                    Python的import
+                    C++面向对象 data member初始化
                   </h3>
                 </a>
               </div>

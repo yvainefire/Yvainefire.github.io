@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1617886095434">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1619520751433">
 <link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
 
 
@@ -35,7 +35,7 @@ C++的所有成员未初始化的成员通过构造函数进行操作，构造�
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://yvainefire.github.io">
-        <img src="https://yvainefire.github.io/images/avatar.png?v=1617886095434" class="site-logo">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1619520751433" class="site-logo">
         <h1 class="site-title">YvaineFire_block</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -139,7 +139,8 @@ C++的所有成员未初始化的成员通过构造函数进行操作，构造�
 <pre><code class="language-c++">class_name obj_1(paraments);
 class_name obj_2 = obj_1;
 </code></pre>
-<p>采用</p>
+<p>把obj_1这个类里面的成员变量的值直接通过operator=赋给obj_2。</p>
+<p>这里可能会出现一个问题如果成员变量里面有的值是指针形式的，那么这样的操作会使指针指向同一个地址。如果每个class object的destructor都对之指针指向的内容进行回收那么就可能会导致一些错误。为了解决这个问题可以采用重载一个const class_name &amp;object_name的构造函数，进行手动的赋值操作，申请一个新的内存空间用于指针指向。</p>
 <h2 id="c构造函数的两个阶段">C++构造函数的两个阶段</h2>
 <h3 id="初始化阶段">初始化阶段</h3>
 <ul>
