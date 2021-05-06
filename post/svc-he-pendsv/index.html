@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C语言 常量指针和指针常量 | YvaineFire_block</title>
+<title>SVC 和 PendSV | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,12 +18,10 @@
 
 
 
-    <meta name="description" content="常量指针
-指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。
-int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一..." />
-    <meta name="keywords" content="C语言" />
+    <meta name="description" content="SVC和PendSV多用于操作系统的开发之上，用于将硬件层和应用层分开。
+SVC系统调用服务
+SVC是一种异常，对应一个特定的SVC异常服务程序。同时使用SVC系统调用服务的时候还需要一个对应的立即数充当系统调用号。根据这个立即数，去调用相..." />
+    <meta name="keywords" content="FreeRTOS" />
   </head>
   <body>
     <div id="app" class="main">
@@ -94,36 +92,24 @@ const int * C = &amp;A; //定义一..." />
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">C语言 常量指针和指针常量</h2>
-            <div class="post-date">2021-04-27</div>
+            <h2 class="post-title">SVC 和 PendSV</h2>
+            <div class="post-date">2021-05-06</div>
             
             <div class="post-content" v-pre>
-              <h2 id="常量指针">常量指针</h2>
-<p>指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一个常量指针
-int const * B = &amp;A; //定义一个常量指针
-</code></pre>
-<h2 id="指针常量">指针常量</h2>
-<p>指针常量是指这个指针是一个常量，即不能将这个指针指向其它的地址，即不能改变这个指针本身。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-int * const n =&amp;A; //定义一个指针常量
-</code></pre>
-<p><strong>注：区分常量指针和指针常量，可以通过const在 * 的左边还是右边。</strong></p>
-<h2 id="常量指针常量">常量指针常量</h2>
-<p>同时具有常量指针和指针常量的特点，既无法修改指针指向的内容也无法修改指针本身。</p>
-<pre><code class="language-c">int A = 1;
-const int * const C = &amp;A;
-</code></pre>
+              <p>SVC和PendSV多用于操作系统的开发之上，用于将硬件层和应用层分开。</p>
+<h2 id="svc系统调用服务">SVC系统调用服务</h2>
+<p>SVC是一种异常，对应一个特定的SVC异常服务程序。同时使用SVC系统调用服务的时候还需要一个对应的立即数充当系统调用号。根据这个立即数，去调用相应的系统服务函数以实现应用程序对底层硬件的间接调用。</p>
+<p>特点：不能嵌套SVC调用，该异常必须被立即响应，若由于当前正在处理更高优先级的异常或其它的原因，则会产生一个硬件fault。</p>
+<h2 id="pendsv可悬起的系统调用">PendSV可悬起的系统调用</h2>
+<p>PendSV和SVC执行一样的功能，但是PendSV可以向普通的中断被悬起，缓期再进行执行。若触发PendSV异常后，其优先级不够，则将被悬起，缓期执行。</p>
+<p>将PendSV的优先级的设置为最低，可以使得在进行中断处理的时候不进行上下文的切换，从而防止出现systick异常抢占IRQ，并执行上下文切换，导致IRQ被延迟执行，从而影响系统对中断响应的实时性。</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
-                    C语言
+                  <a href="https://yvainefire.github.io/tag/7KcsShw-h/" class="tag">
+                    FreeRTOS
                   </a>
                 
               </div>
@@ -131,9 +117,9 @@ const int * const C = &amp;A;
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/">
+                <a href="https://yvainefire.github.io/post/luo-ji-xi-tong-he-duo-ren-wu-xi-tong/">
                   <h3 class="post-title">
-                    C++面向对象 data member初始化
+                    裸机系统和多任务系统
                   </h3>
                 </a>
               </div>

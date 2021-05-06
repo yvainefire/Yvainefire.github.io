@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C语言 常量指针和指针常量 | YvaineFire_block</title>
+<title>裸机系统和多任务系统 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,12 +18,18 @@
 
 
 
-    <meta name="description" content="常量指针
-指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。
-int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一..." />
-    <meta name="keywords" content="C语言" />
+    <meta name="description" content="裸机系统
+裸机系统包括轮询系统和前后台系统
+轮询系统
+
+结构：主程序是一个死循环，程序顺序执行。
+响应和处理：外部事件由主程序进行响应，由主程序进行执行。
+实时性：实时性较差。可能会导致事件的未被响应。轮询相应，轮询处理。
+
+前后台系统
+
+..." />
+    <meta name="keywords" content="FreeRTOS" />
   </head>
   <body>
     <div id="app" class="main">
@@ -94,36 +100,38 @@ const int * C = &amp;A; //定义一..." />
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">C语言 常量指针和指针常量</h2>
-            <div class="post-date">2021-04-27</div>
+            <h2 class="post-title">裸机系统和多任务系统</h2>
+            <div class="post-date">2021-05-06</div>
             
             <div class="post-content" v-pre>
-              <h2 id="常量指针">常量指针</h2>
-<p>指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一个常量指针
-int const * B = &amp;A; //定义一个常量指针
-</code></pre>
-<h2 id="指针常量">指针常量</h2>
-<p>指针常量是指这个指针是一个常量，即不能将这个指针指向其它的地址，即不能改变这个指针本身。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-int * const n =&amp;A; //定义一个指针常量
-</code></pre>
-<p><strong>注：区分常量指针和指针常量，可以通过const在 * 的左边还是右边。</strong></p>
-<h2 id="常量指针常量">常量指针常量</h2>
-<p>同时具有常量指针和指针常量的特点，既无法修改指针指向的内容也无法修改指针本身。</p>
-<pre><code class="language-c">int A = 1;
-const int * const C = &amp;A;
-</code></pre>
+              <h2 id="裸机系统">裸机系统</h2>
+<p>裸机系统包括轮询系统和前后台系统</p>
+<h3 id="轮询系统">轮询系统</h3>
+<ul>
+<li>结构：主程序是一个死循环，程序顺序执行。</li>
+<li>响应和处理：外部事件由主程序进行响应，由主程序进行执行。</li>
+<li>实时性：实时性较差。可能会导致事件的未被响应。轮询相应，轮询处理。</li>
+</ul>
+<h3 id="前后台系统">前后台系统</h3>
+<ul>
+<li>结构：在轮询系统的基础上加上了中断响应。前台响应中断并标记事件，如果处理的事件较简单则可以直接在中断中处理否则在后台中执行，后台为main函数里的无限循环，判断是否有事件被标记了并进行处理。</li>
+<li>响应和处理：外部事件由中断响应，由中断或主程序处理</li>
+<li>实时性：相比轮询系统，前后台系统确保了事件不会丢失。实时响应事件，但是只能轮询处理。</li>
+</ul>
+<h2 id="多任务系统">多任务系统</h2>
+<ul>
+<li>结构：在前后台系统的基础上，加入了任务的概念。任务是一个无限循环且不返回会的函数，各个任务之间相互独立，同时具备和中断一样的优先级，并由操作系统进行调度和管理。</li>
+<li>响应和处理：外部事件由中断响应，由中断或任务处理</li>
+<li>实时性：实时性可以很强。实时响应事件，并且实时处理事件。</li>
+</ul>
+<p><code>当一个紧急的事件在中断被标记之后，如果事件对应的任务的优先级足够高， 就会立马得到响应。</code></p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
-                    C语言
+                  <a href="https://yvainefire.github.io/tag/7KcsShw-h/" class="tag">
+                    FreeRTOS
                   </a>
                 
               </div>
@@ -131,9 +139,9 @@ const int * const C = &amp;A;
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/">
+                <a href="https://yvainefire.github.io/post/freertos-ren-wu-qie-huan/">
                   <h3 class="post-title">
-                    C++面向对象 data member初始化
+                    FreeRTOS 任务切换
                   </h3>
                 </a>
               </div>
