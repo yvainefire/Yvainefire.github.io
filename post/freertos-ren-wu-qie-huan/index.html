@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>FreeRTOS 任务切换 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1620296319329">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="调用的第一个任务的汇编函数
+使用SVC中断，从当前任务的TCB中找到其栈顶，然后将栈里面的数据恢复到CPU的寄存器中，最后返回。
+调用SVC中断时，如果当响应异常时，当前的代码正在使用PSP，则压入 PSP，即使用线程堆栈；否则压入MSP，..." />
+    <meta name="keywords" content="FreeRTOS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1620296319329" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">FreeRTOS 任务切换</h2>
+            <div class="post-date">2021-05-06</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="调用的第一个任务的汇编函数">调用的第一个任务的汇编函数</h2>
+<p>使用SVC中断，从当前任务的TCB中找到其栈顶，然后将栈里面的数据恢复到CPU的寄存器中，最后返回。</p>
+<p>调用SVC中断时，如果当响应异常时，当前的代码正在使用PSP，则压入 PSP，即使用线程堆栈；否则压入MSP，使用主堆栈。一旦进入了服务例程，就将一直使用 主堆栈。所以之前的那一状态的寄存器的值会被保存到MSP中，依次自动保存xPSR, PC, LR, R12以及 R3‐R0由硬件自动压入MSP的堆栈中。</p>
+<p>进入异常服务程序后，LR的值会被自动赋予为新的特殊的EXC_RETURN，只有[3:0]的值有特殊含义，以决定异常返回时进入是线程模式还是handler模式，使用MSP还是PSP，使用ARM指令还是Thumb指令。</p>
+<p>退出异常时，需要手动把这个EXC_RETURN值送往PC时（使用跳转指令），就会启动处理器的异常中断返回序列，进行寄存器值得自动恢复及NVIC的清楚等等。进而更改PC的值，从而改变取指令的地址从而，跳转到指定位置，继续执行。</p>
+<h2 id="使用pendsv进行上下文切换">使用PendSV进行上下文切换</h2>
+<h3 id="流程">流程</h3>
+<ol>
+<li>在线程模式下触发PendSV异常，当该异常被响应并执行中断服务程序之前，硬件自动将xPSR, PC, LR, R12以及 R3‐R0这几个寄存器的值保存到PSP指向的任务堆栈中，再更新PSP指针到相应的位置。</li>
+<li>进入PendSV的中断服务程序后，将自动更改堆栈为MSP，R14的值也会被自动更改为一个EXC_RETURN的值。</li>
+<li>手动进行要被替换的任务的r4-r11寄存器值的保存，如果具有浮点运算单元，还需要保存浮点运算单元对应的寄存器，这里需要手动指定为PSP堆栈指针，最后需要使用PSP来更新该任务TCB中的堆栈指针。</li>
+<li>将R14暂存到SP堆栈中，即MSP堆栈中，避免接下来调用子函数进行确定新的任务时被覆盖掉，从而在最后退出异常时手动把这个EXC_RETURN值送往PC时出错。</li>
+<li>调用子函数确定接下来的currentTCB，即找到即将要执行的新任务的TCB，并用其更新currentTCB。</li>
+<li>从MSP堆栈中，恢复R14</li>
+<li>利用currentTCB，找到新任务的堆栈指针的header，并使用header将堆栈中对应的值赋给r4-r11寄存器。最后更新psp为当新任务的堆栈指针。</li>
+<li>使用bx r14，进行返回，触发异常返回序列。</li>
+</ol>
+<p>问题：在新任务的TCB中，并没有响应的更改其header for the stack，因为在任务执行的时，是不会使用这个stack的，在下次任务切换的时候，这个新任务做为被保存上下文的任务，再更新这个header for the stack。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/7KcsShw-h/" class="tag">
+                    FreeRTOS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/freertos-ren-wu/">
+                  <h3 class="post-title">
+                    FreeRTOS	任务
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

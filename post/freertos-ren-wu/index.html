@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C语言 常量指针和指针常量 | YvaineFire_block</title>
+<title>FreeRTOS	任务 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,12 +18,12 @@
 
 
 
-    <meta name="description" content="常量指针
-指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。
-int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一..." />
-    <meta name="keywords" content="C语言" />
+    <meta name="description" content="任务控制块
+任务控制块TCB的结构
+typedef struct tskTaskControlBlock
+{
+	volatile StackType_t *pxTopOfStack; /* define the pointer for th..." />
+    <meta name="keywords" content="FreeRTOS" />
   </head>
   <body>
     <div id="app" class="main">
@@ -94,36 +94,48 @@ const int * C = &amp;A; //定义一..." />
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">C语言 常量指针和指针常量</h2>
-            <div class="post-date">2021-04-27</div>
+            <h2 class="post-title">FreeRTOS	任务</h2>
+            <div class="post-date">2021-05-06</div>
             
             <div class="post-content" v-pre>
-              <h2 id="常量指针">常量指针</h2>
-<p>指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一个常量指针
-int const * B = &amp;A; //定义一个常量指针
+              <h2 id="任务控制块">任务控制块</h2>
+<p>任务控制块TCB的结构</p>
+<pre><code class="language-c">typedef struct tskTaskControlBlock
+{
+	volatile StackType_t *pxTopOfStack; /* define the pointer for the head of the stack*/
+	
+	ListItem_t xStateListItem; /* define the node for the task*/
+	
+	StackType_t *pxStack;	/* define the start address for the task*/
+	
+	char pcTaskName[configUSE_16_BIT_TICKS]; /* define the name string for a task*/
+	
+}tskTCB;
 </code></pre>
-<h2 id="指针常量">指针常量</h2>
-<p>指针常量是指这个指针是一个常量，即不能将这个指针指向其它的地址，即不能改变这个指针本身。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-int * const n =&amp;A; //定义一个指针常量
-</code></pre>
-<p><strong>注：区分常量指针和指针常量，可以通过const在 * 的左边还是右边。</strong></p>
-<h2 id="常量指针常量">常量指针常量</h2>
-<p>同时具有常量指针和指针常量的特点，既无法修改指针指向的内容也无法修改指针本身。</p>
-<pre><code class="language-c">int A = 1;
-const int * const C = &amp;A;
-</code></pre>
+<h2 id="任务的创建">任务的创建</h2>
+<h3 id="任务创建的两种方式">任务创建的两种方式</h3>
+<p>在FreeRTOS中任务的创建分为静态创建和动态创建。</p>
+<ul>
+<li>动态创建时，任务控制块和栈的内存是创建任务时动态分配的，任务删除时，内存可以删除。</li>
+<li>静态创建时，任务控制块和栈的内存时事先定义好的，在任务删除后，该内存是不能被删除的。</li>
+</ul>
+<h3 id="创建过程">创建过程</h3>
+<ul>
+<li>xTaskCreate创建了一个新的TCB指针初始化部分的成员，并调用prvInitialiseNewTask进一步初始化这个TCB指针</li>
+<li>prvInitialiseNewTask计算栈顶的位置，初始化TCB里面的LlistItem节点，并调用堆栈的初始化函数pxPortInitializeStack</li>
+</ul>
+<p><strong>关于堆栈过程中将任务的入口函数地址进行8bytes对齐的原因？</strong></p>
+<h2 id="就绪队列">就绪队列</h2>
+<p>就绪列表本质上是一个List_t类型（ListNode 的 Root节点）的数组。数组的下标对应了任务的优先级，同一优先级的任务统一插入到就绪列表的同一条链表中。</p>
+<p>在使用就绪队列前，需要先对就绪队列里面的元素进行初始化，相当于初始化一些链表的Root节点(ListItem)。</p>
+<p>每个任务创建之后需要将其插入其优先级对应的就绪队列中，等待被调度。</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
-                    C语言
+                  <a href="https://yvainefire.github.io/tag/7KcsShw-h/" class="tag">
+                    FreeRTOS
                   </a>
                 
               </div>
@@ -131,9 +143,9 @@ const int * const C = &amp;A;
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/">
+                <a href="https://yvainefire.github.io/post/c-yu-yan-chang-liang-zhi-zhen-he-zhi-zhen-chang-liang/">
                   <h3 class="post-title">
-                    C++面向对象 data member初始化
+                    C语言 常量指针和指针常量
                   </h3>
                 </a>
               </div>

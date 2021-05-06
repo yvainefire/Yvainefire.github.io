@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>ucosii运行流程 | YvaineFire_block</title>
+<title>YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,12 +18,8 @@
 
 
 
-    <meta name="description" content="ucosii运行流程
-一.系统时钟中断的初始化
-SysTick中断初始化，在轮转调度过程中，需要一个时钟中断来进行任务的切换。时钟中断的频率就是系统的心跳，也被称为时基，它决定了操作系统进行任务切换的频率。
-二.操作系统初始化
-1.OSIn..." />
-    <meta name="keywords" content="ucosii" />
+    <meta name="description" content="Rush Rush B">
+    
   </head>
   <body>
     <div id="app" class="main">
@@ -93,12 +89,32 @@ SysTick中断初始化，在轮转调度过程中，需要一个时钟中断来�
 
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
-          <div class="post-detail">
-            <h2 class="post-title">ucosii运行流程</h2>
-            <div class="post-date">2020-07-28</div>
-            
-            <div class="post-content" v-pre>
-              <h1 id="ucosii运行流程">ucosii运行流程</h1>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://yvainefire.github.io/post/dui-qi/">
+                  <h2 class="post-title">对齐</h2>
+                </a>
+                <div class="post-date">
+                  2020-07-30
+                </div>
+                <div class="post-abstract">
+                  
+                </div>
+              </div>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://yvainefire.github.io/post/ucosii-yun-xing-liu-cheng/">
+                  <h2 class="post-title">ucosii运行流程</h2>
+                </a>
+                <div class="post-date">
+                  2020-07-28
+                </div>
+                <div class="post-abstract">
+                  <h1 id="ucosii运行流程">ucosii运行流程</h1>
 <h2 id="一系统时钟中断的初始化">一.系统时钟中断的初始化</h2>
 <p>SysTick中断初始化，在轮转调度过程中，需要一个时钟中断来进行任务的切换。时钟中断的频率就是系统的心跳，也被称为时基，它决定了操作系统进行任务切换的频率。</p>
 <h2 id="二操作系统初始化">二.操作系统初始化</h2>
@@ -223,32 +239,19 @@ cpsr要保存的值也需要手动设置，设置为svc模式同时打开irq和f
 </ul>
 <h2 id="四操作系统的启动">四.操作系统的启动</h2>
 <p>OSStart()</p>
-<!-- more -->
-<h3 id="1判断osrunning-os_false">1.判断OSRunning == OS_FALSE</h3>
-<h3 id="2os_schednew">2.OS_SchedNew()</h3>
-<p>获得当前就绪队列中的最高的优先级，采用优先级位图的方式直接获得</p>
-<h3 id="3设置ospriocurostcbhighrdyostcbcur">3.设置OSPrioCur，OSTCBHighRdy，OSTCBCur</h3>
-<h3 id="4osstarthighrdy">4.OSStartHighRdy()</h3>
-<p>设置PendSV的中断优先级</p>
-<p>初始化PSP</p>
-<p>设置OSRunning标志为1</p>
-<p>开启PendSV中断。</p>
 
-            </div>
-            
-              <div class="tag-container">
-                
-                  <a href="https://yvainefire.github.io/tag/yXnUrLTZ2/" class="tag">
-                    ucosii
-                  </a>
-                
+                </div>
               </div>
-            
-            
+              
+            </article>
+          
 
-            
-
-          </div>
+          <div class="pagination-container">
+  
+    <a href="https://yvainefire.github.io/page/2/" class="prev"><i class="icon-arrow-ios-back-outline"></i> 上一页</a>
+  
+  
+</div>
 
         </div>
       </div>

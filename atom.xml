@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2021-04-27T10:52:34.470Z</updated>
+    <updated>2021-05-06T10:18:44.839Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -10,6 +10,71 @@
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[FreeRTOS 任务切换]]></title>
+        <id>https://yvainefire.github.io/post/freertos-ren-wu-qie-huan/</id>
+        <link href="https://yvainefire.github.io/post/freertos-ren-wu-qie-huan/">
+        </link>
+        <updated>2021-05-06T10:18:12.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="调用的第一个任务的汇编函数">调用的第一个任务的汇编函数</h2>
+<p>使用SVC中断，从当前任务的TCB中找到其栈顶，然后将栈里面的数据恢复到CPU的寄存器中，最后返回。</p>
+<p>调用SVC中断时，如果当响应异常时，当前的代码正在使用PSP，则压入 PSP，即使用线程堆栈；否则压入MSP，使用主堆栈。一旦进入了服务例程，就将一直使用 主堆栈。所以之前的那一状态的寄存器的值会被保存到MSP中，依次自动保存xPSR, PC, LR, R12以及 R3‐R0由硬件自动压入MSP的堆栈中。</p>
+<p>进入异常服务程序后，LR的值会被自动赋予为新的特殊的EXC_RETURN，只有[3:0]的值有特殊含义，以决定异常返回时进入是线程模式还是handler模式，使用MSP还是PSP，使用ARM指令还是Thumb指令。</p>
+<p>退出异常时，需要手动把这个EXC_RETURN值送往PC时（使用跳转指令），就会启动处理器的异常中断返回序列，进行寄存器值得自动恢复及NVIC的清楚等等。进而更改PC的值，从而改变取指令的地址从而，跳转到指定位置，继续执行。</p>
+<h2 id="使用pendsv进行上下文切换">使用PendSV进行上下文切换</h2>
+<h3 id="流程">流程</h3>
+<ol>
+<li>在线程模式下触发PendSV异常，当该异常被响应并执行中断服务程序之前，硬件自动将xPSR, PC, LR, R12以及 R3‐R0这几个寄存器的值保存到PSP指向的任务堆栈中，再更新PSP指针到相应的位置。</li>
+<li>进入PendSV的中断服务程序后，将自动更改堆栈为MSP，R14的值也会被自动更改为一个EXC_RETURN的值。</li>
+<li>手动进行要被替换的任务的r4-r11寄存器值的保存，如果具有浮点运算单元，还需要保存浮点运算单元对应的寄存器，这里需要手动指定为PSP堆栈指针，最后需要使用PSP来更新该任务TCB中的堆栈指针。</li>
+<li>将R14暂存到SP堆栈中，即MSP堆栈中，避免接下来调用子函数进行确定新的任务时被覆盖掉，从而在最后退出异常时手动把这个EXC_RETURN值送往PC时出错。</li>
+<li>调用子函数确定接下来的currentTCB，即找到即将要执行的新任务的TCB，并用其更新currentTCB。</li>
+<li>从MSP堆栈中，恢复R14</li>
+<li>利用currentTCB，找到新任务的堆栈指针的header，并使用header将堆栈中对应的值赋给r4-r11寄存器。最后更新psp为当新任务的堆栈指针。</li>
+<li>使用bx r14，进行返回，触发异常返回序列。</li>
+</ol>
+<p>问题：在新任务的TCB中，并没有响应的更改其header for the stack，因为在任务执行的时，是不会使用这个stack的，在下次任务切换的时候，这个新任务做为被保存上下文的任务，再更新这个header for the stack。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[FreeRTOS	任务]]></title>
+        <id>https://yvainefire.github.io/post/freertos-ren-wu/</id>
+        <link href="https://yvainefire.github.io/post/freertos-ren-wu/">
+        </link>
+        <updated>2021-05-06T10:17:32.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="任务控制块">任务控制块</h2>
+<p>任务控制块TCB的结构</p>
+<pre><code class="language-c">typedef struct tskTaskControlBlock
+{
+	volatile StackType_t *pxTopOfStack; /* define the pointer for the head of the stack*/
+	
+	ListItem_t xStateListItem; /* define the node for the task*/
+	
+	StackType_t *pxStack;	/* define the start address for the task*/
+	
+	char pcTaskName[configUSE_16_BIT_TICKS]; /* define the name string for a task*/
+	
+}tskTCB;
+</code></pre>
+<h2 id="任务的创建">任务的创建</h2>
+<h3 id="任务创建的两种方式">任务创建的两种方式</h3>
+<p>在FreeRTOS中任务的创建分为静态创建和动态创建。</p>
+<ul>
+<li>动态创建时，任务控制块和栈的内存是创建任务时动态分配的，任务删除时，内存可以删除。</li>
+<li>静态创建时，任务控制块和栈的内存时事先定义好的，在任务删除后，该内存是不能被删除的。</li>
+</ul>
+<h3 id="创建过程">创建过程</h3>
+<ul>
+<li>xTaskCreate创建了一个新的TCB指针初始化部分的成员，并调用prvInitialiseNewTask进一步初始化这个TCB指针</li>
+<li>prvInitialiseNewTask计算栈顶的位置，初始化TCB里面的LlistItem节点，并调用堆栈的初始化函数pxPortInitializeStack</li>
+</ul>
+<p><strong>关于堆栈过程中将任务的入口函数地址进行8bytes对齐的原因？</strong></p>
+<h2 id="就绪队列">就绪队列</h2>
+<p>就绪列表本质上是一个List_t类型（ListNode 的 Root节点）的数组。数组的下标对应了任务的优先级，同一优先级的任务统一插入到就绪列表的同一条链表中。</p>
+<p>在使用就绪队列前，需要先对就绪队列里面的元素进行初始化，相当于初始化一些链表的Root节点(ListItem)。</p>
+<p>每个任务创建之后需要将其插入其优先级对应的就绪队列中，等待被调度。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[C语言 常量指针和指针常量]]></title>
         <id>https://yvainefire.github.io/post/c-yu-yan-chang-liang-zhi-zhen-he-zhi-zhen-chang-liang/</id>
@@ -398,70 +463,6 @@ int *p3 = NULL;
 <p>但是如果复制的对象不是object elements，则可以看作是deepcopy，最安全的方法还是使用copy.deepcopy()。</p>
 <h2 id="eg">eg:</h2>
 <figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/pytest.png" alt="" loading="lazy"></figure>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C++杂项知识]]></title>
-        <id>https://yvainefire.github.io/post/cza-xiang-zhi-shi/</id>
-        <link href="https://yvainefire.github.io/post/cza-xiang-zhi-shi/">
-        </link>
-        <updated>2021-03-08T13:51:44.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="1namespace">1.namespace</h2>
-<p>namespace(命名空间)：是一种将库名称封装起来的方法。避免发生命名冲突。所谓命名冲突是指，应用程序的两个不同的实体有相同的名称。</p>
-<h3 id="使用namespace来解决命名冲突的问题">使用namespace来解决命名冲突的问题</h3>
-<pre><code class="language-c">using namesapce 命名空间名;
-</code></pre>
-<p>这样会使后续的代码将使用指定的命名空间中的名称。</p>
-<p>一般使用标准库的命名空间：std</p>
-<h3 id="自定义命名空间的方式">自定义命名空间的方式</h3>
-<p>namespace 命名空间名{</p>
-<p>​		函数1...</p>
-<p>​		函数2...</p>
-<p>​		变量1...</p>
-<p>​		变量2...</p>
-<p>}</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C++文件的读写]]></title>
-        <id>https://yvainefire.github.io/post/cwen-jian-de-du-xie/</id>
-        <link href="https://yvainefire.github.io/post/cwen-jian-de-du-xie/">
-        </link>
-        <updated>2021-03-08T13:51:12.000Z</updated>
-        <content type="html"><![CDATA[<p>包含 fstream 头文件</p>
-<h2 id="输出">输出</h2>
-<h3 id="定义输出的文件变量">定义输出的文件变量</h3>
-<p>ofstream outfile_name(&quot;文件地址&quot;);</p>
-<p><strong>文件不存在时，会创建一个新的文件</strong></p>
-<p>文件存在的时候，可以通过参数对其设置是在原文件尾部追加还是直接覆盖。默认为覆盖，添加如下参数变为追加</p>
-<p>ofstream outfile_name(&quot;文件地址&quot;, ios_base::app);</p>
-<h3 id="判断文件是否打开成功">判断文件是否打开成功</h3>
-<pre><code class="language-c++">if (!out_file_name)
-	文件打开失败
-......
-</code></pre>
-<h3 id="使用文件进行输出">使用文件进行输出</h3>
-<pre><code class="language-c++">outfile_name &lt;&lt; 输出内容;		
-</code></pre>
-<h2 id="输入">输入</h2>
-<h3 id="定义输入的文件变量">定义输入的文件变量</h3>
-<p>ifstream infile_name(&quot;文件地址&quot;);</p>
-<h3 id="判断文件是否打开成功-2">判断文件是否打开成功</h3>
-<pre><code class="language-c++">if (!in_file_name)
-	文件打开失败
-......
-</code></pre>
-<h3 id="使用文件进行输入">使用文件进行输入</h3>
-<pre><code>in_flie_name &gt;&gt; 变量名
-</code></pre>
-<h2 id="同时输出和输入">同时输出和输入</h2>
-<h3 id="定义输入输出文件">定义输入输出文件</h3>
-<p>fstream in_and_out_file_name(&quot;文件地址&quot;)</p>
-<h3 id="判断文件是否打开成功-3">判断文件是否打开成功</h3>
-<pre><code class="language-c++">if (!in_and_out_file_name)
-	文件打开失败
-......
-</code></pre>
 ]]></content>
     </entry>
 </feed>
