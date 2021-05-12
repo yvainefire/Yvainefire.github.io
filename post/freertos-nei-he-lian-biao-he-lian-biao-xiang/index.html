@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C++的一些重要的基本类型 | YvaineFire_block</title>
+<title>FreeRTOS	内核链表和链表项 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,16 +18,10 @@
 
 
 
-    <meta name="description" content="1.string
-string的定义
-string string_name;
-是C++标准库提供的类型，需要包含string库
-string的初始化
-string_name = &quot;字符串&quot;
-2.Array
-数组的定义
-类..." />
-    <meta name="keywords" content="c++" />
+    <meta name="description" content="FreeRTOS的链表是一个首尾相连的循环链表
+链表的的每个节点被称为链表项，链表的根节点单独定义。同时对于每个链表项有两种定义方式，一种是完整的定义方式，一种是精简的定义方式。
+注意是一个循环链表，所以链表的头节点也可以看作是链表的尾节点..." />
+    <meta name="keywords" content="FreeRTOS" />
   </head>
   <body>
     <div id="app" class="main">
@@ -98,62 +92,20 @@ string_name = &quot;字符串&quot;
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">C++的一些重要的基本类型</h2>
-            <div class="post-date">2021-03-08</div>
+            <h2 class="post-title">FreeRTOS	内核链表和链表项</h2>
+            <div class="post-date">2021-04-23</div>
             
             <div class="post-content" v-pre>
-              <h2 id="1string">1.string</h2>
-<h3 id="string的定义">string的定义</h3>
-<p>string string_name;</p>
-<p>是C++标准库提供的类型，需要包含string库</p>
-<h3 id="string的初始化">string的初始化</h3>
-<p>string_name = &quot;字符串&quot;</p>
-<h2 id="2array">2.Array</h2>
-<h3 id="数组的定义">数组的定义</h3>
-<p>类型 数组名[数组的大小]</p>
-<p>注意：数组的大小必须是一个常量表达式，在编译时就能确定的表达式。</p>
-<p><strong>不需要特定的头文件</strong></p>
-<h3 id="数组的初始化">数组的初始化</h3>
-<ul>
-<li>
-<p>采用循环的方式对数组的每个元素进行初始化</p>
-<pre><code class="language-c++">for....
-	array_test[i] = ...
-</code></pre>
-</li>
-<li>
-<p>在定义的时候，采用初始化列表的形式进行初始化</p>
-<pre><code class="language-c++">int array_test[5]={1,2,3,4,5};
-</code></pre>
-</li>
-</ul>
-<h2 id="3vector">3.Vector</h2>
-<h3 id="vector的定义">Vector的定义</h3>
-<p>Vector&lt;类型&gt;	Vector名(Vector的大小)</p>
-<p>注意：Vector的大小不需要是一个常量表达式</p>
-<p><strong>需要一个特定的头文件 vector</strong></p>
-<h3 id="vector的初始化">Vector的初始化</h3>
-<ul>
-<li>
-<p>采用循环的方式对Vector进行初始化</p>
-<pre><code class="language-c++">for....
-	Vector_test[i] = ...
-</code></pre>
-</li>
-<li>
-<p>采用数组对Vector进行初始化</p>
-<pre><code class="language-c++">vector&lt;int&gt; vector_test(array_test,array_test+size_of_array)
-</code></pre>
-<p><strong>注意不能使用初始化列表对齐进行初始化</strong></p>
-</li>
-</ul>
+              <p>FreeRTOS的链表是一个首尾相连的循环链表</p>
+<p>链表的的每个节点被称为链表项，链表的根节点单独定义。同时对于每个链表项有两种定义方式，一种是完整的定义方式，一种是精简的定义方式。</p>
+<p>注意是一个循环链表，所以链表的头节点也可以看作是链表的尾节点。</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://yvainefire.github.io/tag/gqQsGW93l/" class="tag">
-                    c++
+                  <a href="https://yvainefire.github.io/tag/7KcsShw-h/" class="tag">
+                    FreeRTOS
                   </a>
                 
               </div>
@@ -161,9 +113,9 @@ string_name = &quot;字符串&quot;
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/cde-shu-ru-shu-chu/">
+                <a href="https://yvainefire.github.io/post/luo-ji-xi-tong-he-duo-ren-wu-xi-tong/">
                   <h3 class="post-title">
-                     C++的输入输出
+                    FreeRTOS 裸机系统和多任务系统
                   </h3>
                 </a>
               </div>

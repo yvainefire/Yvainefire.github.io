@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2021-05-12T08:48:55.026Z</updated>
+    <updated>2021-05-12T08:54:42.870Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -54,7 +54,7 @@
         <id>https://yvainefire.github.io/post/ren-wu-yan-shi-lie-biao-de-yuan-li/</id>
         <link href="https://yvainefire.github.io/post/ren-wu-yan-shi-lie-biao-de-yuan-li/">
         </link>
-        <updated>2021-05-12T08:45:24.000Z</updated>
+        <updated>2021-05-11T08:45:24.000Z</updated>
         <content type="html"><![CDATA[<h2 id="延时列表的结构">延时列表的结构</h2>
 <p>任务延时列表是是一个双向链表，<strong>按照延时到达的时刻进行增序插入链表</strong>（这个是一个时段，而不是延时的时间，由开始延时的时刻加上延时的时间计算出来的时刻）。</p>
 <p>需要维护</p>
@@ -77,7 +77,7 @@
         <id>https://yvainefire.github.io/post/kong-xian-ren-wu-yu-yan-shi-zu-sai/</id>
         <link href="https://yvainefire.github.io/post/kong-xian-ren-wu-yu-yan-shi-zu-sai/">
         </link>
-        <updated>2021-05-12T08:44:35.000Z</updated>
+        <updated>2021-05-10T08:44:35.000Z</updated>
         <content type="html"><![CDATA[<h2 id="空闲任务">空闲任务</h2>
 <p>当操作系统中没有其它的任务可以运行时，就会运行一个空闲任务。</p>
 <p>注意空闲任务的优先级需要设置为最低。</p>
@@ -97,7 +97,7 @@
         <id>https://yvainefire.github.io/post/freertos-lin-jie-duan-de-bao-hu/</id>
         <link href="https://yvainefire.github.io/post/freertos-lin-jie-duan-de-bao-hu/">
         </link>
-        <updated>2021-05-12T08:44:12.000Z</updated>
+        <updated>2021-05-07T08:44:12.000Z</updated>
         <content type="html"><![CDATA[<h2 id="临界段定义">临界段定义</h2>
 <p>临界段指一段在执行过程中不能被中断打断的代码段。</p>
 <h2 id="发生的时机">发生的时机</h2>
@@ -126,50 +126,6 @@
 <p>对应不带返回参数的关中断，直接将BASEPRI的值设置为0，打开所有中断。</p>
 <h3 id="带中断保护的开中断">带中断保护的开中断</h3>
 <p>对应带返回参数的开中断，将存储的BASEPRI的值，恢复进去。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[FreeRTOS ARM内核SVC 和 PendSV]]></title>
-        <id>https://yvainefire.github.io/post/svc-he-pendsv/</id>
-        <link href="https://yvainefire.github.io/post/svc-he-pendsv/">
-        </link>
-        <updated>2021-05-06T10:21:43.000Z</updated>
-        <content type="html"><![CDATA[<p>SVC和PendSV多用于操作系统的开发之上，用于将硬件层和应用层分开。</p>
-<h2 id="svc系统调用服务">SVC系统调用服务</h2>
-<p>SVC是一种异常，对应一个特定的SVC异常服务程序。同时使用SVC系统调用服务的时候还需要一个对应的立即数充当系统调用号。根据这个立即数，去调用相应的系统服务函数以实现应用程序对底层硬件的间接调用。</p>
-<p>特点：不能嵌套SVC调用，该异常必须被立即响应，若由于当前正在处理更高优先级的异常或其它的原因，则会产生一个硬件fault。</p>
-<h2 id="pendsv可悬起的系统调用">PendSV可悬起的系统调用</h2>
-<p>PendSV和SVC执行一样的功能，但是PendSV可以向普通的中断被悬起，缓期再进行执行。若触发PendSV异常后，其优先级不够，则将被悬起，缓期执行。</p>
-<p>将PendSV的优先级的设置为最低，可以使得在进行中断处理的时候不进行上下文的切换，从而防止出现systick异常抢占IRQ，并执行上下文切换，导致IRQ被延迟执行，从而影响系统对中断响应的实时性。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[FreeRTOS 裸机系统和多任务系统]]></title>
-        <id>https://yvainefire.github.io/post/luo-ji-xi-tong-he-duo-ren-wu-xi-tong/</id>
-        <link href="https://yvainefire.github.io/post/luo-ji-xi-tong-he-duo-ren-wu-xi-tong/">
-        </link>
-        <updated>2021-05-06T10:20:08.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="裸机系统">裸机系统</h2>
-<p>裸机系统包括轮询系统和前后台系统</p>
-<h3 id="轮询系统">轮询系统</h3>
-<ul>
-<li>结构：主程序是一个死循环，程序顺序执行。</li>
-<li>响应和处理：外部事件由主程序进行响应，由主程序进行执行。</li>
-<li>实时性：实时性较差。可能会导致事件的未被响应。轮询相应，轮询处理。</li>
-</ul>
-<h3 id="前后台系统">前后台系统</h3>
-<ul>
-<li>结构：在轮询系统的基础上加上了中断响应。前台响应中断并标记事件，如果处理的事件较简单则可以直接在中断中处理否则在后台中执行，后台为main函数里的无限循环，判断是否有事件被标记了并进行处理。</li>
-<li>响应和处理：外部事件由中断响应，由中断或主程序处理</li>
-<li>实时性：相比轮询系统，前后台系统确保了事件不会丢失。实时响应事件，但是只能轮询处理。</li>
-</ul>
-<h2 id="多任务系统">多任务系统</h2>
-<ul>
-<li>结构：在前后台系统的基础上，加入了任务的概念。任务是一个无限循环且不返回会的函数，各个任务之间相互独立，同时具备和中断一样的优先级，并由操作系统进行调度和管理。</li>
-<li>响应和处理：外部事件由中断响应，由中断或任务处理</li>
-<li>实时性：实时性可以很强。实时响应事件，并且实时处理事件。</li>
-</ul>
-<p><code>当一个紧急的事件在中断被标记之后，如果事件对应的任务的优先级足够高， 就会立马得到响应。</code></p>
 ]]></content>
     </entry>
     <entry>
@@ -238,6 +194,21 @@
 ]]></content>
     </entry>
     <entry>
+        <title type="html"><![CDATA[FreeRTOS ARM内核SVC 和 PendSV]]></title>
+        <id>https://yvainefire.github.io/post/svc-he-pendsv/</id>
+        <link href="https://yvainefire.github.io/post/svc-he-pendsv/">
+        </link>
+        <updated>2021-04-29T10:21:43.000Z</updated>
+        <content type="html"><![CDATA[<p>SVC和PendSV多用于操作系统的开发之上，用于将硬件层和应用层分开。</p>
+<h2 id="svc系统调用服务">SVC系统调用服务</h2>
+<p>SVC是一种异常，对应一个特定的SVC异常服务程序。同时使用SVC系统调用服务的时候还需要一个对应的立即数充当系统调用号。根据这个立即数，去调用相应的系统服务函数以实现应用程序对底层硬件的间接调用。</p>
+<p>特点：不能嵌套SVC调用，该异常必须被立即响应，若由于当前正在处理更高优先级的异常或其它的原因，则会产生一个硬件fault。</p>
+<h2 id="pendsv可悬起的系统调用">PendSV可悬起的系统调用</h2>
+<p>PendSV和SVC执行一样的功能，但是PendSV可以向普通的中断被悬起，缓期再进行执行。若触发PendSV异常后，其优先级不够，则将被悬起，缓期执行。</p>
+<p>将PendSV的优先级的设置为最低，可以使得在进行中断处理的时候不进行上下文的切换，从而防止出现systick异常抢占IRQ，并执行上下文切换，导致IRQ被延迟执行，从而影响系统对中断响应的实时性。</p>
+]]></content>
+    </entry>
+    <entry>
         <title type="html"><![CDATA[C语言 常量指针和指针常量]]></title>
         <id>https://yvainefire.github.io/post/c-yu-yan-chang-liang-zhi-zhen-he-zhi-zhen-chang-liang/</id>
         <link href="https://yvainefire.github.io/post/c-yu-yan-chang-liang-zhi-zhen-he-zhi-zhen-chang-liang/">
@@ -265,145 +236,43 @@ const int * const C = &amp;A;
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[C++面向对象 data member初始化]]></title>
-        <id>https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/</id>
-        <link href="https://yvainefire.github.io/post/cmian-xiang-dui-xiang-cheng-yuan-chu-shi-hua/">
+        <title type="html"><![CDATA[FreeRTOS	内核链表和链表项]]></title>
+        <id>https://yvainefire.github.io/post/freertos-nei-he-lian-biao-he-lian-biao-xiang/</id>
+        <link href="https://yvainefire.github.io/post/freertos-nei-he-lian-biao-he-lian-biao-xiang/">
         </link>
-        <updated>2021-04-08T12:33:04.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="constructor">constructor</h2>
-<p>C++的所有成员未初始化的成员通过构造函数进行操作，构造函数（constructor）</p>
-<p>构造函数的特点：</p>
+        <updated>2021-04-23T08:50:40.000Z</updated>
+        <content type="html"><![CDATA[<p>FreeRTOS的链表是一个首尾相连的循环链表</p>
+<p>链表的的每个节点被称为链表项，链表的根节点单独定义。同时对于每个链表项有两种定义方式，一种是完整的定义方式，一种是精简的定义方式。</p>
+<p>注意是一个循环链表，所以链表的头节点也可以看作是链表的尾节点。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[FreeRTOS 裸机系统和多任务系统]]></title>
+        <id>https://yvainefire.github.io/post/luo-ji-xi-tong-he-duo-ren-wu-xi-tong/</id>
+        <link href="https://yvainefire.github.io/post/luo-ji-xi-tong-he-duo-ren-wu-xi-tong/">
+        </link>
+        <updated>2021-04-22T10:20:08.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="裸机系统">裸机系统</h2>
+<p>裸机系统包括轮询系统和前后台系统</p>
+<h3 id="轮询系统">轮询系统</h3>
 <ul>
-<li>名称和class的名称一样</li>
-<li>构造函数的不应该指定返回类型</li>
-<li>构造函数允许被重载</li>
-<li>构造函数在类被定义后根据传入参数的类型进行选择并调用</li>
+<li>结构：主程序是一个死循环，程序顺序执行。</li>
+<li>响应和处理：外部事件由主程序进行响应，由主程序进行执行。</li>
+<li>实时性：实时性较差。可能会导致事件的未被响应。轮询相应，轮询处理。</li>
 </ul>
-<h2 id="destructor">destructor</h2>
-<p>与构造函数对应的就是析构函数（destructor），对构造函数中分配的资源进行释放回收，完成heap内存的管理。</p>
-<p>析构函数的特点：</p>
+<h3 id="前后台系统">前后台系统</h3>
 <ul>
-<li>析构函数的名称是class名前加个~</li>
-<li>析构函数没有返回值</li>
-<li>析构函数不带任何参数</li>
-<li>析构函数不能被重载</li>
+<li>结构：在轮询系统的基础上加上了中断响应。前台响应中断并标记事件，如果处理的事件较简单则可以直接在中断中处理否则在后台中执行，后台为main函数里的无限循环，判断是否有事件被标记了并进行处理。</li>
+<li>响应和处理：外部事件由中断响应，由中断或主程序处理</li>
+<li>实时性：相比轮询系统，前后台系统确保了事件不会丢失。实时响应事件，但是只能轮询处理。</li>
 </ul>
-<h2 id="default-constructor">default constructor</h2>
-<p>不需要任何参数，不接受参数或者是提供默认参数</p>
-<pre><code class="language-c++">class_name(int a=1, int b=2){
-	data_member_1 = a;
-	data_member_2 = b;
-}
-</code></pre>
-<h2 id="member-initialization-list">Member Initialization List</h2>
-<p>C++的的构造函数除了具有一般函数的特征外。还可以具有初始化列表。初始化列表更在函数参数的括号后面，以 : 开头</p>
-<pre><code class="language-c++">class_name(int a, int b):data_member_1(a),data_member_2(b)
-{
-
-}
-</code></pre>
-<h2 id="memberwise-initialzation">Memberwise Initialzation</h2>
-<p>用一个class object 来初始化另一个object</p>
-<p>eg:</p>
-<pre><code class="language-c++">class_name obj_1(paraments);
-class_name obj_2 = obj_1;
-</code></pre>
-<p>把obj_1这个类里面的成员变量的值直接通过operator=赋给obj_2。</p>
-<p>这里可能会出现一个问题如果成员变量里面有的值是指针形式的，那么这样的操作会使指针指向同一个地址。如果每个class object的destructor都对之指针指向的内容进行回收那么就可能会导致一些错误。为了解决这个问题可以采用重载一个const class_name &amp;object_name的构造函数，进行手动的赋值操作，申请一个新的内存空间用于指针指向。</p>
-<h2 id="c构造函数的两个阶段">C++构造函数的两个阶段</h2>
-<h3 id="初始化阶段">初始化阶段</h3>
+<h2 id="多任务系统">多任务系统</h2>
 <ul>
-<li>调用初始化列表</li>
-<li>未初始化的类成员（不在初始化列表）调用默认构造函数</li>
+<li>结构：在前后台系统的基础上，加入了任务的概念。任务是一个无限循环且不返回会的函数，各个任务之间相互独立，同时具备和中断一样的优先级，并由操作系统进行调度和管理。</li>
+<li>响应和处理：外部事件由中断响应，由中断或任务处理</li>
+<li>实时性：实时性可以很强。实时响应事件，并且实时处理事件。</li>
 </ul>
-<h3 id="计算阶段">计算阶段</h3>
-<p>在执行完初始化阶段后，执行构造体函体内的赋值操作，进行初始化。</p>
-<p><strong>具体顺序</strong>：成员变量被初始化的顺序是由成员变量在class里面声明的顺序决定的，先声明的先初始化。初始化的顺序是先利用初始化参数表进行初始化，根据初始化参数表提供的参数类型，选择相应的构造函数进行初始化，可以把初始化参数表种没有提到的参数，默认是其调用了不含参数的构造函数，也就是说所有的未初始化的成员变量如果有不含参数的构造方法都会在调用初始化参数列表时调用一种构造方法进行构造。然后再根据构造函数里面的计算赋值阶段。</p>
-<p>eg:</p>
-<pre><code class="language-c++">class BaseTest1{
-public:
-    BaseTest1();
-    BaseTest1(const BaseTest1&amp; t1);
-    BaseTest1&amp; operator=(const BaseTest1&amp; t1);
-private:
-    int a;
-};
-
-BaseTest1::BaseTest1()
-{
-    cout &lt;&lt; &quot;BaseTest1 Constructor&quot; &lt;&lt; endl;
-    this-&gt;a = 0;
-}
-
-BaseTest1::BaseTest1(const BaseTest1 &amp;t1)
-{
-    cout &lt;&lt; &quot;BaseTest1 Copy Constructor&quot; &lt;&lt; endl;
-    this-&gt;a = t1.a;
-}
-
-BaseTest1&amp; BaseTest1::operator=(const BaseTest1 &amp;t1)
-{
-    cout &lt;&lt; &quot;BaseTest1 assignment&quot; &lt;&lt; endl;
-    this-&gt;a = t1.a;
-    return *this;
-}
-
-class BaseTest2
-{
-public:
-    BaseTest2()
-    {
-        cout &lt;&lt; &quot;BaseTest2 Constructor&quot; &lt;&lt; endl;
-        this-&gt;a = 0;
-    }
-    BaseTest2(const BaseTest2&amp; t)
-    {
-        cout &lt;&lt; &quot;BaseTest2 Copy Constructor&quot; &lt;&lt; endl;
-        this-&gt;a = t.a;
-    }
-    BaseTest2&amp; operator=(const BaseTest2&amp; t)
-    {
-        cout &lt;&lt; &quot;BaseTest2 assignment&quot; &lt;&lt; endl;
-        this-&gt;a = t.a;
-        return *this;
-    }
-private:
-    int a;
-};
-
-
-class Test{
-public:
-    Test(BaseTest1&amp; t1, BaseTest2&amp; t2):test1(t1)
-    {
-        this-&gt;test2 = t2;
-    }
-
-public:
-    BaseTest2 test2;
-    BaseTest1 test1;
-};
-
-
-int main(int argc, char* args[])
-{
-    BaseTest1 test1;
-    BaseTest2 test2;
-    Test test(test1, test2);
-}
-————————————————
-版权声明：代码为CSDN博主「惜暮」的原创
-代码链接：https://blog.csdn.net/u010853261/article/details/85036025
-</code></pre>
-<p>执行结果：</p>
-<pre><code>BaseTest1 Constructor
-BaseTest2 Constructor
-BaseTest2 Constructor
-BaseTest1 Copy Constructor
-BaseTest2 assignment
-</code></pre>
-<p>使用初始化列表可以减少计算阶段的赋值操作，毕竟大多数时候成员变量在调用初始化列表的时候都会采用一种构造方法进行初始化。</p>
-<p>注意：在列表调用初始化阶段时如果涉及到成员变量的作为参数，则一定要注意成员变量在class中定义的顺序，防止未定义的情况出现。</p>
+<p><code>当一个紧急的事件在中断被标记之后，如果事件对应的任务的优先级足够高， 就会立马得到响应。</code></p>
 ]]></content>
     </entry>
 </feed>
