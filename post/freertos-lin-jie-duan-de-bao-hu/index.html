@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>FreeRTOS	任务 | YvaineFire_block</title>
+<title>FreeRTOS  临界段的保护 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,11 +18,13 @@
 
 
 
-    <meta name="description" content="任务控制块
-任务控制块TCB的结构
-typedef struct tskTaskControlBlock
-{
-	volatile StackType_t *pxTopOfStack; /* define the pointer for th..." />
+    <meta name="description" content="临界段定义
+临界段指一段在执行过程中不能被中断打断的代码段。
+发生的时机
+临界段被打断主要发生在系统的调度和外部中断。在freeRTOS里，系统调度的本质是PendSV中断。
+本质
+所以临界段保护的本质就是对中断的开关。
+需要被作为临界段保..." />
     <meta name="keywords" content="FreeRTOS" />
   </head>
   <body>
@@ -94,41 +96,38 @@ typedef struct tskTaskControlBlock
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">FreeRTOS	任务</h2>
-            <div class="post-date">2021-05-06</div>
+            <h2 class="post-title">FreeRTOS  临界段的保护</h2>
+            <div class="post-date">2021-05-12</div>
             
             <div class="post-content" v-pre>
-              <h2 id="任务控制块">任务控制块</h2>
-<p>任务控制块TCB的结构</p>
-<pre><code class="language-c">typedef struct tskTaskControlBlock
-{
-	volatile StackType_t *pxTopOfStack; /* define the pointer for the head of the stack*/
-	
-	ListItem_t xStateListItem; /* define the node for the task*/
-	
-	StackType_t *pxStack;	/* define the start address for the task*/
-	
-	char pcTaskName[configUSE_16_BIT_TICKS]; /* define the name string for a task*/
-	
-}tskTCB;
-</code></pre>
-<h2 id="任务的创建">任务的创建</h2>
-<h3 id="任务创建的两种方式">任务创建的两种方式</h3>
-<p>在FreeRTOS中任务的创建分为静态创建和动态创建。</p>
+              <h2 id="临界段定义">临界段定义</h2>
+<p>临界段指一段在执行过程中不能被中断打断的代码段。</p>
+<h2 id="发生的时机">发生的时机</h2>
+<p>临界段被打断主要发生在系统的调度和外部中断。在freeRTOS里，系统调度的本质是PendSV中断。</p>
+<h2 id="本质">本质</h2>
+<p>所以临界段保护的本质就是对中断的开关。</p>
+<h2 id="需要被作为临界段保护的内容">需要被作为临界段保护的内容</h2>
+<h3 id="全局变量">全局变量</h3>
+<p>被多个任务或系统内核共享的全局变量，在任务切换或内核抢占当前代码段执行行，该全局变量可能会被修改，以后再恢复当前代码时，该全局变量的值已经被改变了，执行的结果就可能会出错。</p>
+<h2 id="cortexm对临界段进行保护的方法">Cortex—M对临界段进行保护的方法</h2>
+<p>在 FreeRTOS 中，对于进出临界区都是通过开关中断来进行实现的。</p>
+<p>使用CPS指令对PRIMASK, FAULTMASK, BASEPRI 这三个寄存器进行操作，以达到对中断控制的目的。</p>
 <ul>
-<li>动态创建时，任务控制块和栈的内存是创建任务时动态分配的，任务删除时，内存可以删除。</li>
-<li>静态创建时，任务控制块和栈的内存时事先定义好的，在任务删除后，该内存是不能被删除的。</li>
+<li>PRIMASK：单比特，关闭除 NMI 和硬 FAULT其他的所以异常</li>
+<li>FAULTMASK：单比特，关闭除 NMI 其他的所以异常</li>
+<li>BASEPRI：9位，可定义被屏蔽优先级的阈值，大于等于该值的会被屏蔽</li>
 </ul>
-<h3 id="创建过程">创建过程</h3>
-<ul>
-<li>xTaskCreate创建了一个新的TCB指针初始化部分的成员，并调用prvInitialiseNewTask进一步初始化这个TCB指针</li>
-<li>prvInitialiseNewTask计算栈顶的位置，初始化TCB里面的LlistItem节点，并调用堆栈的初始化函数pxPortInitializeStack</li>
-</ul>
-<p><strong>关于堆栈过程中将任务的入口函数地址进行8bytes对齐的原因？</strong></p>
-<h2 id="就绪队列">就绪队列</h2>
-<p>就绪列表本质上是一个List_t类型（ListNode 的 Root节点）的数组。数组的下标对应了任务的优先级，同一优先级的任务统一插入到就绪列表的同一条链表中。</p>
-<p>在使用就绪队列前，需要先对就绪队列里面的元素进行初始化，相当于初始化一些链表的Root节点(ListItem)。</p>
-<p>每个任务创建之后需要将其插入其优先级对应的就绪队列中，等待被调度。</p>
+<p>在 FreeRTOS 中，对中断的开和关是通过操作 BASEPRI 寄存器来实现的</p>
+<h2 id="关中断的方式">关中断的方式</h2>
+<h3 id="不带返回值">不带返回值</h3>
+<p>不带返回值的意思是：在往 BASEPRI 写入新的值的时候，不用先将 BASEPRI 的值保存起来。所以无法恢复原来的BASEPRI ，这就导致了原来的中断屏蔽状态被破环了，所以不能在中断中使用。默认写入191，高四位有效，即优先级大于等于11的都会被屏蔽。</p>
+<h3 id="带返回值">带返回值</h3>
+<p>带返回值的关中断函数：先将BASEPRI的值临时存储下来，再更新完BASEPRI 值后，使用函数返回的形式返回这个值。</p>
+<h2 id="开中断">开中断</h2>
+<h3 id="不带中断保护的开中断">不带中断保护的开中断</h3>
+<p>对应不带返回参数的关中断，直接将BASEPRI的值设置为0，打开所有中断。</p>
+<h3 id="带中断保护的开中断">带中断保护的开中断</h3>
+<p>对应带返回参数的开中断，将存储的BASEPRI的值，恢复进去。</p>
 
             </div>
             
@@ -143,9 +142,9 @@ typedef struct tskTaskControlBlock
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/c-yu-yan-chang-liang-zhi-zhen-he-zhi-zhen-chang-liang/">
+                <a href="https://yvainefire.github.io/post/svc-he-pendsv/">
                   <h3 class="post-title">
-                    C语言 常量指针和指针常量
+                    SVC 和 PendSV
                   </h3>
                 </a>
               </div>

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>关于 | YvaineFire_block</title>
+<title>FreeRTOS 空闲任务与延时阻塞 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,15 +18,12 @@
 
 
 
-    <meta name="description" content="
-欢迎来到我的小站呀，很高兴遇见你！🤝
-
-🏠 关于本站
-👨‍💻 博主是谁
-⛹ 兴趣爱好
-📬 联系我呀
-..." />
-    <meta name="keywords" content="" />
+    <meta name="description" content="空闲任务
+当操作系统中没有其它的任务可以运行时，就会运行一个空闲任务。
+注意空闲任务的优先级需要设置为最低。
+延时阻塞
+当任务调用延时阻塞函数后会被剥夺CPU的使用权，待延时结束后才能被调度器重修调度。如果此时除了空闲任务外的所有任务都被阻..." />
+    <meta name="keywords" content="FreeRTOS" />
   </head>
   <body>
     <div id="app" class="main">
@@ -97,20 +94,42 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">关于</h2>
-            <div class="post-date">2019-01-25</div>
+            <h2 class="post-title">FreeRTOS 空闲任务与延时阻塞</h2>
+            <div class="post-date">2021-05-12</div>
             
             <div class="post-content" v-pre>
-              <blockquote>
-<p>欢迎来到我的小站呀，很高兴遇见你！🤝</p>
-</blockquote>
-<h2 id="关于本站">🏠 关于本站</h2>
-<h2 id="博主是谁">👨‍💻 博主是谁</h2>
-<h2 id="兴趣爱好">⛹ 兴趣爱好</h2>
-<h2 id="联系我呀">📬 联系我呀</h2>
+              <h2 id="空闲任务">空闲任务</h2>
+<p>当操作系统中没有其它的任务可以运行时，就会运行一个空闲任务。</p>
+<p>注意空闲任务的优先级需要设置为最低。</p>
+<h2 id="延时阻塞">延时阻塞</h2>
+<p>当任务调用延时阻塞函数后会被剥夺CPU的使用权，待延时结束后才能被调度器重修调度。如果此时除了空闲任务外的所有任务都被阻塞了，则CPU执行空闲任务。</p>
+<p>延时阻塞的任务：</p>
+<ul>
+<li>设置延时的时长</li>
+<li>将该任务从就绪队列中删除</li>
+<li>进行任务切换</li>
+</ul>
+<p>任务的切换所耗费的时间相对于延时而且是很短的。</p>
 
             </div>
             
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/7KcsShw-h/" class="tag">
+                    FreeRTOS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/freertos-lin-jie-duan-de-bao-hu/">
+                  <h3 class="post-title">
+                    FreeRTOS  临界段的保护
+                  </h3>
+                </a>
+              </div>
             
 
             

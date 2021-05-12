@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>FreeRTOS	任务 | YvaineFire_block</title>
+<title>FreeROTS 多优先级 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,11 +18,10 @@
 
 
 
-    <meta name="description" content="任务控制块
-任务控制块TCB的结构
-typedef struct tskTaskControlBlock
-{
-	volatile StackType_t *pxTopOfStack; /* define the pointer for th..." />
+    <meta name="description" content="FreeRTOS优先级概述
+虽然FreeRTOS支持同一优先级下可以有多个任务，但是此时我们假设每个优先级下最多有一个任务。
+在FreeRTOS中优先级数字越小对应的优先级就越小。
+FreeRTOS提供了两种方法用于优先级的查找，一种是通用..." />
     <meta name="keywords" content="FreeRTOS" />
   </head>
   <body>
@@ -94,41 +93,41 @@ typedef struct tskTaskControlBlock
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">FreeRTOS	任务</h2>
-            <div class="post-date">2021-05-06</div>
+            <h2 class="post-title">FreeROTS 多优先级</h2>
+            <div class="post-date">2021-05-12</div>
             
             <div class="post-content" v-pre>
-              <h2 id="任务控制块">任务控制块</h2>
-<p>任务控制块TCB的结构</p>
-<pre><code class="language-c">typedef struct tskTaskControlBlock
+              <h2 id="freertos优先级概述">FreeRTOS优先级概述</h2>
+<p>虽然FreeRTOS支持同一优先级下可以有多个任务，但是此时我们假设每个优先级下最多有一个任务。</p>
+<p>在FreeRTOS中优先级数字越小对应的优先级就越小。</p>
+<p>FreeRTOS提供了两种方法用于优先级的查找，一种是通用的方法，一种是优化的方法。</p>
+<h2 id="寻找最高优先级的任务">寻找最高优先级的任务</h2>
+<h3 id="通用方法">通用方法</h3>
+<p>提供当前就绪任务的优先级，把它和当前任务的优先级进行比较，判断是否跟新。再使用循环从当前最高任务的优先级对应的就绪队列中依次向下寻找若该就绪队列为空，就将当前最高任务的优先级自减，直到找到为止。</p>
+<p>缺点：显然这样的查找方式并不能保证时间的确定性。</p>
+<h3 id="优化方法">优化方法</h3>
+<p>使用了前导零指令CLZ</p>
+<p>CLZ指令是cortex-M提供的一条特殊的指令，计算一个32位的变量的从最高位开始计算第一个出现1位前面出现了0位的个数，即 CLZ(0xfffffff1) 等于31。</p>
+<p>为了能使用前导零指令，需要更改使用优先级的方法，使用一个32位的变量uxTopReadyPriority作为位图，即第几个位上是1则表示这个位的数值对于的优先级的就绪列表上有任务就绪。如：0xfffffff3，表示优先级0和优先级1对应的就绪任务队列上有就绪的任务 。</p>
+<p>根据uxTopReadyPriority来确定当前最高优先级的任务的优先级，使用CLZ指令一步计算即可。</p>
+<p>当前最高优先级 =  31 - CLZ(uxTopReadyPriority)</p>
+<p>优点： 可以保证时间的确定性</p>
+<p>缺点：最大优先级为32</p>
+<h2 id="时间片">时间片</h2>
+<p>同一个优先级下可以有多个任务</p>
+<p>如何实现同一优先级下任务的切换？</p>
+<p>这主要是通过链表的头节点里面的 pxIndex来实现的，这个pxIndex在每次taskSELECT_HIGHEST_PRIORITY_TASK()选择最高优先级这个函数中中，通过listGET_OWNER_OF_NEXT_ENTRY()这个函数讲就绪列表的表头的索引指针pxIndex每次往后指一个，就实现了同一优先级的任务的切换在每个system sick后进行切换。</p>
+<pre><code class="language-c">typedef struct xLIST
 {
-	volatile StackType_t *pxTopOfStack; /* define the pointer for the head of the stack*/
+	/* the number of the Item for the list */
+	UBaseType_t uxNumberOfItems; 
 	
-	ListItem_t xStateListItem; /* define the node for the task*/
-	
-	StackType_t *pxStack;	/* define the start address for the task*/
-	
-	char pcTaskName[configUSE_16_BIT_TICKS]; /* define the name string for a task*/
-	
-}tskTCB;
+	ListItem_t * pxIndex;
+	/* the end node for the list */
+	MiniListItem_t xListEnd; 
+
+}List_t;
 </code></pre>
-<h2 id="任务的创建">任务的创建</h2>
-<h3 id="任务创建的两种方式">任务创建的两种方式</h3>
-<p>在FreeRTOS中任务的创建分为静态创建和动态创建。</p>
-<ul>
-<li>动态创建时，任务控制块和栈的内存是创建任务时动态分配的，任务删除时，内存可以删除。</li>
-<li>静态创建时，任务控制块和栈的内存时事先定义好的，在任务删除后，该内存是不能被删除的。</li>
-</ul>
-<h3 id="创建过程">创建过程</h3>
-<ul>
-<li>xTaskCreate创建了一个新的TCB指针初始化部分的成员，并调用prvInitialiseNewTask进一步初始化这个TCB指针</li>
-<li>prvInitialiseNewTask计算栈顶的位置，初始化TCB里面的LlistItem节点，并调用堆栈的初始化函数pxPortInitializeStack</li>
-</ul>
-<p><strong>关于堆栈过程中将任务的入口函数地址进行8bytes对齐的原因？</strong></p>
-<h2 id="就绪队列">就绪队列</h2>
-<p>就绪列表本质上是一个List_t类型（ListNode 的 Root节点）的数组。数组的下标对应了任务的优先级，同一优先级的任务统一插入到就绪列表的同一条链表中。</p>
-<p>在使用就绪队列前，需要先对就绪队列里面的元素进行初始化，相当于初始化一些链表的Root节点(ListItem)。</p>
-<p>每个任务创建之后需要将其插入其优先级对应的就绪队列中，等待被调度。</p>
 
             </div>
             
@@ -143,9 +142,9 @@ typedef struct tskTaskControlBlock
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/c-yu-yan-chang-liang-zhi-zhen-he-zhi-zhen-chang-liang/">
+                <a href="https://yvainefire.github.io/post/ren-wu-yan-shi-lie-biao-de-yuan-li/">
                   <h3 class="post-title">
-                    C语言 常量指针和指针常量
+                    FreeRTOS 任务延时列表的原理
                   </h3>
                 </a>
               </div>

@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2021-05-08T11:53:55.601Z</updated>
+    <updated>2021-05-12T08:47:26.671Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
@@ -10,6 +10,124 @@
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
     <rights>All rights reserved 2021, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[FreeROTS 多优先级]]></title>
+        <id>https://yvainefire.github.io/post/freerots-duo-you-xian-ji/</id>
+        <link href="https://yvainefire.github.io/post/freerots-duo-you-xian-ji/">
+        </link>
+        <updated>2021-05-12T08:46:43.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="freertos优先级概述">FreeRTOS优先级概述</h2>
+<p>虽然FreeRTOS支持同一优先级下可以有多个任务，但是此时我们假设每个优先级下最多有一个任务。</p>
+<p>在FreeRTOS中优先级数字越小对应的优先级就越小。</p>
+<p>FreeRTOS提供了两种方法用于优先级的查找，一种是通用的方法，一种是优化的方法。</p>
+<h2 id="寻找最高优先级的任务">寻找最高优先级的任务</h2>
+<h3 id="通用方法">通用方法</h3>
+<p>提供当前就绪任务的优先级，把它和当前任务的优先级进行比较，判断是否跟新。再使用循环从当前最高任务的优先级对应的就绪队列中依次向下寻找若该就绪队列为空，就将当前最高任务的优先级自减，直到找到为止。</p>
+<p>缺点：显然这样的查找方式并不能保证时间的确定性。</p>
+<h3 id="优化方法">优化方法</h3>
+<p>使用了前导零指令CLZ</p>
+<p>CLZ指令是cortex-M提供的一条特殊的指令，计算一个32位的变量的从最高位开始计算第一个出现1位前面出现了0位的个数，即 CLZ(0xfffffff1) 等于31。</p>
+<p>为了能使用前导零指令，需要更改使用优先级的方法，使用一个32位的变量uxTopReadyPriority作为位图，即第几个位上是1则表示这个位的数值对于的优先级的就绪列表上有任务就绪。如：0xfffffff3，表示优先级0和优先级1对应的就绪任务队列上有就绪的任务 。</p>
+<p>根据uxTopReadyPriority来确定当前最高优先级的任务的优先级，使用CLZ指令一步计算即可。</p>
+<p>当前最高优先级 =  31 - CLZ(uxTopReadyPriority)</p>
+<p>优点： 可以保证时间的确定性</p>
+<p>缺点：最大优先级为32</p>
+<h2 id="时间片">时间片</h2>
+<p>同一个优先级下可以有多个任务</p>
+<p>如何实现同一优先级下任务的切换？</p>
+<p>这主要是通过链表的头节点里面的 pxIndex来实现的，这个pxIndex在每次taskSELECT_HIGHEST_PRIORITY_TASK()选择最高优先级这个函数中中，通过listGET_OWNER_OF_NEXT_ENTRY()这个函数讲就绪列表的表头的索引指针pxIndex每次往后指一个，就实现了同一优先级的任务的切换在每个system sick后进行切换。</p>
+<pre><code class="language-c">typedef struct xLIST
+{
+	/* the number of the Item for the list */
+	UBaseType_t uxNumberOfItems; 
+	
+	ListItem_t * pxIndex;
+	/* the end node for the list */
+	MiniListItem_t xListEnd; 
+
+}List_t;
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[FreeRTOS 任务延时列表的原理]]></title>
+        <id>https://yvainefire.github.io/post/ren-wu-yan-shi-lie-biao-de-yuan-li/</id>
+        <link href="https://yvainefire.github.io/post/ren-wu-yan-shi-lie-biao-de-yuan-li/">
+        </link>
+        <updated>2021-05-12T08:45:24.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="延时列表的结构">延时列表的结构</h2>
+<p>任务延时列表是是一个双向链表，<strong>按照延时到达的时刻进行增序插入链表</strong>（这个是一个时段，而不是延时的时间，由开始延时的时刻加上延时的时间计算出来的时刻）。</p>
+<p>需要维护</p>
+<ul>
+<li>全局变量系统从一开始到现在的系统时基计算器xTickCount</li>
+<li>全局变量xNextTaskUnblockTime</li>
+<li>两个任务延时列表，一个用于延时时刻变量溢出的任务，一个用于非溢出任务。</li>
+</ul>
+<h2 id="时基计时器和延时时刻的溢出">时基计时器和延时时刻的溢出</h2>
+<p>需要注意系统时基计时器的值加上任务的延时值和时基计时器的值，是否会溢出，溢出了需要将这个任务插入另一条针对于溢出任务的延时列表，没有溢出的则正常插入到正常任务的延时列表。</p>
+<p>溢出是实际上针对系统时基计数器这个变量（32位）而言的，当它的值变为0就表示溢出了。通过指针的切换来达到两个表的切换，实现溢出和非溢出延时队列的切换，同时系统时基计数器的归0，之后新的任务又会放在正确的表中。</p>
+<h2 id="判断任务结束">判断任务结束</h2>
+<p>利用系统时基计数器的值与结算任务的更新值来判断任务的延时是否结束。</p>
+<p>系统时基xTickCount == 下一任务跟新解锁变量xNextTaskUnblockTime，任务延时结束。</p>
+<p>优点：不需要扫描延时队列，只需要只是与xNextTaskUnblockTime这个全局变量进行比较。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[FreeRTOS 空闲任务与延时阻塞]]></title>
+        <id>https://yvainefire.github.io/post/kong-xian-ren-wu-yu-yan-shi-zu-sai/</id>
+        <link href="https://yvainefire.github.io/post/kong-xian-ren-wu-yu-yan-shi-zu-sai/">
+        </link>
+        <updated>2021-05-12T08:44:35.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="空闲任务">空闲任务</h2>
+<p>当操作系统中没有其它的任务可以运行时，就会运行一个空闲任务。</p>
+<p>注意空闲任务的优先级需要设置为最低。</p>
+<h2 id="延时阻塞">延时阻塞</h2>
+<p>当任务调用延时阻塞函数后会被剥夺CPU的使用权，待延时结束后才能被调度器重修调度。如果此时除了空闲任务外的所有任务都被阻塞了，则CPU执行空闲任务。</p>
+<p>延时阻塞的任务：</p>
+<ul>
+<li>设置延时的时长</li>
+<li>将该任务从就绪队列中删除</li>
+<li>进行任务切换</li>
+</ul>
+<p>任务的切换所耗费的时间相对于延时而且是很短的。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[FreeRTOS  临界段的保护]]></title>
+        <id>https://yvainefire.github.io/post/freertos-lin-jie-duan-de-bao-hu/</id>
+        <link href="https://yvainefire.github.io/post/freertos-lin-jie-duan-de-bao-hu/">
+        </link>
+        <updated>2021-05-12T08:44:12.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="临界段定义">临界段定义</h2>
+<p>临界段指一段在执行过程中不能被中断打断的代码段。</p>
+<h2 id="发生的时机">发生的时机</h2>
+<p>临界段被打断主要发生在系统的调度和外部中断。在freeRTOS里，系统调度的本质是PendSV中断。</p>
+<h2 id="本质">本质</h2>
+<p>所以临界段保护的本质就是对中断的开关。</p>
+<h2 id="需要被作为临界段保护的内容">需要被作为临界段保护的内容</h2>
+<h3 id="全局变量">全局变量</h3>
+<p>被多个任务或系统内核共享的全局变量，在任务切换或内核抢占当前代码段执行行，该全局变量可能会被修改，以后再恢复当前代码时，该全局变量的值已经被改变了，执行的结果就可能会出错。</p>
+<h2 id="cortexm对临界段进行保护的方法">Cortex—M对临界段进行保护的方法</h2>
+<p>在 FreeRTOS 中，对于进出临界区都是通过开关中断来进行实现的。</p>
+<p>使用CPS指令对PRIMASK, FAULTMASK, BASEPRI 这三个寄存器进行操作，以达到对中断控制的目的。</p>
+<ul>
+<li>PRIMASK：单比特，关闭除 NMI 和硬 FAULT其他的所以异常</li>
+<li>FAULTMASK：单比特，关闭除 NMI 其他的所以异常</li>
+<li>BASEPRI：9位，可定义被屏蔽优先级的阈值，大于等于该值的会被屏蔽</li>
+</ul>
+<p>在 FreeRTOS 中，对中断的开和关是通过操作 BASEPRI 寄存器来实现的</p>
+<h2 id="关中断的方式">关中断的方式</h2>
+<h3 id="不带返回值">不带返回值</h3>
+<p>不带返回值的意思是：在往 BASEPRI 写入新的值的时候，不用先将 BASEPRI 的值保存起来。所以无法恢复原来的BASEPRI ，这就导致了原来的中断屏蔽状态被破环了，所以不能在中断中使用。默认写入191，高四位有效，即优先级大于等于11的都会被屏蔽。</p>
+<h3 id="带返回值">带返回值</h3>
+<p>带返回值的关中断函数：先将BASEPRI的值临时存储下来，再更新完BASEPRI 值后，使用函数返回的形式返回这个值。</p>
+<h2 id="开中断">开中断</h2>
+<h3 id="不带中断保护的开中断">不带中断保护的开中断</h3>
+<p>对应不带返回参数的关中断，直接将BASEPRI的值设置为0，打开所有中断。</p>
+<h3 id="带中断保护的开中断">带中断保护的开中断</h3>
+<p>对应带返回参数的开中断，将存储的BASEPRI的值，恢复进去。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[SVC 和 PendSV]]></title>
         <id>https://yvainefire.github.io/post/svc-he-pendsv/</id>
@@ -26,7 +144,7 @@
 ]]></content>
     </entry>
     <entry>
-        <title type="html"><![CDATA[裸机系统和多任务系统]]></title>
+        <title type="html"><![CDATA[FreeRTOS 裸机系统和多任务系统]]></title>
         <id>https://yvainefire.github.io/post/luo-ji-xi-tong-he-duo-ren-wu-xi-tong/</id>
         <link href="https://yvainefire.github.io/post/luo-ji-xi-tong-he-duo-ren-wu-xi-tong/">
         </link>
@@ -286,145 +404,6 @@ BaseTest2 assignment
 </code></pre>
 <p>使用初始化列表可以减少计算阶段的赋值操作，毕竟大多数时候成员变量在调用初始化列表的时候都会采用一种构造方法进行初始化。</p>
 <p>注意：在列表调用初始化阶段时如果涉及到成员变量的作为参数，则一定要注意成员变量在class中定义的顺序，防止未定义的情况出现。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[STL标准库]]></title>
-        <id>https://yvainefire.github.io/post/stl-biao-zhun-ku/</id>
-        <link href="https://yvainefire.github.io/post/stl-biao-zhun-ku/">
-        </link>
-        <updated>2021-04-08T08:21:48.000Z</updated>
-        <content type="html"><![CDATA[<p>C++标准库 能看见source code</p>
-<p>STL是C++标准库中的部分</p>
-<p>header files:不带.h</p>
-<p>name space:命名空间，避免命名冲突</p>
-<p>常用网站：</p>
-<ul>
-<li>CPlusPlus.com</li>
-<li>CppReference.com</li>
-<li>gcc.gnu.org</li>
-</ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C++ 面向对象 类的声明和定义]]></title>
-        <id>https://yvainefire.github.io/post/c-mian-xiang-dui-xiang-lei-de-sheng-ming-he-ding-yi/</id>
-        <link href="https://yvainefire.github.io/post/c-mian-xiang-dui-xiang-lei-de-sheng-ming-he-ding-yi/">
-        </link>
-        <updated>2021-04-08T08:20:57.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="类的声明">类的声明</h2>
-<p>类的声明以关键是 class开始，</p>
-<pre><code class="language-c++">class class_name;
-</code></pre>
-<p>类的前置声明只是告诉编译器有这个类的存在，同时可以定义类指针</p>
-<h2 id="类的定义">类的定义</h2>
-<p>class 声明  +  声明后的主体</p>
-<pre><code class="language-c++">class class_template{
-pubilic:
-
-private:
-
-}
-</code></pre>
-<p>主体内包括data member和member function，同时这两种都具有public或者private属性，public属性的可以被类外访问，private属性的只能被类里面的东西访问。</p>
-<p>member function 必须在类里面声明，但不一定在类里面定义。在类里面定义的时候会被默认定义为inline函数。在类外定义是需要特殊指定是哪个类的函数。</p>
-<pre><code class="language-c++">class class_template{
-pubilic:
-	void function_1(int a);
-	void function_2(int b);
-
-	void funciton_2(int b)
-	{
-		.......
-	}
-private:
-	int c;
-}
-
-void class_template::function_2(int a)
-{
-	.......
-}
-</code></pre>
-<p>data member必须通过特殊的方式进行初始化即构造函数（constructor）</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C++ 泛型指针]]></title>
-        <id>https://yvainefire.github.io/post/c-fan-xing-zhi-zhen/</id>
-        <link href="https://yvainefire.github.io/post/c-fan-xing-zhi-zhen/">
-        </link>
-        <updated>2021-04-08T08:20:29.000Z</updated>
-        <content type="html"><![CDATA[<p>C++的泛型指针是针对容器元素而言的，相当于是容器的指针</p>
-<h2 id="泛型指针的定义">泛型指针的定义</h2>
-<pre><code class="language-c++">vector&lt;class&gt;::iterator iter = vertor_template.begin();
-//class 是vector的类型，vec_template是一个已经定义的容器。begin()是这个容器的第一个元素的指针
-vector&lt;class&gt;::iterator iter = vertor_template.end();
-//end 是这个容器的最后一个元素的指针
-</code></pre>
-<h2 id="泛型指针的操作">泛型指针的操作</h2>
-<p>具有和一般指针一样的dereference（提领 *），inequality(不等 ！=)，increment（递增， ++）等操作。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C++ 函数编写]]></title>
-        <id>https://yvainefire.github.io/post/c-han-shu-bian-xie/</id>
-        <link href="https://yvainefire.github.io/post/c-han-shu-bian-xie/">
-        </link>
-        <updated>2021-04-03T07:23:11.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="使用带默认参数的函数">使用带默认参数的函数</h2>
-<p>C++提供了带默认参数的函数。</p>
-<p>eg:</p>
-<pre><code class="language-c++">void function_paramt(int a, int b, int c = 1)
-{
-	....
-	....
-}
-</code></pre>
-<p>在函数的定义或声明中可以为其添加默认的参数，当调用这个函数的时候，如果没有第三个参数的形参，则默认等于1。否则以形参的值为准。</p>
-<p>注意在使用带默认参数的函数时有两条规则：</p>
-<ul>
-<li>对默认参数的解析是从右往左开开始，所以从左往右第一个使用默认参数的参数其右边的所以参数都必须使用默认参数。</li>
-<li>在函数的声明和定义中只能够有一个地方使用了默认参数，建议在函数声明的位置使用默认参数。</li>
-</ul>
-<h2 id="使用inline声明函数">使用inline声明函数</h2>
-<p>为了提高函数的效率减少函数之间调用所产生的开销，可以使用inline来声明一个函数，从而使该函数内部调用的函数，在编译的时候能展开，从而减少了一个函数对另一个函数的调用。</p>
-<p>inline的作用简单来说就是对函数进行展开。</p>
-<p>eg:</p>
-<pre><code class="language-c++">inline void il_templet(int a, int b)
-{
-	fun1();
-	fun2();
-	.......
-}
-</code></pre>
-<p>注意：inline只是对编译器提出的一种请求，并不是强制性的。所以编译是否会执行，还需要根据编译器而定。</p>
-<h2 id="函数的重载">函数的重载</h2>
-<p>不同于C语言，C++可以对函数进行重载，所谓重载也就是指对一个同名的函数可以根据其参数的不同而进行区别。这里参数不同可以指参数的类型不同，参数的数量不同。</p>
-<p>在调用函数的时候，根据调用时所给定的形参来选择相应的函数进行调用。</p>
-<p>eg:</p>
-<pre><code class="language-c++">void func_overlaoding_1();
-void func_overlaoding_1(int a);
-void func_overlaoding_1(string a);
-void func_overlaoding_1(int a, int b);
-......
-</code></pre>
-<p>注意：返回类型并不作为区分函数重载的依据，因为调用函数的时候，用时候并不会使用到其返回类型，这就导致了编译器不能对齐进行解析。</p>
-<h2 id="模板函数">模板函数</h2>
-<p>当一个几个函数函数体相似，而仅仅是函数中某个变量的数据类型不一样的时，可以使用定义一个函数模板方式，来减少定义多个类似的函数。</p>
-<p>定义一个函数模板，最开始以关键字template开头，然后用&lt; &gt;包含多个标识符。</p>
-<p>eg:</p>
-<pre><code class="language-c++">template &lt;typename elemType&gt;
-void template_function(int a, vector&lt;elemType&gt; &amp;vec)
-{
-.......
-}
-</code></pre>
-<p>使用一个函数模板，先定义模板中未定义的参数的类型</p>
-<p>eg:</p>
-<pre><code class="language-c++">vector&lt;int&gt; ivec;
-template_function(a, ivec);
-</code></pre>
 ]]></content>
     </entry>
 </feed>

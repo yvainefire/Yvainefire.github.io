@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>函数指针 | YvaineFire_block</title>
+<title>FreeRTOS 任务延时列表的原理 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,10 +18,12 @@
 
 
 
-    <meta name="description" content="一.函数指针和函数首地址
-地址的联系
-如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，这段存储空间的首地址称为这个函数的地址。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针..." />
-    <meta name="keywords" content="C语言" />
+    <meta name="description" content="延时列表的结构
+任务延时列表是是一个双向链表，按照延时到达的时刻进行增序插入链表（这个是一个时段，而不是延时的时间，由开始延时的时刻加上延时的时间计算出来的时刻）。
+需要维护
+
+全局变量系统从一开始到现在的系统时基计算器xTickCount..." />
+    <meta name="keywords" content="FreeRTOS" />
   </head>
   <body>
     <div id="app" class="main">
@@ -92,52 +94,32 @@
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">函数指针</h2>
-            <div class="post-date">2020-07-30</div>
+            <h2 class="post-title">FreeRTOS 任务延时列表的原理</h2>
+            <div class="post-date">2021-05-12</div>
             
             <div class="post-content" v-pre>
-              <h2 id="一函数指针和函数首地址">一.函数指针和函数首地址</h2>
-<p>地址的联系</p>
-<p>如果在程序中定义了一个函数，那么在编译时系统就会为这个函数代码分配一段存储空间，<strong>这段存储空间的首地址称为这个函数的地址</strong>。而且函数名表示的就是这个地址。既然是地址我们就可以定义一个指针变量来存放，这个指针变量就叫<strong>作函数指针变量</strong>，简称函数指针。</p>
-<h2 id="二函数指针的定义方式">二.函数指针的定义方式</h2>
-<p>然而函数指针的定义和普通指针的定义事不同的。</p>
-<p>函数指针的定义方式：</p>
-<pre><code>函数返回值类型 (* 指针变量名) (函数参数列表);
-</code></pre>
-<p>例：</p>
-<pre><code class="language-c"># include &lt;stdio.h&gt;
-int Max(int, int);  //函数声明
-int main(void){    
-    int(*p)(int, int);  //定义一个函数指针    
-    int a, b, c;    
-    p = Max;  //把函数Max赋给指针变量p, 使p指向Max函数    
-    
-    printf(&quot;please enter a and b:&quot;);    
-    scanf(&quot;%d%d&quot;, &amp;a, &amp;b);    
-    c = (*p)(a, b);  //通过函数指针调用Max函数    
-    printf(&quot;a = %d\nb = %d\nmax = %d\n&quot;, a, b, c);   
-    
-    return 0;
-}
-int Max(int x, int y)  //定义Max函数
-{    
-    int z;    
-    if (x &gt; y) {        
-        z = x;    
-    }else 
-    {        
-        z = y;    
-    }    
-    return z;
-}
-</code></pre>
+              <h2 id="延时列表的结构">延时列表的结构</h2>
+<p>任务延时列表是是一个双向链表，<strong>按照延时到达的时刻进行增序插入链表</strong>（这个是一个时段，而不是延时的时间，由开始延时的时刻加上延时的时间计算出来的时刻）。</p>
+<p>需要维护</p>
+<ul>
+<li>全局变量系统从一开始到现在的系统时基计算器xTickCount</li>
+<li>全局变量xNextTaskUnblockTime</li>
+<li>两个任务延时列表，一个用于延时时刻变量溢出的任务，一个用于非溢出任务。</li>
+</ul>
+<h2 id="时基计时器和延时时刻的溢出">时基计时器和延时时刻的溢出</h2>
+<p>需要注意系统时基计时器的值加上任务的延时值和时基计时器的值，是否会溢出，溢出了需要将这个任务插入另一条针对于溢出任务的延时列表，没有溢出的则正常插入到正常任务的延时列表。</p>
+<p>溢出是实际上针对系统时基计数器这个变量（32位）而言的，当它的值变为0就表示溢出了。通过指针的切换来达到两个表的切换，实现溢出和非溢出延时队列的切换，同时系统时基计数器的归0，之后新的任务又会放在正确的表中。</p>
+<h2 id="判断任务结束">判断任务结束</h2>
+<p>利用系统时基计数器的值与结算任务的更新值来判断任务的延时是否结束。</p>
+<p>系统时基xTickCount == 下一任务跟新解锁变量xNextTaskUnblockTime，任务延时结束。</p>
+<p>优点：不需要扫描延时队列，只需要只是与xNextTaskUnblockTime这个全局变量进行比较。</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
-                    C语言
+                  <a href="https://yvainefire.github.io/tag/7KcsShw-h/" class="tag">
+                    FreeRTOS
                   </a>
                 
               </div>
@@ -145,9 +127,9 @@ int Max(int x, int y)  //定义Max函数
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/dui-qi/">
+                <a href="https://yvainefire.github.io/post/kong-xian-ren-wu-yu-yan-shi-zu-sai/">
                   <h3 class="post-title">
-                    对齐
+                    FreeRTOS 空闲任务与延时阻塞
                   </h3>
                 </a>
               </div>
