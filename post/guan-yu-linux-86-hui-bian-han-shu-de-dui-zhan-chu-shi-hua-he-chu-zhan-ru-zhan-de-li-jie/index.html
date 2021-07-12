@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C语言 常量指针和指针常量 | YvaineFire_block</title>
+<title> 关于linux-86汇编函数的堆栈初始化和出栈入栈的理解 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,11 +18,18 @@
 
 
 
-    <meta name="description" content="常量指针
-指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。
-int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一..." />
+    <meta name="description" content="1.一个只含返回语句main函数为空的代码段
+c语言代码
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+        return 0;
+}
+
+
+汇编代码
+Disassembly of sectio..." />
     <meta name="keywords" content="C语言" />
   </head>
   <body>
@@ -94,29 +101,72 @@ const int * C = &amp;A; //定义一..." />
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">C语言 常量指针和指针常量</h2>
-            <div class="post-date">2021-04-27</div>
+            <h2 class="post-title"> 关于linux-86汇编函数的堆栈初始化和出栈入栈的理解</h2>
+            <div class="post-date">2021-05-13</div>
             
             <div class="post-content" v-pre>
-              <h2 id="常量指针">常量指针</h2>
-<p>指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一个常量指针
-int const * B = &amp;A; //定义一个常量指针
+              <h2 id="1一个只含返回语句main函数为空的代码段">1.一个只含返回语句main函数为空的代码段</h2>
+<p>c语言代码</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+
+int main(void)
+{
+        return 0;
+}
+
 </code></pre>
-<h2 id="指针常量">指针常量</h2>
-<p>指针常量是指这个指针是一个常量，即不能将这个指针指向其它的地址，即不能改变这个指针本身。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-int * const n =&amp;A; //定义一个指针常量
+<p>汇编代码</p>
+<pre><code class="language-汇编">Disassembly of section .text:
+
+0000000000000000 &lt;main&gt;:
+   0:   55                      push   %rbp  
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   b8 00 00 00 00          mov    $0x0,%eax
+   9:   5d                      pop    %rbp
+   a:   c3                      retq   
+
 </code></pre>
-<p><strong>注：区分常量指针和指针常量，可以通过const在 * 的左边还是右边。</strong></p>
-<h2 id="常量指针常量">常量指针常量</h2>
-<p>同时具有常量指针和指针常量的特点，既无法修改指针指向的内容也无法修改指针本身。</p>
-<pre><code class="language-c">int A = 1;
-const int * const C = &amp;A;
+<p>分析：</p>
+<p><strong>pop和push都是以rsp为堆栈指针</strong></p>
+<p>0：将rbp指针入栈，进入以rsp为栈顶的栈，由于x86的栈是从高地址到低地址，所以rsp-8</p>
+<p>1：将rsp这个栈顶指针赋给rbp，使rbp能够代替rsp进行出栈入栈的操作，而rsp保持在原来的栈底的位置，也相当于为rbp分配了一段新的栈，实际上仍然是rsp原来的栈。</p>
+<p>4：return 0</p>
+<p>9：利用rsp来恢复rbp最开始的值</p>
+<h2 id="2含有一些变量的main函数">2.含有一些变量的main函数</h2>
+<p>c语言代码</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int G = 111;
+int l;
+
+int main(void)
+{
+        int a = 0;
+        int b;
+        int c = 10;
+        int C = 100;
+        static int d = 1;
+        static int e = 0;
+
+        return 0;
+}
+
 </code></pre>
+<p>汇编代码</p>
+<pre><code class="language-汇编">Disassembly of section .text:
+
+0000000000000000 &lt;main&gt;:
+   0:   55                      push   %rbp
+   1:   48 89 e5                mov    %rsp,%rbp
+   4:   c7 45 f4 00 00 00 00    movl   $0x0,-0xc(%rbp)
+   b:   c7 45 f8 0a 00 00 00    movl   $0xa,-0x8(%rbp)
+  12:   c7 45 fc 64 00 00 00    movl   $0x64,-0x4(%rbp)
+  19:   b8 00 00 00 00          mov    $0x0,%eax
+  1e:   5d                      pop    %rbp
+  1f:   c3                      retq   
+
+</code></pre>
+<p>分析：</p>
+<p>main函数中含有未初始化的局部变量和静态局部变量，初始化的局部变量和静态局部变量，未初始化的全局变量和初始化的全局变量。</p>
 
             </div>
             
@@ -131,9 +181,9 @@ const int * const C = &amp;A;
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/freertos-nei-he-lian-biao-he-lian-biao-xiang/">
+                <a href="https://yvainefire.github.io/post/yin-shi-zhuan-huan/">
                   <h3 class="post-title">
-                    FreeRTOS	内核链表和链表项
+                    C语言 隐式转换
                   </h3>
                 </a>
               </div>

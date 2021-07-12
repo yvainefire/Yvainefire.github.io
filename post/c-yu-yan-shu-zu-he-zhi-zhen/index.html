@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>C语言 数组和指针 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1626082611815">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="一维数组
+数组名的值是一个指针常量，也就是该数组中第一个元素的地址。具体的类型是由该数组中元素的类型决定。例：如果数组的元素类型是int，则该数组名的类型是“指向int的常量指针”。
+由于数组名是一个指针常量，所以是不能修改数组名的。这样做..." />
+    <meta name="keywords" content="C语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1626082611815" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">C语言 数组和指针</h2>
+            <div class="post-date">2021-05-13</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="一维数组">一维数组</h2>
+<p>数组名的值是一个<strong>指针常量</strong>，也就是该数组中第一个元素的地址。具体的类型是由该数组中元素的类型决定。例：如果数组的元素类型是int，则该数组名的类型是“指向int的常量指针”。</p>
+<pre><code>由于数组名是一个指针常量，所以是不能修改数组名的。这样做的原因：再链接过后，该数组在内存中的位置就固定了，即数组名的值也就固定了，修改这个值，并不会把整个数组移动到另一个位置，所以禁止这样的操作。
+</code></pre>
+<p>数组具有确定数量的元素，而指针只是一个标量值。</p>
+<h3 id="数组的初始化">数组的初始化</h3>
+<p>完全初始化：在定义是指定每一个值；使用循环为每个下标初始化。</p>
+<p>未完全初始化：定义时只指定前n个值，其余部分默认为0</p>
+<p>完全为初始化：全部默认为0</p>
+<h3 id="下标引用">下标引用</h3>
+<p>下标引用和间接引用除了优先级的差别外，其他的效果一样。同时，任意的指针都可以和数组一样使用下标引用。例：</p>
+<pre><code class="language-c">int array[10];
+int *ap = array;
+ap[0]=3;
+</code></pre>
+<p>负值下标：负值下标指的是该数组名对应的前一个地址的值。在使用负值下标时，一定要在有意思不会造成危险的时候进行使用，即一定要知道这个值不是非法的内存区。</p>
+<h3 id="指针和下标">指针和下标</h3>
+<p>虽然指针和下标可以任意的使用，但是在某些时候使用指针时的效率会更加的好一点。</p>
+<p>例：两种方式对数组的每个元素进行遍历</p>
+<pre><code class="language-c">//采用下标的形式
+int array1[10],a1;
+for(a1 = 0; a1 &lt; 10; a1++)
+	array1[a1] = 0;
+	
+//采用指针的形式
+int array2[10],a2;
+for(a2 = array2; a2 &lt; array2 + 10; a2++)
+	*a2 = 0;
+</code></pre>
+<p>对于第一种形式：每次使用一个乘法运算a*4（数据长度）计算相对与基址的相对地址。所以会有大量的乘法运算</p>
+<p>对于第二种形式：由于是相当于一种累加的结果，所以只需要在编译的时候计算出1*4（数据长度），每次只进行一个加法运算a2+4。</p>
+<p>对于数组模式的取值和指针模式的取值，</p>
+<h3 id="数组名作为的函数参数">数组名作为的函数参数</h3>
+<p>c语言的函数的参数是按值传送的，所以实际上就是一个拷贝，在一般的情况下是不会改变实参的。但是在数组做为参数传递进去的时候数组里面的内容可以改变，看似进行的是传址调用。</p>
+<p>​		在数组名作为函数参数进行传送的时候，实际上实参就是一个指向数组第一个元素的指针，也就是数组第一元素的地址。所以实参拷贝给形参，形参的值就是数组第一个元素的地址，这个地址是不会被改变的，改变只可能是这个地址存储的内容，所以这也是按值传递。</p>
+<p>同时这也说明了，函数不能根据数组名去获得数组的长度，需要额外的给出。</p>
+<p>为了体现数组名作为参数的本质，<strong>最好将写为指针的形式</strong></p>
+<h3 id="初始化">初始化</h3>
+<p>自动（动态）变量和静态变量</p>
+<ul>
+<li>
+<p>自动变量指（auto）：对于所有未特别指定的局部变量都是自动变量。当自动变量所在的作用域被执行完后会自动销毁该变量，同时每次执行声明该变量的代码都会<strong>创建一个新的变量</strong>分配相应的存储空间，每次的存储空间可能是不相同的。<strong>存放于栈（注意不是堆，堆是被malloc动态分配的变量的存储位置）中，在每次调用的时候会进行重新赋值。</strong></p>
+</li>
+<li>
+<p>静态变量（static）：对于使用了static声明的局部变量变量是静态变量（<strong>注意全局变量是默认的static声明</strong>）。且即使静态变量所在的作用域被执行完了，该变量也不会被销毁而会存在于程序的整个执行中，且在下次重新执行到这段代码是会使用原来的这个变量。<strong>存放在静态存储区中，在编译就进行赋值了。</strong></p>
+</li>
+</ul>
+<p><strong>注意是否需要被重新初始化和大数组初始化的时间</strong></p>
+<p>数组的初始化需要看是自动的变量的初始化还是静态变量的初始化，且还需考虑是完整初始化，还是不完整初始化。当不完整初始化时都会将其默认为0或'\0'。</p>
+<h2 id="多维数组">多维数组</h2>
+<h3 id="数组名">数组名</h3>
+<p>多维数组的数组名是指向其第一维数组的指针。所以实际上是指向指针的指针。</p>
+<p>例如二维数组：int matrix[3] [4]</p>
+<p>可将其看作是一个含有3个元素的1维数组，每1维元素为包含4个元素的向量。所有matrix是指向第一维数组的指针，*matrix相当于第一维数组的数组名，**matrix相当于第一维数组的第一个元素。</p>
+<p>*(matrix+n)是第n维数组的数组名,**(matrix+n)是第n行的第一个元素。</p>
+<p>*( *(matrix+n)+m)是第n行第m个元素</p>
+<h3 id="指向二维数组的指针">指向二维数组的指针</h3>
+<p>int (*p)[n]</p>
+<p>声明一个第一维为n个元素的数组。实质上就是声明了一个整型的指针数组。对于这个数组来说其中的每个元素为一个指针，指向一个数组。</p>
+<p>int (*m)[3] = matrix;</p>
+<h3 id="数组名作为函数的参数">数组名作为函数的参数</h3>
+<p>传入值为一个指向指针的指针。</p>
+<h3 id="初始化-2">初始化</h3>
+<p>两种方式：</p>
+<p>int matrix[3] [4]={1, 1, 1,1, 1, 1,1, 1, 1,1, 1, 1};</p>
+<p>int matrix[3] [4]={</p>
+<p>{1, 1, 1}</p>
+<p>{1, 1, 1}</p>
+<p>{1, 1, 1}</p>
+<p>{1, 1, 1}</p>
+<p>};</p>
+<p><strong>在二维数组中只有第一维能够根据初始化列表缺省地提供。</strong></p>
+<h2 id="指针数组">指针数组</h2>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
+                    C语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/cun-chu-qi/">
+                  <h3 class="post-title">
+                    存储器
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

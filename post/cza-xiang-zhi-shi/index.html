@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1620809673495">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1626082611815">
 <link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
 
 
@@ -18,10 +18,11 @@
 
 
 
-    <meta name="description" content="1.namespace
-namespace(命名空间)：是一种将库名称封装起来的方法。避免发生命名冲突。所谓命名冲突是指，应用程序的两个不同的实体有相同的名称。
-使用namespace来解决命名冲突的问题
-using namesapce 命..." />
+    <meta name="description" content="C++
+对象的定义和初始化
+1.关于using namespace std
+using 和namespace是两个关键字
+其中std是C++的标准库所驻之命名空间的名称，所谓命名空间是指一种将库名封装起来的方法。其目的是为了避免和应用程序（..." />
     <meta name="keywords" content="c++" />
   </head>
   <body>
@@ -31,7 +32,7 @@ using namesapce 命..." />
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="https://yvainefire.github.io">
-        <img src="https://yvainefire.github.io/images/avatar.png?v=1620809673495" class="site-logo">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1626082611815" class="site-logo">
         <h1 class="site-title">YvaineFire_block</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -97,7 +98,37 @@ using namesapce 命..." />
             <div class="post-date">2021-03-08</div>
             
             <div class="post-content" v-pre>
-              <h2 id="1namespace">1.namespace</h2>
+              <h1 id="c">C++</h1>
+<h2 id="对象的定义和初始化">对象的定义和初始化</h2>
+<h3 id="1关于using-namespace-std">1.关于using namespace std</h3>
+<p>using 和namespace是两个关键字</p>
+<p>其中std是C++的标准库所驻之命名空间的名称，所谓命名空间是指一种将库名封装起来的方法。其目的是为了避免和应用程序（自己写的新的对象）命名冲突的问题即同名的问题。所以通过using namespace 指定了命名空间就可以解决这样的问题。</p>
+<p>std库提供了：语言支持（一些宏及一些标准类型）；输入输出；诊断（异常错误处理）；一般工具；字符串（支持字符串处理的头文件）；容器（定义容器类模板的头文件）；迭代器支持；算法（提供一组基本算法的头文件）；数值操作（提供数值计算的头文件，）；本地化（本地化的头文件）；</p>
+<h3 id="2main实际上不是关键字只是编译器默认主函数的名字是main">2.main实际上不是关键字，只是编译器默认主函数的名字是main</h3>
+<h3 id="3初始化的方式">3.初始化的方式</h3>
+<p>（1）使用 = （assignment运算符进行初始化）沿用c的语法，适用的对象为内置类型(Boolean,integer,floating point,character)或者是对象值可以单一初始化，</p>
+<p>string user_name = &quot;Tom&quot;;</p>
+<p>（2）使用构造函数进行初始化，适用于对象需要多个初始值得情况</p>
+<p>eg：complex<double>  purei(0,7);</p>
+<p>定义并初始化了一个双精度得复数</p>
+<h3 id="4内置得boolen类型">4.内置得Boolen类型</h3>
+<p>采用true/false</p>
+<h3 id="5运算符得优先级">5.运算符得优先级</h3>
+<p>NOT：!	优先级最高</p>
+<p>逻辑运算符的优先级也很低</p>
+<p>assignment：= 优先级最低</p>
+<p><strong>注：注意各个数据类型的值域，是否会出现溢出的情况</strong></p>
+<h2 id="一些比较重要的数据结构">一些比较重要的数据结构</h2>
+<h3 id="1array-和-vector">1.Array 和 Vector</h3>
+<p>（1）array</p>
+<p>array的大小必须是常量表达式，因为数组的空间分配是在链接过后就确定了。</p>
+<p>eg: int arr_sample[size_of_samlpe]</p>
+<p>（2）vector</p>
+<p>首先包含vector的头文件<vector>,vector是一个class template</p>
+<p>eg: vector<int> vec_sample(size_of_sample)</p>
+<h3 id="2string">2.string</h3>
+<p>string 所占得空间是从堆中动态分配得。与sizof无关，因为sizeof()只是运算符，是编译的时候确定大小的，对动态分配运行过程中的大小是无法计算出正确的结果的。所以在同一库中sizeof任意一个字符串，获得的值是确定的。</p>
+<h2 id="1namespace">1.namespace</h2>
 <p>namespace(命名空间)：是一种将库名称封装起来的方法。避免发生命名冲突。所谓命名冲突是指，应用程序的两个不同的实体有相同的名称。</p>
 <h3 id="使用namespace来解决命名冲突的问题">使用namespace来解决命名冲突的问题</h3>
 <pre><code class="language-c">using namesapce 命名空间名;

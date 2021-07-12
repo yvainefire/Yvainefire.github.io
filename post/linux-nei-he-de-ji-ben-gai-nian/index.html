@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>多进程 | YvaineFire_block</title>
+<title>Linux  内核的基本概念 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,15 +18,16 @@
 
 
 
-    <meta name="description" content="#一. fork函数
-1.关于fork()函数
-pid_t fork(void);
-创建一个新的进程，对于原进程而言该进程是子进程。
-注意子进程和父进程的关系
-2.关于返回值
-返回值有两个
-对于子进程而言返回值为0
-对于父进程而言，返回值是..." />
+    <meta name="description" content="内核的组成
+
+中断服务管理程序
+处理器调度程序
+内存管理程序
+网络通信等系统服务程序
+
+两种运行态
+内核运行的空间----内核态，独立于普通的程序，拥有受保护的内核空间和访问硬件的所有权。
+应用程序运行的空间----用户态，只能使用部分的系..." />
     <meta name="keywords" content="linux" />
   </head>
   <body>
@@ -98,55 +99,41 @@ pid_t fork(void);
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">多进程</h2>
-            <div class="post-date">2020-07-30</div>
+            <h2 class="post-title">Linux  内核的基本概念</h2>
+            <div class="post-date">2021-05-13</div>
             
             <div class="post-content" v-pre>
-              <p>#一. fork函数</p>
-<h2 id="1关于fork函数">1.关于fork()函数</h2>
-<p>pid_t fork(void);</p>
-<p>创建一个新的进程，对于原进程而言该进程是子进程。</p>
-<p>注意子进程和父进程的关系</p>
-<h2 id="2关于返回值">2.关于返回值</h2>
-<p>返回值有两个</p>
-<p>对于子进程而言返回值为0</p>
-<p>对于父进程而言，返回值是子进程的进程号</p>
-<p><strong>为什么返回值会设置两个</strong>：因为对于一个父进程而言，是很难获得其子进程的进程号的，毕竟 一个父进程可能会有多个子进程。所以对于父进程而言，返回值设置其子进程的进程号，方便  父进程进行记录。而对于子进程而言，就很容易找到其父进程对应的进程号，使用getppid()函数。<br>
-出错返回-1</p>
-<h2 id="3关于拷贝">3.关于拷贝</h2>
-<p>os会分配新的内存空间和内核数据结构给子进程</p>
-<p>父进程中的部分代码，数据会拷贝到子进程中包括父进程的数据空间，堆，栈，还包括缓冲区的数据。这些拷贝的东西都是父本，所以是不会进行数据共享的，包括信号量。对于代码拷贝一定要注意：只拷贝位于fork()之后的代码，同时这里的拷贝不是真正的拷贝，只能说是代码的共享。这里特别注意循环结构，</p>
-<p><strong>父子进程是相对的</strong>！！！！</p>
-<p><strong>特别注意在带循环的进程创建的时候，在父进程创建子进程后，子进程拷贝的代码是for()位置当前未执行完的代码，即还需要考虑仍需执行的循环的次数。若该子进程会进行fork()创建对他而言的子进程，则在以此子进程为主进程的进程中，此子进程充当父进程。即父子进程是相对的额，是根据两进程的相对关系而言的。这里特别要注意，使用for进行fork()时一共创建的进程不是1+n个！！！</strong></p>
-<p>两段代码：<br>
-代码1</p>
-<pre><code class="language-c">for(int i=0;i&lt;3;i++)  
-{    
-    if(pid=fork())    
-    {      
-        printf(&quot;%d\n&quot;,getpid());    
-    }    
-    else    
-    {      
-        printf(&quot;%d\n&quot;,getpid());    
-    }      
-}
-</code></pre>
-<p>代码2</p>
-<pre><code class="language-c">int i=1;
-
-  while((pid=fork()))    
-  {            
-      printf(&quot;pid:%d i:%d\n&quot;,getpid(),i);      
-      if(i&gt;5)      
-      {                  
-          break;      
-      }                      
-      i++;        
-  }    
-
-printf(&quot;pid:%d\n&quot;,getpid());
-</code></pre>
+              <h2 id="内核的组成">内核的组成</h2>
+<ul>
+<li>中断服务管理程序</li>
+<li>处理器调度程序</li>
+<li>内存管理程序</li>
+<li>网络通信等系统服务程序</li>
+</ul>
+<h2 id="两种运行态">两种运行态</h2>
+<p>内核运行的空间----内核态，独立于普通的程序，拥有受保护的内核空间和访问硬件的所有权。</p>
+<p>应用程序运行的空间----用户态，只能使用部分的系统资源，不能访问内核给别人的内存空间，不能直接使用硬件资源。</p>
+<p>操作系统中运行的应用程序通过系统调用来与内核进行通信。系统调用又往往被封装为函数库提供给用户。</p>
+<p>许多操作系统的中断服务程序都不在进程的上下文中执行，而执行在一个与进行上下文无关的专门的中断上下文，从而保证了中断响应的速度。</p>
+<p>两种运行态下的三种活动：</p>
+<ul>
+<li>运行于用户空间，执行用户上下文。</li>
+<li>运行于内核空间，处于进程上下文，使用当前进程的内核栈，代表某个特定进程执行。是由系统调用陷入内核态的。</li>
+<li>运行于内核空间，处于中断上下文，与任何进程无关，处理某个特定的中断。</li>
+</ul>
+<p>中断上下文指：硬件传递过来的一些参数和内核需要保存的一些环境。</p>
+<h2 id="两种内核">两种内核</h2>
+<p>单内核：整体上作为一个大的过程，运行在一个单独的地址空间，内核之间可以直接通过函数调用进行通信。结构简单，性能高，不安全。</p>
+<p>微内核：划分为很多独立的过程（称为服务器），每个独立的过程单独执行在各自的地址空间，通过消息传递进行内核模块间的通信。结果复杂，性能较低，</p>
+<p>实际应用的微内核系统会将大部分或全部的服务器都放在内核中，从而达到直接进行函数调用达到通信的目的。</p>
+<p>Linux是一个单内核，但是又具有微内核的特点，所有的事情都运行在内核中，直接调用函数，无需消息传递。</p>
+<h2 id="linux内核的一些特点">Linux内核的一些特点</h2>
+<ul>
+<li>支持动态加载内核模块</li>
+<li>支持对称多处理机制</li>
+<li>内核可抢占</li>
+<li>内核并不区分线程和进程，对内核来说所有的进程都一样，只是线程可以共享资源而已。</li>
+</ul>
 
             </div>
             
@@ -161,9 +148,9 @@ printf(&quot;pid:%d\n&quot;,getpid());
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/han-shu-zhi-zhen/">
+                <a href="https://yvainefire.github.io/post/c-yu-yan-guan-yu-zi-fu-chang-liang-de-yi-xie-shuo-ming/">
                   <h3 class="post-title">
-                    函数指针
+                    C语言 关于字符常量的一些说明
                   </h3>
                 </a>
               </div>

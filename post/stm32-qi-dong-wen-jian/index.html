@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>STM32 启动文件 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1626082611815">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="上电复位后的工作
+
+初始化堆栈指针
+初始化PC指针
+初始化中断表
+配置系统时钟
+调用C库函数_main初始化用户堆栈，调用用户编写的main函数
+
+分配栈空间并初始化栈指针
+栈空间主要用于存储局部变量，函数调用时分配的栈，函数传参
+Stac..." />
+    <meta name="keywords" content="STM32" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1626082611815" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">STM32 启动文件</h2>
+            <div class="post-date">2021-05-13</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="上电复位后的工作">上电复位后的工作</h2>
+<ul>
+<li>初始化堆栈指针</li>
+<li>初始化PC指针</li>
+<li>初始化中断表</li>
+<li>配置系统时钟</li>
+<li>调用C库函数_main初始化用户堆栈，调用用户编写的main函数</li>
+</ul>
+<h2 id="分配栈空间并初始化栈指针">分配栈空间并初始化栈指针</h2>
+<p>栈空间主要用于存储局部变量，函数调用时分配的栈，函数传参</p>
+<pre><code class="language-assembly">Stack_Size      EQU     0x00000400
+
+                AREA    STACK, NOINIT, READWRITE, ALIGN=3
+Stack_Mem       SPACE   Stack_Size
+__initial_sp
+</code></pre>
+<h2 id="分配堆空间并初始化堆指针">分配堆空间并初始化堆指针</h2>
+<p>堆空间主要用于动态内存的分配，如malloc()函数</p>
+<pre><code class="language-assembly">Heap_Size       EQU     0x00000C00
+
+                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
+__heap_base
+Heap_Mem        SPACE   Heap_Size
+__heap_limit
+</code></pre>
+<h2 id="构造向量表">构造向量表</h2>
+<p>构造一个只读的数据段，用于存放每一个中断对应的中断服务函数的地址。所以实际上相当于定义了一个数组。</p>
+<pre><code class="language-assembly">; Vector Table Mapped to Address 0 at Reset
+
+                AREA    RESET, DATA, READONLY
+                EXPORT  __Vectors
+                EXPORT  __Vectors_End
+                EXPORT  __Vectors_Size
+
+__Vectors       DCD     __initial_sp              ; Top of Stack
+                DCD     Reset_Handler             ; Reset Handler
+                DCD     NMI_Handler               ; NMI Handler
+                DCD     HardFault_Handler         ; Hard Fault Handler
+               ..........
+
+__Vectors_End
+
+__Vectors_Size  EQU     __Vectors_End - __Vectors
+</code></pre>
+<p>这些都是实现定义好的函数名，用户只需要在用户程序中填充需要使用的中断服务函数。</p>
+<p>NVIC的重定位寄存器的是指向向量表的，复位为0，所以0地址必须要有一个向量表。</p>
+<h2 id="复位程序">复位程序</h2>
+<p>调用 SystemInit 函数初始化系统时钟，SystemInit 函数是一个标准的库函数用于配置时钟系统。</p>
+<p>调用 C 库函数__mian，__mian函数是一个标准的C库函数，主要用于初始化用户堆栈，并最终调用 main 函数去到 C 的世界。</p>
+<h2 id="初始化用户堆栈">初始化用户堆栈</h2>
+<pre><code class="language-assembly">__user_initial_stackheap PROC
+                LDR     R0, =  Heap_Mem
+                LDR     R1, =(Stack_Mem + Stack_Size)
+                LDR     R2, = (Heap_Mem +  Heap_Size)
+                LDR     R3, = Stack_Mem
+                BX      LR
+</code></pre>
+<p>在调试的时候可以看见</p>
+<ul>
+<li>堆的起始地址：R0 = 0x20000A00</li>
+<li>栈顶：R1 = 0x20001A00</li>
+<li>堆顶：R2 = 0x20001600</li>
+<li>栈的起始地址：R3 = 0x20001600</li>
+</ul>
+<p>这些地址都是位于存储器映射中的Block1，SRAM 64KB 中（0x2000 0000 ~0x2000 FFFF）</p>
+<p>进入main函数中SP指针马上就变成了堆栈初始化后R1的值 0x20001A00，即指向栈顶。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/54oJLZWfB/" class="tag">
+                    STM32
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/linux-xian-cheng/">
+                  <h3 class="post-title">
+                    Linux 线程
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

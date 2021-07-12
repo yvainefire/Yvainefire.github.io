@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C语言 常量指针和指针常量 | YvaineFire_block</title>
+<title>存储器 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,12 +18,14 @@
 
 
 
-    <meta name="description" content="常量指针
-指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。
-int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一..." />
-    <meta name="keywords" content="C语言" />
+    <meta name="description" content="RAM
+随机存储器，随机指可读可写，且读取内部任意地址的时间是相同的。断电数据会丢失。
+DRAM
+动态随机存储器，存储单元以电容的电荷来表示，动态指需要定期刷新。
+一般用于CPU外部的扩展内存
+SRAM
+静态随机存储器，以锁存器来存储数据，..." />
+    <meta name="keywords" content="STM32" />
   </head>
   <body>
     <div id="app" class="main">
@@ -94,36 +96,36 @@ const int * C = &amp;A; //定义一..." />
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">C语言 常量指针和指针常量</h2>
-            <div class="post-date">2021-04-27</div>
+            <h2 class="post-title">存储器</h2>
+            <div class="post-date">2021-05-13</div>
             
             <div class="post-content" v-pre>
-              <h2 id="常量指针">常量指针</h2>
-<p>指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一个常量指针
-int const * B = &amp;A; //定义一个常量指针
-</code></pre>
-<h2 id="指针常量">指针常量</h2>
-<p>指针常量是指这个指针是一个常量，即不能将这个指针指向其它的地址，即不能改变这个指针本身。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-int * const n =&amp;A; //定义一个指针常量
-</code></pre>
-<p><strong>注：区分常量指针和指针常量，可以通过const在 * 的左边还是右边。</strong></p>
-<h2 id="常量指针常量">常量指针常量</h2>
-<p>同时具有常量指针和指针常量的特点，既无法修改指针指向的内容也无法修改指针本身。</p>
-<pre><code class="language-c">int A = 1;
-const int * const C = &amp;A;
-</code></pre>
+              <h2 id="ram">RAM</h2>
+<p>随机存储器，随机指可读可写，且读取内部任意地址的时间是相同的。断电数据会丢失。</p>
+<h3 id="dram">DRAM</h3>
+<p>动态随机存储器，存储单元以电容的电荷来表示，动态指需要定期刷新。</p>
+<p>一般用于CPU外部的扩展内存</p>
+<h3 id="sram">SRAM</h3>
+<p>静态随机存储器，以锁存器来存储数据，不需要定时刷新，但是断电数据还是会丢失。</p>
+<p>一般只用于CPU内部的Cache</p>
+<h2 id="非易失存储器">非易失存储器</h2>
+<p>掉电后数据不会丢失。</p>
+<h3 id="rom">ROM</h3>
+<p>原指只读存储器，但现在指代非易失性半导体存储器，即掉电后数据不会丢失。包含只能读的存储器和可读但需要特殊写的存储器。</p>
+<h3 id="flash">FLASH</h3>
+<p>又称闪存，是可重读擦写的存储器。</p>
+<p>FLASH根据内部“地址/数据线”是分开可以分为NAND FLASH 和 NOR FLASH。</p>
+<h4 id="nor-flash">NOR FLASH</h4>
+<p>NOR FLASH 的地址和数据线分开，可以按照字节读写数据，符合CPU的取指令的规则，所以如果CPU知道NOR FLASH上指令的地址，就可以直接执行。一般存储代码。</p>
+<h4 id="nand-flash">NAND FLASH</h4>
+<p>NAND FLASH 的地址和数据线是共用的，所以只能按照块来读写，所以CPU不能直接执行NAND FLASH 上的指令。需要先将NAND FLASH上的指令加载到RAM上面才能被CPU执行。一般存储数据。</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
-                    C语言
+                  <a href="https://yvainefire.github.io/tag/54oJLZWfB/" class="tag">
+                    STM32
                   </a>
                 
               </div>
@@ -131,9 +133,9 @@ const int * const C = &amp;A;
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/freertos-nei-he-lian-biao-he-lian-biao-xiang/">
+                <a href="https://yvainefire.github.io/post/freerots-duo-you-xian-ji/">
                   <h3 class="post-title">
-                    FreeRTOS	内核链表和链表项
+                    FreeROTS 多优先级
                   </h3>
                 </a>
               </div>

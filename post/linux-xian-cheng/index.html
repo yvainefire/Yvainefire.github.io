@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" >
 
-<title>C语言 常量指针和指针常量 | YvaineFire_block</title>
+<title>Linux 线程 | YvaineFire_block</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -18,12 +18,15 @@
 
 
 
-    <meta name="description" content="常量指针
-指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。
-int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一..." />
-    <meta name="keywords" content="C语言" />
+    <meta name="description" content="并发：切换
+每一个进程之间是相互独立的，但是他们都共享了操作系统的API，并发性的来源是进程会调用系统的API。
+即便是拥有root权限的进程也不能修改操作系统内核的内存
+并发性的来源：进程会调用操作系
+线程共享的内容？
+共享：
+1.代码
+..." />
+    <meta name="keywords" content="linux" />
   </head>
   <body>
     <div id="app" class="main">
@@ -94,36 +97,44 @@ const int * C = &amp;A; //定义一..." />
       <div class="main-container">
         <div class="content-container" data-aos="fade-up">
           <div class="post-detail">
-            <h2 class="post-title">C语言 常量指针和指针常量</h2>
-            <div class="post-date">2021-04-27</div>
+            <h2 class="post-title">Linux 线程</h2>
+            <div class="post-date">2021-05-13</div>
             
             <div class="post-content" v-pre>
-              <h2 id="常量指针">常量指针</h2>
-<p>指针指向的内容是常量，用这个常量指针无法改变指针指向的内容，但是可以用另一个指向相同地址的非常量指针去改变他们共同指向的内容。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-const int * C = &amp;A; //定义一个常量指针
-int const * B = &amp;A; //定义一个常量指针
-</code></pre>
-<h2 id="指针常量">指针常量</h2>
-<p>指针常量是指这个指针是一个常量，即不能将这个指针指向其它的地址，即不能改变这个指针本身。</p>
-<pre><code class="language-c">int A = 1;
-int B = 2;
-int * const n =&amp;A; //定义一个指针常量
-</code></pre>
-<p><strong>注：区分常量指针和指针常量，可以通过const在 * 的左边还是右边。</strong></p>
-<h2 id="常量指针常量">常量指针常量</h2>
-<p>同时具有常量指针和指针常量的特点，既无法修改指针指向的内容也无法修改指针本身。</p>
-<pre><code class="language-c">int A = 1;
-const int * const C = &amp;A;
-</code></pre>
+              <h2 id="并发切换">并发：切换</h2>
+<p>每一个进程之间是相互独立的，但是他们都共享了操作系统的API，并发性的来源是进程会调用系统的API。<br>
+即便是拥有root权限的进程也不能修改操作系统内核的内存<br>
+并发性的来源：进程会调用操作系</p>
+<h2 id="线程共享的内容">线程共享的内容？</h2>
+<p>共享：<br>
+1.代码<br>
+2.全局变量，静态局部变量<br>
+3.堆区<br>
+不共享：<br>
+1.寄存器<br>
+2.局部变量<br>
+局部变量位于栈里，栈的位置由sp寄存器的值决定</p>
+<h2 id="多线程">多线程</h2>
+<p>__thread</p>
+<p>__thread变量每一个线程有一份独立实体，各个线程的值互不干扰。可以用来修饰那些带有全局性且值可能变，但是又不值得用全局变量保护的变量。</p>
+<p>为线程分配堆栈的时候只是被标记了，并没有实际上分出去，所以创建很多的线程即使分配的内存大于了总内存。同时每个堆栈区域的上限和下限都会设置一小段的不可访问的区域，所以无论上原了性的表失，即使溢或者下溢都会导致段错误。</p>
+<p>在多线程编码的时候，失去了原子性，一条c语言语句被编译后可能会是几条汇编指令，根据这些指令的不同的执行顺序，可能会得到不一样的结果。</p>
+<p>##编译器的优化问题<br>
+可能会导致程序顺序的丧失，并发的时候出现错误。<br>
+为了使cpu执行的更快，现代cpu可以不按照顺序进行执行指令，可能会把某条影响执行时间的指令放进一个等待队列中。<br>
+顺序性<br>
+原子性<br>
+可见性<br>
+volatile：修饰可防止被编译器优化<br>
+#define barrier() asm volatile(“”:::”memory “)<br>
+barrier可以防止多个连续的++指令被合并</p>
 
             </div>
             
               <div class="tag-container">
                 
-                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
-                    C语言
+                  <a href="https://yvainefire.github.io/tag/VCWy0iJtA/" class="tag">
+                    linux
                   </a>
                 
               </div>
@@ -131,9 +142,9 @@ const int * const C = &amp;A;
             
               <div class="next-post">
                 <div class="next">下一篇</div>
-                <a href="https://yvainefire.github.io/post/freertos-nei-he-lian-biao-he-lian-biao-xiang/">
+                <a href="https://yvainefire.github.io/post/linux-nei-he-de-ji-ben-gai-nian/">
                   <h3 class="post-title">
-                    FreeRTOS	内核链表和链表项
+                    Linux  内核的基本概念
                   </h3>
                 </a>
               </div>

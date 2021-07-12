@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>C语言 关于字符常量的一些说明 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1626082611815">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="1为什么字符串常量无法被修改
+当程序在使用字符串常量的时候会生成一个指向字符的常量指针，当一个字符串常量出现在一个表达式的时候，表达式所使用的值就是这个字符串所指向的字符串常量。
+2.为什么无法直接把字符串常量赋给一个的数组呢？
+字符串常量..." />
+    <meta name="keywords" content="C语言" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1626082611815" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">C语言 关于字符常量的一些说明</h2>
+            <div class="post-date">2021-05-13</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="1为什么字符串常量无法被修改">1为什么字符串常量无法被修改</h2>
+<p>当程序在使用字符串常量的时候会生成一个指向字符的常量指针，当一个字符串常量出现在一个表达式的时候，表达式所使用的值就是这个字符串所指向的字符串常量。</p>
+<h2 id="2为什么无法直接把字符串常量赋给一个的数组呢">2.为什么无法直接把字符串常量赋给一个的数组呢？</h2>
+<p>字符串常量的的指针值是一个常量指针，数组名的值是也是一个指针常量，看似可以直接将字符串常量的值直接赋给数组名，但是如果这样操作实际上就丧了数组本身的意义，只是单单的把数组名这个指针指向了另一个地方，只是利用了数组的第一个元素的存储空间，而在声明数组时分配的存储空间就没有被使用，所以实际上我们想实现的不是把数组名指向字符串常量的地方，而是想使用数组的空间来复制字符串常量。</p>
+<p>看下面两个例子：</p>
+<pre><code class="language-c">/*example_1*/
+char *message = &quot;123456&quot;;
+char message1[] = message;
+/*example_2*/
+char message2[] = &quot;123456&quot;;
+/*example_3*/
+char message3[] = {'1','2','3','4','5','6','\0'};
+</code></pre>
+<p>这里example_1是错误的，example_2是正确的。显然example_1是上述所说的，不能直接把字符串常量赋给一个数组。对于example_2看似也像是直接把字符串赋给了数组，看似和example_1是一样的，但是实际上直接由于数组从一声明就具分配了空间，所以它是直接将这几个字符放在数组的连续存储空间中的，等效于example_3，它本来也是example_3的缩写。所以这里在初始化一个字符数组的时候，其后面实际不是一个字符串常量，而只是初始化数组时的初始化列表是的虽然它的形式是一样的，但是在其他的地方，例如这种形式的&quot;xxxxx&quot;就是表示字符串常量。</p>
+<h2 id="3为什么无法修改数组名">3.为什么无法修改数组名？</h2>
+<p>数组名的值是一个指针常量，同时也是数组名第一个元素的地址，它的类型，取决于其数组元素的类型。指针常量是由于在程序链接完成后数组的地址就已经固定了，是不能修改了，所以数组名也是无法修改的，所以其指向的也是指针产量。所以不能直接对数组名进行自增的操作。</p>
+<p>可以把数组名指针常量提前赋给一个指针变量，通过指针变量修改作者常量。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/EFlfRjAl4/" class="tag">
+                    C语言
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/guan-yu-linux-86-hui-bian-han-shu-de-dui-zhan-chu-shi-hua-he-chu-zhan-ru-zhan-de-li-jie/">
+                  <h3 class="post-title">
+                     关于linux-86汇编函数的堆栈初始化和出栈入栈的理解
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>
