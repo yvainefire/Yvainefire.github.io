@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>智能编程语言 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1659256108793">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="BangC编程流程
+采用异构编程模型，Host程序和BangC程序分别在Host和MLU上进行编译，最后使用Host将二者及相关运行时库链接到一起。
+Host程序主要设计控制和串行处理部分包括设备运行时设置，任务队列中任务的分配，数据的转换..." />
+    <meta name="keywords" content="AICS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1659256108793" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">智能编程语言</h2>
+            <div class="post-date">2022-07-31</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="bangc编程流程">BangC编程流程</h2>
+<p>采用异构编程模型，Host程序和BangC程序分别在Host和MLU上进行编译，最后使用Host将二者及相关运行时库链接到一起。</p>
+<p>Host程序主要设计控制和串行处理部分包括设备运行时设置，任务队列中任务的分配，数据的转换，调用Kernel函数。</p>
+<p>Kernel程序主要进行计算部分和并行处理，使用BangC语言使用BangC算子进行矩阵和向量的计算操作，并且可以协调多个core进行并行化处理。最后将计算结果拷贝给Host。</p>
+<h2 id="bangc程序host端">Bangc程序Host端</h2>
+<p>主要使用cnrt运行时相关库进行处理，包括设备的初始化，设备的指定，任务规模的确定，任务队列的创建，内存的分配（CPU内存的分配，MLU内存的分配），输入数据的处理（数据的转换，数据的拷贝），</p>
+<h3 id="设备初始化">设备初始化</h3>
+<p>初始化运行时环境：cnrtInit()</p>
+<p>获取设备的Handel：cnrtGetDeviceHandle()</p>
+<p>设置当前设备：cnrtSetCurrentDevice ()</p>
+<h3 id="任务队列初始化">任务队列初始化</h3>
+<p>声明队列：cnrtQueue_t</p>
+<p>创建队列：cnrtCreateQueue()</p>
+<h3 id="任务规模设置">任务规模设置</h3>
+<p>声明任务规模变量：cnrtDim3_t</p>
+<p>规模大小设置：分别设置x, y, z三个维度的大小。</p>
+<h3 id="任务调度类型设置">任务调度类型设置</h3>
+<p>调度类型包括BLOCK类型和UNIONx类型：</p>
+<ul>
+<li>BLOCK类型为单核任务，只需要一个core。<strong>相应任务队列的任务串行执行。</strong></li>
+<li>UNIONx：需要 x个cluster即4 * x和core，才能进行任务的调度。</li>
+</ul>
+<p>声明任务调度类型变量：cnrtFunctionType_t</p>
+<h3 id="数据的处理">数据的处理</h3>
+<p>Host端数据空间的分配：用来存储量化处理后的输入数据。 malloc</p>
+<p>数据的量化操作：因为MLU设备的限制，需要对Host端的数据进行一些量化处理，将数据的位数进行缩小。比如将32位的数据缩放为16位的数据(cnrtConvertXXXToXXX)。</p>
+<p>Kernel端数据空间分配；分配的是GDRAM里内存。</p>
+<p>数据的拷贝：将Host端的数据拷贝到MLU端</p>
+<h3 id="kernel函数参数处理">Kernel函数参数处理</h3>
+<p>参数指针声明 cnrtKernelParamsBuffer_t</p>
+<p>参数Buffer申请 cnrtGetKernelParamsBuffer()</p>
+<p>参数的添加：按照参数列表依次添加参数，每次只能添加一个cnrtKernelParamsBufferAddParam</p>
+<h3 id="启动kernel函数">启动kernel函数</h3>
+<p>调用cnrtInvokeKernel_V2函数</p>
+<h3 id="同步队列">同步队列</h3>
+<p>任务的分发默认是异步进行的，需要手动同步计算结果。cnrtSyncQueue()</p>
+<h3 id="数据拷贝">数据拷贝</h3>
+<p>将Kernel端的计算结果拷贝回Host端</p>
+<h3 id="资源释放">资源释放</h3>
+<p>任务队列</p>
+<p>申请的数据空间</p>
+<h2 id="bangc程序kernel端">BangC程序Kernel端</h2>
+<p>GDRAM的数据拷贝到NRAM（DRAM距离每个FPU更近，数据运输的开销更小）</p>
+<p>NRAM的大小有限，可能需要分批拷贝数据到NRAM，进行分批计算。每次计算完将NRAM中的结果拷贝回GDRAM。</p>
+<p>调用算子进行计算</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/MnAQ9uAR_/" class="tag">
+                    AICS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/zhi-neng-ji-suan-xi-tong-shen-du-xue-xi-chu-li-qi-yuan-li/">
+                  <h3 class="post-title">
+                    智能计算系统 深度学习处理器原理
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

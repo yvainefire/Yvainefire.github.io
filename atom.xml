@@ -2,14 +2,674 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://yvainefire.github.io</id>
     <title>YvaineFire_block</title>
-    <updated>2021-07-12T09:37:03.532Z</updated>
+    <updated>2022-07-31T08:29:02.602Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://yvainefire.github.io"/>
     <link rel="self" href="https://yvainefire.github.io/atom.xml"/>
     <subtitle>Rush Rush B</subtitle>
     <logo>https://yvainefire.github.io/images/avatar.png</logo>
     <icon>https://yvainefire.github.io/favicon.ico</icon>
-    <rights>All rights reserved 2021, YvaineFire_block</rights>
+    <rights>All rights reserved 2022, YvaineFire_block</rights>
+    <entry>
+        <title type="html"><![CDATA[智能计算系统 VGG19实验]]></title>
+        <id>https://yvainefire.github.io/post/zhi-neng-ji-suan-xi-tong-vgg19-shi-yan/</id>
+        <link href="https://yvainefire.github.io/post/zhi-neng-ji-suan-xi-tong-vgg19-shi-yan/">
+        </link>
+        <updated>2022-07-31T08:27:51.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="卷积层的优化">卷积层的优化</h2>
+<h3 id="前向传播优化">前向传播优化</h3>
+<p>非优化：直接用标量相乘进行运算</p>
+<pre><code class="language-python">        for index_image in range(self.out.shape[0]):
+            # different kernel
+            for index_ch_o in range(self.channel_out):
+                # different channel in a kernel
+                for index_ch_i in range(self.channel_in):
+                    # stripe for width
+                    for stripe_h in range(self.out_h):
+                        # stripe for high
+                        for stripe_w in range(self.out_w):
+                            # different position in a kernel
+                            for kernel_h in range(self.kernel_size):
+                                for kernel_w in range(self.kernel_size):
+                                    self.out[index_image][index_ch_o][stripe_h][stripe_w] = self.out[index_image][index_ch_o][stripe_h][stripe_w] + \
+                                     self.weight[index_image][index_ch_o][kernel_h][kernel_w] * \
+                                    self.input_pad[index_image][index_ch_i][stripe_h * self.stride + kernel_h][stripe_w * self.stride + kernel_w]
+</code></pre>
+<p>不进行优化的时候，一共有7层循环嵌套。对于输入（N x Cin x Hin x Win）为1 x 3 x 224 x 224，卷积核（Cin x K x K x Cout）为3 x 3 x 3 x 64，循环的次数会是 3 x 3 x 224 x 224 x 3 x 64 x 1 = 86704128。</p>
+<p>优化一：将部分标量运算向量化</p>
+<pre><code class="language-python">        for index_image in range(self.out.shape[0]):
+            # different kernel
+            for index_ch_o in range(self.channel_out):
+                # different channel in a kernel
+                #for index_ch_i in range(self.channel_in):
+                    # stripe for width
+                    for stripe_h in range(self.out_h):
+                        # stripe for high
+                        for stripe_w in range(self.out_w):
+                            # different position in a kernel
+                            current_weight = self.weight[:, :, :][index_ch_o]
+                            current_input = self.input_pad[index_image, :, stripe_h * self.stride : stripe_h * self.stride + self.kernel_size, stripe_w * self.stride : stripe_w * self.stride + self.kernel_size]
+                            self.out[index_image][index_ch_o][stripe_h][stripe_w] = np.sum(np.multiply(current_weight, current_input)) + self.bais[index_ch_o]
+</code></pre>
+<p>每个kernel中的一个通道就可以和输入矩阵直接进行向量运算，减少两级循环（stripe_h 和 stripe_w）。同一输出通道对应的位置还可以进行相加，减少层循环（index_ch_i）。循环的次数会是 224 x 3 x 64 x 1 = 43008。</p>
+<p>self.weight[:, :, :] [index_ch_o] 这样的截取可以保证每次求和的内容为一个输出通道的，截取后是一个kernel中的所有的3 x 3权重矩阵。</p>
+<p>优化二：进一步向量化</p>
+<pre><code class="language-python">
+</code></pre>
+<h3 id="反向传播优化">反向传播优化</h3>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/sdf.png" alt="" loading="lazy"></figure>
+<p>非优化：直接用标量相乘进行运算</p>
+<pre><code class="language-python">        for index_ch_i in range(self.channel_in):
+            for index_ch_o in range(self.channel_out):
+                for kernel_h in range(self.kernel_size):
+                    for kernel_w in range(self.kernel_size):
+                        # compute grad for a param in the weight
+                        for index_image in range(self.input.shape[0]):
+                            for stripe_h in range(self.out_h):
+                                for stripe_w in range(self.out_w):
+                                    self.grad_w[index_ch_i][kernel_h][kernel_w][index_ch_o] =  self.grad_w[index_ch_i][kernel_h][kernel_w][index_ch_o] +\
+                                        top_diff[index_image][index_ch_o][stripe_h][stripe_w] * self.input_pad[index_image][index_ch_i][stripe_h * self.stride + kernel_h][stripe_w * self.stride + kernel_w]
+
+        self.grad_bias = np.zeros(self.bais.shape)
+</code></pre>
+<p>优化一：优化stripe_h，stripe_w和index_image</p>
+<pre><code class="language-python">for index_ch_o in range(self.channel_out):
+    for index_ch_i in range(self.channel_in):
+        for kernel_h in range(self.kernel_size):
+            for kernel_w in range(self.kernel_size):
+                # compute the grad for the weight
+                sh_mul_s_plus_k = np.arange(self.out_h) * self.stride + kernel_h
+                sw_mul_s_plus_w = np.arange(self.out_w) * self.stride + kernel_w
+                self.grad_w[index_ch_i][kernel_h][kernel_w][index_ch_o] = \                                   np.sum(np.multiply(top_diff[:, index_ch_o, :, :], self.input_pad[:, index_ch_i, sh_mul_s_plus_k, sw_mul_s_plus_w]))  
+</code></pre>
+<p>优化为4层循环，将stripe_h和stripe_w先向量化，需要特殊处理构造出sh_mul_s_plus_k和sw_mul_s_plus_w，他们并不是input_pad中的一个子矩阵，而是与input_out对应的元素提取出来的构成的矩阵。在此基础上再把index_image向量化。</p>
+<p>优化二：优化kernel_h，kernel_w和index_ch_i</p>
+<pre><code class="language-python">for index_ch_o in range(self.channel_out):
+    for index_image in range(self.input.shape[0]):
+        for stripe_h in range(self.out_h):
+            for stripe_w in range(self.out_w):
+                self.grad_w[:, :, :, index_ch_o] +=  np.multiply(top_diff[index_image, index_ch_o, stripe_h, stripe_w], self.input_pad[index_image, :, stripe_h * self.stride : stripe_h * self.stride + self.kernel_size, stripe_w * self.stride : stripe_w * self.stride + self.kernel_size])
+</code></pre>
+<p>将kernel_h和kernel_w向量化，每次对整个kernel的一个通道做向量运算。这样每次计算的结果并不是完整的，需要依次累加以得到一个参数的导数的最终结果。</p>
+<p>优化三：优化index_ch_o，kernel_h和kernel_w</p>
+<pre><code class="language-python">            for index_ch_i in range(self.channel_in):
+                for index_image in range(self.input.shape[0]):
+                    for stripe_h in range(self.out_h):
+                        for stripe_w in range(self.out_w):
+                            self.grad_w[index_image, :, :, :] += np.kron(top_diff[index_image, :, stripe_h, stripe_w], \
+                            self.input_pad[index_image, index_ch_i, stripe_h * self.stride : stripe_h * self.stride + self.kernel_size, stripe_w * self.stride : stripe_w * self.stride + self.kernel_size])
+
+</code></pre>
+<p>由于唯独并不对应，所有需要用张量积拉进行维度的扩充。</p>
+<h2 id="如何将循环向量化">如何将循环向量化</h2>
+<p>优化的方法有很多种，但是都是为了构造出矩阵。根据构造的矩阵的不同就会有不一样的效果。具体来说分为：</p>
+<p>一次计算出部分目标值的完整值，多次迭代计算其余目标的值。</p>
+<p>一次计算出全部目标值的部分结果，并且多次迭代，使得所有目标值的结果变得完整。</p>
+<p>需要注意维度问题，有时候维度可能不符合，但是可以用张量积来解决。</p>
+<p>产生注意一次性求还是分步求和。</p>
+<h3 id="矩阵展开为向量以利用向量运行">矩阵展开为向量以利用向量运行</h3>
+<p>将矩阵展开为一个向量，再利用向量的相关运算进行求解，求解完后再恢复相应的结构。</p>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/sz.png" alt="" loading="lazy"></figure>
+<h3 id="同时优化求和和批量化结果">同时优化求和和批量化结果</h3>
+<p>运用行向量与矩阵的内积进行计算，行向量 （乘数） x 右矩阵的列向量（系数对应的被乘数）用于求和，同时利用右矩阵不同的列来表示多个输入，就可以得到多个输出。</p>
+<p>将行向量扩展为矩阵，利用矩阵与矩阵的内积，可以进多种乘数和被乘数的求和。</p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E7%AC%AC%E4%B8%89%E6%96%B9.png" alt="" loading="lazy"></figure>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[手写MINIST数字分类总结]]></title>
+        <id>https://yvainefire.github.io/post/shou-xie-minist-shu-zi-fen-lei-zong-jie/</id>
+        <link href="https://yvainefire.github.io/post/shou-xie-minist-shu-zi-fen-lei-zong-jie/">
+        </link>
+        <updated>2022-07-31T08:27:28.000Z</updated>
+        <content type="html"><![CDATA[<p>不借助框架实现一个简单的神经网络</p>
+<h2 id="数据的读取">数据的读取</h2>
+<p>从文件中读取数据，了解数据存储在文件中的格式。</p>
+<p>读取的每一个训练样本的数据为一行</p>
+<h2 id="数据的预处理">数据的预处理</h2>
+<p>整个数据分割为训练数据和测试数据，采用哪种方式进行数据的分割。数据的</p>
+<p>数据归一化：减少数据的量纲不同带来的影响。</p>
+<p>实际的训练过程中数据是采用batch的形式，每次采用一组数据进行一次训练。所以数据的输入并不是一条数据，而是一组数据。</p>
+<h2 id="基本神经网络模块设计">基本神经网络模块设计</h2>
+<p>主要包括：全连接层，激活层（ReLU），softMax层</p>
+<p>采用面向对象来实现，便于模型的扩展和移植</p>
+<p>带参数层数据的初始化。根据每层的输入输出构造参数，参数初始化的方式，采用正态分布。对于一个batch的训练数据采用同样的训练参数。</p>
+<p>向前传播：直接利用公式进行向前传播的计算</p>
+<p>先后传播：先后传播，涉及到梯度的计算，特别是多层网络梯度的计算。采用自动求导的思想，不需要每次都手动写出解析式子。本质上是求导公式的变形，对每一层的求导，实际的运算只需要对本层参数求导再利用前面层求导结果。需要返回前层的梯度值。</p>
+<p>向后传播过程中，ReLU的特殊性。</p>
+<p>代价函数：只针对最后一层softMax，代价向后传播。</p>
+<p>参数更新：利用向后传播的梯度值进行参数的跟新。</p>
+<p>模型的加载：判断加载的参数和训练参数的格式是否一样</p>
+<p>模型的保存</p>
+<p>编码</p>
+<h2 id="算法模型的搭建">算法模型的搭建</h2>
+<p>模型的基本搭建：根据MINIST模型的结构进行搭建，一个输入层，两个全连接层，全连接层用ReLU进行激活，一个SoftMax层进行最后的分类。**这里只是将模型的框架搭起来，为了表示一个顺序，并没对模型内的参数进行初始化。**将模型每个层的对象放入一个参数列表中，供后面使用。</p>
+<p>模型参数的初始化：并不是每一层都需要进行初始化。</p>
+<p>向前传播</p>
+<p>向后传播</p>
+<p>参数更新</p>
+<h2 id="训练">训练</h2>
+<p>训练时每次迭代将所有的训练数据按照batchsize进行训练，每次训练结束需要将训练数据的顺序随机。</p>
+<h2 id="推测">推测</h2>
+<p>推测时也可以按照batchsize的来进行。</p>
+<h2 id="模型保存">模型保存</h2>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[智能计算系统 深度学习处理器架构]]></title>
+        <id>https://yvainefire.github.io/post/zhi-neng-ji-suan-xi-tong-shen-du-xue-xi-chu-li-qi-jia-gou/</id>
+        <link href="https://yvainefire.github.io/post/zhi-neng-ji-suan-xi-tong-shen-du-xue-xi-chu-li-qi-jia-gou/">
+        </link>
+        <updated>2022-07-31T08:25:59.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="单核深度学习处理器dlp-s">单核深度学习处理器（DLP-S）</h2>
+<h3 id="设计理念">设计理念</h3>
+<p>针对tensor（高维数组）设计控制模块（IFU，IDU），运算模块（VFU，MFU）和存储模块（DMA，NRAM，WRAM）。</p>
+<p>满足通用的基础上加上特定的应用（对tensor的处理）。</p>
+<p>三大模块：</p>
+<ul>
+<li>
+<p>控制模块：通用CPU围绕标量，GPU围绕像素。深度学习处理器围绕tensor（只使用标量会产生大量的指令，增加取指译码的消耗），提简化控制通路。</p>
+</li>
+<li>
+<p>运算模块：提供通用计算能力（向量的加减乘除，矩阵的乘法），还提供针对领域相关的设计（tensor的计算，卷积，池化......）</p>
+</li>
+<li>
+<p>存储模块：至于 tensor的语义单元做访存，不再像传统处理器基于地址标量的映射。直接从内存进行tensor的读写，提高能效，方便使用。</p>
+</li>
+</ul>
+<h3 id="执行流程">执行流程</h3>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E9%98%BF%E6%96%AF.jpg" alt="" loading="lazy"></figure>
+<ul>
+<li>IFU去指令，IDU译码</li>
+<li>DMA进行访存，读取相应数据到NRAM（vector和matrix）和WRAM（weight）。</li>
+<li>VFU对vector进行计算，MFU对matrix和vector进行处理。MFU处理后的tensor发给VFU，VFU再返回NRAM，weight直接给WRAM。</li>
+<li>DMA对数据进行回写</li>
+</ul>
+<p>神经元tensor的数据流：DRAM -&gt; NRAM -&gt; VFU (MFU -&gt; VFU -&gt;) NRAM -&gt; DRAM</p>
+<p>权值tensor的数据流：DRAM -&gt; WRAM -&gt; MFU</p>
+<h3 id="ifu模块">IFU模块</h3>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/DA.jpg" alt="" loading="lazy"></figure>
+<p>和传统CPU的IFU的结构类似，但是执行的频度下降。</p>
+<h3 id="idu模块">IDU模块</h3>
+<p>IDU中分为Control IQ, Compute IQ, Mermory Access IQ。额外增加计算和访存操作对应的指令队列。</p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E9%99%90%E5%88%B6.jpg" alt="" loading="lazy"></figure>
+<p>三个指令乱序队列发射，同一指令队列顺序发射，不同类型的指令需要同步机制。</p>
+<h3 id="vfu模块">VFU模块</h3>
+<p>采用向量流水单元</p>
+<figure data-type="image" tabindex="4"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E9%98%BF%E6%96%AF%E9%A1%BF.jpg" alt="" loading="lazy"></figure>
+<p>通过对向量流水单元中各模块的组合和排布来构造不同的操作。具体来说每次选择流水线中的全部或部分单元进行运算的叠加。通过多次使用流水线来完成一次特定的操作。</p>
+<p>每个流水单元对应有寄存器，可以进行数据的暂存，以减少频繁的访问数据。</p>
+<h3 id="mfu模块">MFU模块</h3>
+<p>矩阵运算单元（分布式设计）</p>
+<figure data-type="image" tabindex="5"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E8%A3%82%E5%BC%80.jpg" alt="" loading="lazy"></figure>
+<p>采用H-tree互联：通过H-tree来广播神经元数据，不同的PE对神经元复用。</p>
+<p>PE：一个小的运算单元。每个PE旁边一个WRAM，用来存储权重值。</p>
+<p>集中式设计主要的问题在于数据的流动，数据的流动会带来很大的开销。</p>
+<p>引入int16 ×int16 int16 ×int16 int16 ×int16的运算模式</p>
+<h3 id="存储模块">存储模块</h3>
+<p>使用DMA进行存储的控制，片内使用NRAM，WRAM分别存储神经元和权重。</p>
+<p>虚拟存储： 片内片外统一编址，片内无需虚实地址转换，片外需要虚实地址转换</p>
+<p>引入缓存，稀疏化，数据压缩等......</p>
+<h2 id="多核深度学习处理器dlp-m">多核深度学习处理器（DLP-M）</h2>
+<figure data-type="image" tabindex="6"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E5%87%BA%E7%8E%B0%E5%9C%A8.jpg" alt="" loading="lazy"></figure>
+<p>一个DLP-M由多个DLP-C组成，一个DLP-C有多个DLP-S组成。</p>
+<h3 id="dlp-c">DLP-C</h3>
+<ul>
+<li>包含4个DLP-S，DPL-S的NRAM中存入不同的输入数据。</li>
+<li>内部通过SMEM来进行DLP-S之间数据的交换。通过broadcast bus来进行DPL-S数据的共享权重。</li>
+<li>broadcast广播的过程：通过DMA载入权重至SMEM中，广播总线广播权重至所有DLP-S，存储在每个DLP-S的片内WRAM中。减少数据传输的次数。</li>
+<li>外部通过GDMA来进行访存。通过CDMA来进行cluster之间的数据交换。</li>
+<li>多核同步，解决访存冲突</li>
+</ul>
+<h3 id="互联架构">互联架构</h3>
+<p>核间拓扑结构：根据模型选择</p>
+<ul>
+<li>环形：包含权值reduce操作</li>
+<li>网状：卷积计算</li>
+<li>torus：矩阵乘</li>
+</ul>
+<p>总线方式：</p>
+<ul>
+<li>总线互联：公共数据干线，扩展性差</li>
+<li>片上网络：片上互联，性能优势，扩展性好</li>
+</ul>
+<h2 id="mlu270">MLU270</h2>
+<h2 id="整体架构">整体架构</h2>
+<figure data-type="image" tabindex="7"><img src="https://github.com/yvainefire/Picbed_PicGo/blob/master/img/MLU270structor.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="存储结构">存储结构</h3>
+<figure data-type="image" tabindex="8"><img src="https://github.com/yvainefire/Picbed_PicGo/blob/master/img/%E5%95%8A.png?raw=true" alt="" loading="lazy"></figure>
+<p>多个cluster共享一个GDRAM，每个cluster上的多个core共享一个SRAM，每个cluster还可以访问其它cluster的SRAM。</p>
+<p>每个core包含NFU，NRAM，WRAM，Register。必须在NRAM上进行向量和矩阵化的计算。</p>
+<p>MLU270的NRAM为512KB，SRAM为2M。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[智能编程语言]]></title>
+        <id>https://yvainefire.github.io/post/zhi-neng-bian-cheng-yu-yan/</id>
+        <link href="https://yvainefire.github.io/post/zhi-neng-bian-cheng-yu-yan/">
+        </link>
+        <updated>2022-07-31T08:25:12.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="bangc编程流程">BangC编程流程</h2>
+<p>采用异构编程模型，Host程序和BangC程序分别在Host和MLU上进行编译，最后使用Host将二者及相关运行时库链接到一起。</p>
+<p>Host程序主要设计控制和串行处理部分包括设备运行时设置，任务队列中任务的分配，数据的转换，调用Kernel函数。</p>
+<p>Kernel程序主要进行计算部分和并行处理，使用BangC语言使用BangC算子进行矩阵和向量的计算操作，并且可以协调多个core进行并行化处理。最后将计算结果拷贝给Host。</p>
+<h2 id="bangc程序host端">Bangc程序Host端</h2>
+<p>主要使用cnrt运行时相关库进行处理，包括设备的初始化，设备的指定，任务规模的确定，任务队列的创建，内存的分配（CPU内存的分配，MLU内存的分配），输入数据的处理（数据的转换，数据的拷贝），</p>
+<h3 id="设备初始化">设备初始化</h3>
+<p>初始化运行时环境：cnrtInit()</p>
+<p>获取设备的Handel：cnrtGetDeviceHandle()</p>
+<p>设置当前设备：cnrtSetCurrentDevice ()</p>
+<h3 id="任务队列初始化">任务队列初始化</h3>
+<p>声明队列：cnrtQueue_t</p>
+<p>创建队列：cnrtCreateQueue()</p>
+<h3 id="任务规模设置">任务规模设置</h3>
+<p>声明任务规模变量：cnrtDim3_t</p>
+<p>规模大小设置：分别设置x, y, z三个维度的大小。</p>
+<h3 id="任务调度类型设置">任务调度类型设置</h3>
+<p>调度类型包括BLOCK类型和UNIONx类型：</p>
+<ul>
+<li>BLOCK类型为单核任务，只需要一个core。<strong>相应任务队列的任务串行执行。</strong></li>
+<li>UNIONx：需要 x个cluster即4 * x和core，才能进行任务的调度。</li>
+</ul>
+<p>声明任务调度类型变量：cnrtFunctionType_t</p>
+<h3 id="数据的处理">数据的处理</h3>
+<p>Host端数据空间的分配：用来存储量化处理后的输入数据。 malloc</p>
+<p>数据的量化操作：因为MLU设备的限制，需要对Host端的数据进行一些量化处理，将数据的位数进行缩小。比如将32位的数据缩放为16位的数据(cnrtConvertXXXToXXX)。</p>
+<p>Kernel端数据空间分配；分配的是GDRAM里内存。</p>
+<p>数据的拷贝：将Host端的数据拷贝到MLU端</p>
+<h3 id="kernel函数参数处理">Kernel函数参数处理</h3>
+<p>参数指针声明 cnrtKernelParamsBuffer_t</p>
+<p>参数Buffer申请 cnrtGetKernelParamsBuffer()</p>
+<p>参数的添加：按照参数列表依次添加参数，每次只能添加一个cnrtKernelParamsBufferAddParam</p>
+<h3 id="启动kernel函数">启动kernel函数</h3>
+<p>调用cnrtInvokeKernel_V2函数</p>
+<h3 id="同步队列">同步队列</h3>
+<p>任务的分发默认是异步进行的，需要手动同步计算结果。cnrtSyncQueue()</p>
+<h3 id="数据拷贝">数据拷贝</h3>
+<p>将Kernel端的计算结果拷贝回Host端</p>
+<h3 id="资源释放">资源释放</h3>
+<p>任务队列</p>
+<p>申请的数据空间</p>
+<h2 id="bangc程序kernel端">BangC程序Kernel端</h2>
+<p>GDRAM的数据拷贝到NRAM（DRAM距离每个FPU更近，数据运输的开销更小）</p>
+<p>NRAM的大小有限，可能需要分批拷贝数据到NRAM，进行分批计算。每次计算完将NRAM中的结果拷贝回GDRAM。</p>
+<p>调用算子进行计算</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[智能计算系统 深度学习处理器原理]]></title>
+        <id>https://yvainefire.github.io/post/zhi-neng-ji-suan-xi-tong-shen-du-xue-xi-chu-li-qi-yuan-li/</id>
+        <link href="https://yvainefire.github.io/post/zhi-neng-ji-suan-xi-tong-shen-du-xue-xi-chu-li-qi-yuan-li/">
+        </link>
+        <updated>2022-07-31T08:23:23.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="深度学习处理器">深度学习处理器</h2>
+<p>深度学习处理器是针对于深度学习而提出的专用处理器。</p>
+<h2 id="设计思路">设计思路</h2>
+<p>处理器解决的问题：适用的算法，算法的特性（计算特性，访存特性）</p>
+<p>阻碍高效率的因素：带宽，访存速度，访存代价</p>
+<h2 id="目标算法分析">目标算法分析</h2>
+<p>深度学习处理器是为了加速哪一类算法而提出的。</p>
+<p>寻找这类算法的共性：</p>
+<ul>
+<li>计算（重复的计算操作）</li>
+<li>访存（数据的局部性---cache，数据和计算的关系---带宽的需求）</li>
+</ul>
+<h3 id="vgg19卷积神经网络的分析">VGG19卷积神经网络的分析</h3>
+<h4 id="计算特性">计算特性</h4>
+<p>全连接层</p>
+<p>包含计算：向量 X 矩阵，激活函数</p>
+<pre><code class="language-c">// No输出神经元的个数，Ni输入神经元的个数，W权重矩阵，b是偏置单元，x输入神经元，y输出神经元，G是激活函数
+for(j = 0; j &lt; No; j++)
+{
+    for(i = 0; i &lt; Ni; i++)
+        y[j] += W[j][i] * x[i]
+    y[j] = G(y[j] + b[j])
+}    
+</code></pre>
+<p>计算特点：主体循环是一个<strong>乘加操作</strong>，向量内积（向量和矩阵的每一行的内积）</p>
+<p>卷积层</p>
+<p>包含计算：卷积计算（多个矩阵的内积），激活函数</p>
+<pre><code class="language-c">//nor为输出特征图的行，noc为输出特征图的列，Nof输出特征图的通道数
+//Nir为输入特征图的行，Nic为输入特征图的列，Nif为输入特征图的通道数
+//sr为行上的步长，sc为列上的步长
+//W为卷积核，kr为卷积核的行，kc为卷积核的列，W[kr][kc][j][i]分别表示一个卷积核中一个通道上的权重矩阵的行，列。不同的卷积核。一个卷积核的不同通道。
+
+nor = 0;
+for(r = 0; r &lt; Nir; r += sr)
+{
+    noc = 0;
+    for(c = 0; c &lt; Nic; c += sc)
+    {
+        for(j = 0; j &lt; Nof; j++)
+            sum[j] = 0;
+        //计算多个卷积核在不同的通道上同一位置上的一次卷积，每次确定输出特征图中每个通道上的同一位置的一个点。
+    	for(kr = 0; kr &lt; Kr; kr++)
+            for(kc = 0; kc &lt; Kc; kc++)
+                //计算不同卷积核上同一位置的值。
+                for(j = 0; j &lt; Nof; j++)
+                    //先计算同一卷积核的不同通道上上同一位置的乘加，再把这个层上其他位置的乘加累积上来。
+                    for(i = 0; i &lt; Nif; i++)
+                        sum[j] += W[kr][kc][j][i] * X[r + kr][c + kc][i];
+        
+        for(j = 0; j &lt; Nof; j++)
+            Y[nor][noc][j] = G(sum[j] + b[j]);
+        
+    	noc++;
+    }
+	nor++;
+}
+</code></pre>
+<p>为什么不先计算同一卷积核的同通道的所有乘加。这样安排顺序的目的是减少卷积核在输入特征图上的移动，可以减少为了访问卷积核数据的频繁访存。</p>
+<p>计算特点：多重循环嵌套，最内层的操作还是一个乘加操作。</p>
+<p>池化层</p>
+<p>池化主要分为均值池化和最大池化。池化只是对每一个通道上进行操作，不会影响通道的数量。</p>
+<pre><code class="language-c">nor = 0;
+for(r = 0; r &lt; Nir; r += sr)
+{
+	noc = 0;
+	for(c = 0; c &lt; Nic; c += sc)
+	{
+		for(i = 0; i &lt; Nif; i++)
+			value[i] = 0;
+		
+		for(kr = 0; kr &lt; Kr; kr++)
+			for(kc = 0; kc &lt; Kc; kc++)
+                for(i = 0; i &lt; Nif; i++)
+                {	
+                    // average pooling
+                    value[i] += X[r + kr][c + kc][i];
+                    //max pooling
+                    value[i] = max(value[i], X[r + kr][c + kc][i])
+                }
+		
+        for(i = 0; i &lt; Nif; i++)
+        {
+            //average pooling
+            Y[nor][noc][i] = value[i]/Kr/Kc;
+
+            //max pooling
+            Y[nor][noc][i] = value[i];
+   
+        }   
+        noc++;
+	}
+    nor++;
+}
+</code></pre>
+<p>计算特点：在average池化操作中，做的是一个求和运算，也就是可以看作是一个特殊的乘加运算。</p>
+<p>卷积网络中的计算特征主要包括：矩阵内积，矩阵乘向量，向量的元素操作。</p>
+<h4 id="访存特性">访存特性</h4>
+<p>对于全连接层而言：</p>
+<ul>
+<li>x[i] 外循环复用，复用距离为Ni（输入参数的个数）</li>
+<li>w[i] [j] 内外循环无复用</li>
+<li>y[j] 内循环复用，复用距离为1</li>
+</ul>
+<p>循环的复用模式：在循环的复用距离跨度小的时候，数据可能仍然在cache中，不需要再从内容中读取。如果跨度大了，到下一次使用的时候，数据已经从cache中被清除了。</p>
+<p>在全连接层中，在进行计算的时候，需要整个权重矩阵，而由于是全相联，所以数据量是很大的。cache一般是装不下。同时循环的次数是和输入参数的个数相关的，显然复用距离也很大，也不一定能进行复用。为了增加数据的复用性，减少访存开销（减少cache miss），引入了循环分块（tiling）。</p>
+<h5 id="循环分块tiling">循环分块（tiling）</h5>
+<p>主要思想是将一个循环次数很大的循环拆分为几个小循环的叠加。比如一个循环次数为100的循环，可以拆为一个内外循环为都是10的循环。</p>
+<p>全连接层循环分块后的结果</p>
+<pre><code class="language-c">// No输出神经元的个数，Ni输入神经元的个数，W权重矩阵，b是偏置单元，x输入神经元，y输出神经元，G是激活函数
+// 对输入神经元进行Ti分块
+for(ii = 0; ii &lt; Ni; ii += Ti)
+	for(j = 0; j &lt; No; j++)
+	{
+    	for(i = ii; i &lt; ii + Ti; i++)
+      	  y[j] += W[j][i] * x[i]
+      	
+        if(i == Ni)
+	  	    y[j] = G(y[j] + b[j])
+	} 
+</code></pre>
+<p>还可以对输入和输出神经元同时进行分块。可以分了一块后再分块，分两次块。</p>
+<p>卷积层的循环分块</p>
+<pre><code class="language-c">//nor为输出特征图的行，noc为输出特征图的列，Nof输出特征图的通道数
+//Nir为输入特征图的行，Nic为输入特征图的列，Nif为输入特征图的通道数
+//sr为行上的步长，sc为列上的步长
+//W为卷积核，kr为卷积核的行，kc为卷积核的列，W[kr][kc][j][i]分别表示一个卷积核中一个通道上的权重矩阵的行，列。不同的卷积核。一个卷积核的不同通道。
+for(rr = 0; rr &lt; Nir; rr += Tr//输入行分块
+    for(cc = 0; cc &lt; Nic; cc += Tc)//输入列分块
+        for(jjj = 0; jjj &lt; Nof; jjj += Tjj)//输出特征图分块
+        {
+            nor = 0;
+            for(r = rr; r &lt; rr + Tr; r+= sr)//行步长
+            {
+                noc = 0;
+                for(c = cc; c &lt; cc + Tc; c += sc)//列步长
+                {
+                    for(jj = jjj; jj &lt; jjj + Tjj; jj += Tj )//输出特征图再分块 
+                    {
+                        for(j = jj; j &lt; jj + Tj; j++)
+                            sum[j] = 0;
+                    
+                        for(kr = 0; kr &lt; Kr; kr++)
+                        	for(kc = 0; kc &lt; Kc; kc++)
+                                for(ii = 0; ii &lt; Nif; ii += Ti)//输入特征图分块
+                                    for(j = jj; j &lt; jj + Tj; j++)
+                                        for(i =ii; i &lt; ii + Ti; i++)//输入特征图再分块
+                                            sum[j] += W[kr][kc][j][i] * X[r + kr][c + kc][i];
+                        for(j = jj; j &lt; jj + Tj; j++)
+                            Y[nor][noc][j] = G(sum[j] + b[j])
+                            
+              noc++; 
+                    }
+         nor++;  
+                }
+            }
+        }
+</code></pre>
+<h2 id="深度学习处理器结构">深度学习处理器结构</h2>
+<h4 id="指令集">指令集</h4>
+<p>定义一些可以直接操作向量和矩阵的指令（数据转移，计算指令，逻辑指令）</p>
+<h4 id="流水线">流水线</h4>
+<p>取指、译码、发射、读寄存器、执行、写回、提交</p>
+<h4 id="运算部件">运算部件</h4>
+<p>标量MAC：计算 a x b + c</p>
+<p>向量MAC：计算 vector x vector + c</p>
+<p>矩阵计算：n个向量MAC的堆叠</p>
+<h4 id="dlp架构">DLP架构</h4>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E6%88%91.png" alt="" loading="lazy"></figure>
+<p>前部分设计按照通用CPU进行设计，后面引入专门用于向量(VFU)和矩阵(NFU)的运算的模块及三块独立的NRAM。</p>
+<p><strong>访存的重要性</strong></p>
+<p>分离三个数据流（输入数据，输出数据和权重），避免访存流之间的互相干扰</p>
+<p>Scratchpad Memory管理（不是传统的cache管理），程序员完全可控，可以控制数据被读入，覆盖，回写的时间，而不是靠硬件自己实现。</p>
+<h4 id="算法映射">算法映射</h4>
+<p>硬件的运算器的数量远少于算法中神经元和突触的数量。比如：硬件只支持100个输入，但是网络的输入是1000个。</p>
+<p>需要把有限规模的硬件把任意规模的算法实现，<strong>思想：硬件的分时复用</strong>。要确定保证数据的重用性。</p>
+<p>分时复用的原理</p>
+<p>每一次仅计算怎个网络局部的神经元。如下图，每次仅计算输出的两个神经元和输出层的两个神经元，为了保证数据的重用性，每次先保证输入层不变，移动到输出层的下两个神经元。本质上是一个乘加运算，所以乘加的顺序不重要。</p>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E6%B5%8B.jpg" alt="" loading="lazy"></figure>
+<p>全连接层的分时复用</p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E4%BD%86%E6%98%AF.png" alt="" loading="lazy"></figure>
+<p>类似于循环的分块。从输入神经中先找一小部分Ti和输出神经元的Tj，只将他们放入硬件中进行运算。然后再保存Ti不变，滑动Tj进行运算，Tj滑动到最后，再滑动Ti，并将Tj恢复到最开始，进行运算。依次计算下去，直到完成所以的计算。</p>
+<p>卷积层的分时复用</p>
+<figure data-type="image" tabindex="4"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E4%BD%86%E6%98%AF.jpg" alt="" loading="lazy"></figure>
+<p>每次仅针对部分不同卷积核上所有不同层的某行数的部分（减少输入）输入进行计算（同时放入多个硬件中），每次计算得到所有输出特征图的同一位置的值（这个值不是最后的值，只做了部分的乘加运算）。</p>
+<p>下次再计算</p>
+<h2 id="优化设计">优化设计</h2>
+<p>稀疏化：针对某些可以剪枝的网络设计的加速器。</p>
+<p>低位宽：用低位宽（降低数据精度）来进行训练，代替高位宽。减少硬件的开销，增加运算的速度。</p>
+<h2 id="性能评价">性能评价</h2>
+<ul>
+<li>TOSP：Tera Operations Per Second（Operation指乘法或加法操作）</li>
+<li>访存带宽</li>
+</ul>
+<p>影响性能的因素：完成某类操作所需要的时钟周期，访存开销，并行程度</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[TensorFlow框架]]></title>
+        <id>https://yvainefire.github.io/post/tensorflow-kuang-jia/</id>
+        <link href="https://yvainefire.github.io/post/tensorflow-kuang-jia/">
+        </link>
+        <updated>2022-07-31T08:22:22.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="高效的原因">高效的原因</h2>
+<ul>
+<li>最根本的把计算图的所有计算都变成算子</li>
+<li>算子针对硬件进行实现，以达到充分的优化。</li>
+<li>对计算图进行了一系统的优化操作。</li>
+<li>无依赖的算子一定程度上的并行</li>
+</ul>
+<h2 id="计算图机制">计算图机制</h2>
+<h3 id="求导方法">求导方法</h3>
+<ul>
+<li>手动求导法：手动用链式法则求解出梯度，带入公式得到数值。但是对于大规模的网络求解复杂，同时可移植性不强。</li>
+<li>数值求导法：利用倒数的原始定义（极限），去一很小的值。但是计算量大，误差也大。</li>
+<li>符号求导法：利用求导规则对表达式进行自动操作。但是可以会出现表达式膨胀。也就是如果表达式过于复杂，采用求导规则推出的公式可能会很大，比如对于一个由递推构造的公式，就可能出现这种情况。</li>
+<li>自动求导法：结合了数值求导法和符号求导法。在求导的过程中利用后一层求导的结果（每次先求出后一层的结果，再反向传递）以减少公式膨胀，再利用符号求导公式求出本层的未知数，相对后一层的偏导数（每一层只需要求出其相对后一层的偏导数），需要保留每一层的导数和每一层前向传播的结果。实际上是链式法则求导公式的变形（求导的合并）。</li>
+</ul>
+<h3 id="检查点机制">检查点机制</h3>
+<p>模型的训练过程中出现意外情况导致训练终止，所有在训练过程中需要模型的保持和恢复。</p>
+<p>使用tf.train.Saver()来存储参数到checkpoint文件中</p>
+<p>使用saver.restore()来恢复变量，不需要再进行变量的初始化</p>
+<p>通过在计算图中插入Save节点和Restore及其关联节点来完成。</p>
+<h3 id="控制流">控制流？</h3>
+<p>使用控制流算子来让数据流能在不同复杂控制流场景应用</p>
+<p>引入少量简单基础操作，提供丰富的控制流表达</p>
+<p>每个一操作都是在执行帧中被执行，控制流负责创建和管理这些执行帧。</p>
+<ul>
+<li>Switch：一个张量输入，一个控制输入，两个输出。根据控制输入选择张量输出的方向。</li>
+<li>Merge：两个张量输入，一个张量输出。将其中任意一个准备好的输入输出。</li>
+<li>Enter：一个张量输入，一个张量输出。将它的输入推向名为name的执行帧。</li>
+<li>Exit：一个张量输入，一个张量输出，将一个张量从他的子执行帧推向它的父执行帧。</li>
+<li>NextIteration:</li>
+</ul>
+<p>构建条件语句</p>
+<p>构建循环语句</p>
+<h3 id="计算图执行模式">计算图执行模式</h3>
+<p>client：用户通过编程使用session接口与master和worker通信。提交给master需要计算的任务。</p>
+<p>master：控制所有的worker按照计算图执行。</p>
+<p>worker：每一个worker负责一个或多个计算图的仲裁和访问，并根据master的指令执行这些计算设备的计算图节点。</p>
+<p>设备：CPU或者GPU</p>
+<ul>
+<li>单master单worker单GPU（本地单设备执行）：计算图按照结点间的关系按顺序执行，每个节点有一个计数器记录其还未执行的依赖节点的个数。计数器为0时才将该节点添加到就绪队列中。</li>
+<li>单master单worker多GPU（本地多设备执行）：CPU作为参数的服务器，用于保存参数和变量、计算梯度平均等。GPU作为worker，用作模型训练。数据分割为batch，将batch分配给不同的GPU，用于模型的前向计算和反向计算，计算出个batch的loss和梯度，再将梯度交由CPU进行平均。CPU和GPU分别进行参数的更新。</li>
+<li>单master多worker多GPU（分布式执行）：client，master和worker可以工作于不同的机器上。</li>
+</ul>
+<h3 id="计算图本地执行">计算图本地执行</h3>
+<ul>
+<li>计算图剪枝：得到本地运行的最小子图。为输入输出建立与外界的联系（增加一个额外的source结点作为所有输入节点的起点，添加一个额外的sink节点作为所有输出节点的终止节点）。除去与最终输出节点无关联的节点和边（广度搜索，删除与最终输出节点无关联的节点和边，并将新生成的连通图中入度为0的节点连接到source节点，出度为0的节点连接到sink节点 ***这样连接怎么能还原原来的拓扑关系？***）。</li>
+<li>计算图分配：使用cost model根据输入输出tensor的数量和预计运行时间来考虑设备之间的分配以达到最快时间进行计算的目的。</li>
+<li>计算图优化：图优化由Grappler模块来实现。根据硬件结构调整调度策略，加快计算速度同时减少推断过程中所用的峰值内存。包括常量折叠（类似编译过程中将一部分常量或可以提前计算的量先计算出来作为新的节点直接使用），算术简化（公共表达式消除，提取公因式，算术化简），布局优化（TensorFLow采用NHWC，GPU采用NCHW，减少数据格式间的转换次数），重映射（算子融合，将高频率使用的子图用单独的算子来替换，可以减少不同计算节点间的调度的开销即主要是访存的开销同时方便底层硬件的处理）</li>
+<li>计算图切分：完成每个节点的分配后，将整个计算图按照所分配的设备分成若干的子图，每个设备对于一张子图。对于有依赖关系但是被分配到不同设备的节点，通过在设备边界插入send或者recv节点来进行通信。</li>
+</ul>
+<h2 id="系统实现">系统实现</h2>
+<h3 id="整体框架">整体框架</h3>
+<p>C/C++为基础再封装为python，go，java......</p>
+<h3 id="计算图执行模块">计算图执行模块</h3>
+<p>Session：用户与运行时的接口，session接收数据</p>
+<p>每个设定有一个执行器，负责本设备上算计图的执行。</p>
+<p>Run函数是Session执行的核心逻辑，完成计算图的执行，包括传参、运行和返回。</p>
+<p>Run函数：传参，创建或得到执行器，执行器绑带在设备上，调用函数调用帧函数处理执行器的输入和输出，执行器中feed中获取输入并将输出写入</p>
+<p>RunInternal：开始并执行执行器，如果是多设备并行执行，则需要ExecutorBarrier协调多个Executor来并行计算。</p>
+<p>执行流：一个能够存储计算任务的队列。在进行计算图优化，计算图切分之后将形成的每个最小子图作为流分配给一个个执行器。流间的任务可以并行执行，流内的任务只能串行执行。流越少，同步各流的开销就越小，流越多，并行的可能性越大。</p>
+<p>执行器的核心ScheduleReady：维护两个队列。ready队列（预执行队列），inline_ready队列（当前线程要处理的队列）。如果inline_ready为空，则使用线程去处理ready队列中的每个节点。如果inline_ready不为空，且ready队列的处理未完成，如果节点为低开销的则放到inline_ready队列中执行。否则启动新线程。如果inline_ready为空，且ready队列处理完了，且当前节点为高开销的，则将高开销节点放入inline_ready中否则启动新线程的执行。</p>
+<h3 id="设备抽象和管理">设备抽象和管理</h3>
+<p>设备分为本地设备和远程设备，</p>
+<p>使用注册机制来管理设备，可以通过注册口支持自定义的设备。</p>
+<h3 id="网络和通信">网络和通信</h3>
+<p>使用Rendezvous机制来完成数据的交互</p>
+<p>Rendezvous机制向外提供了Send和Receive，使用这两个节点来进行设备间的通信。</p>
+<p>Rendezvous机制使用了类似生产者消费者的模型。每个Rendezvous实例拥有一个通道表，记录了每对Send和Receive的关系和状态。</p>
+<h3 id="算子实现">算子实现</h3>
+<p>OpKernel将算子绑定到底层硬件</p>
+<p>通过注册机制来支持不同的算子和相应的OpKernel</p>
+<p>OpKernel可以是同步(Compute()返回即认为数据已经处理完了)的也可以是异步的</p>
+<p>C++ 中Session Run流程</p>
+<ul>
+<li>创建执行器：创建graph进行优化，分割为一些子图。子图分配给一系列执行器，执行器进行初始化，创建控制流信息和kernel。</li>
+<li>创建函数调用帧：配置执行相关的feed和fetch参数。即输入和输出。</li>
+<li>执行器并行执行：执行器为每个Op分配上下文信息。将每个入度为0的节点，分配到Ready队列。ScheduleReady函数将这些节点交给run执行。</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[CNN]]></title>
+        <id>https://yvainefire.github.io/post/cnn/</id>
+        <link href="https://yvainefire.github.io/post/cnn/">
+        </link>
+        <updated>2022-07-31T08:21:25.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="cnn的引入">CNN的引入</h2>
+<p>对于图象的处理一般是采用像素点来进行的，一个像素点一般又对应3个RGB参数用来表示颜色信息。那么对于图片处理而言，网络的输入的维度就会很大。如果使用全连接神经网络，相邻两层之间的都需要建立一个连接，每个连接都对应着一个参数，那么训练的参数就会很多，从而导致训练的时间很长。同时参数过多也可能会出现过拟合的现象。为了解决这个问题就引入了CNN。</p>
+<h2 id="cnn的起源">CNN的起源</h2>
+<p>人类的视觉系统信息处理的原理，原始信号的摄入，大脑皮层相应细胞发现图象的边缘和方向，大脑对这些边缘信息进行组合进而抽象为形状，大脑再进行抽象，从而判断出最终的结果。所以人类视觉采用逐级分层，不断抽象的方式。CNN就借助了这种思想对图象进行处理。</p>
+<h2 id="cnn的基本组成">CNN的基本组成</h2>
+<h3 id="输入层">输入层</h3>
+<p>格式：W x H x D</p>
+<p>输入的是一个三维的格式，在二维上（W x H）是图象的像素点，再扩展一个维度（D）出来表示RGB灰度值。</p>
+<h3 id="卷积层">卷积层</h3>
+<p>卷积层是卷积神经网络得名的原因，所以应该算是卷积神经网络中最重要的一个部分。</p>
+<p>卷积层的操作包括：</p>
+<ul>
+<li>卷积运算</li>
+<li>填充（padding）</li>
+</ul>
+<p>卷积运算：卷积核所有权重与其在输入图像上对应元素亮度之和。</p>
+<p>卷积核（kernel）是指多个权重矩阵组成的一个矩阵集合。格式为：f x f x c，f为权重矩阵的大小，c为通道数，也就是权重矩阵的个数。通过卷积核中权重矩阵的参数的改变，可以从输入中提取出相应的特征。</p>
+<p>kernel 通道数 = 1的卷积过程：</p>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/20190305160149865.gif" alt="" loading="lazy"></figure>
+<p>image里黄色的权重矩阵（f  x  f）为每次进行卷积的一个基本单元，在这个权重矩阵中，image中对应的点和其对应的权重点相乘，最后再将这部分所有的乘积值相加，作为Convolved Feature（特征图）中的一个结果。权重矩阵每次滑动的距离称为stride（步数），上图中的stride = 1。可见Convolved Feature尺寸的大小是与卷积核的大小相关的，卷积核越大Convolved Feature的尺寸越小。</p>
+<p>参数共享机制：image中的多个位置都在共享卷积核，就这大大减少了参数的个数。</p>
+<p>如果进行多次卷积操作后，显然Convolved Feature的尺寸会变得越来越小，这样会导致某些原始信息的损失。引入padding来进行填充，即对Convolved Feature的边界进行填0扩充，以减小Convolved Feature的尺寸减小的速度。</p>
+<img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/v2-705305fee5a050575544c64067405fce_b.gif" style="zoom:25%;" />
+<img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/12.gif" style="zoom:25%;" />
+<p>第二张图就是在进行卷积操作之前，先进行填充操作，以扩大Convolved Feature的尺寸。</p>
+<p>padding的作用：</p>
+<ul>
+<li>扩大输入图像/特征图象的尺寸</li>
+<li>强化图象的边缘信息</li>
+</ul>
+<p>卷积后Convolved Feature的尺寸计算：若image为w x h x c，kernel为f x f x c，stride为s，padding为p，则 output = [(w + 2p - f)/s + 1]  x  [(h + 2p - f)/s + 1]</p>
+<p>在tensorflow中，padding = valid时不进行填充，output = [(w  - f)/s + 1]  x  [(h - f)/s + 1] （向下取整）；padding = same时，output = N / S （向上取整）</p>
+<p>多核多kernel 通道数的卷积过程：</p>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/23.gif" alt="" loading="lazy"></figure>
+<p>如上图是2个卷积核，每个卷积核中有3个通道的卷积。</p>
+<p>注意当一个卷积核中有多个权重矩阵时，最终的Convolved Feature是这几个权重矩阵分别计算出结果的直接相加（矩阵相应位置直接相加），可能会再加上相应的bais。</p>
+<p>Convolved Feature的深度是由卷积核的个数决定的。</p>
+<p>感受野（Receptive-Field, RF）：感受野是一个神经原对原始图像（最开始输入的图象）的连接。感受野可以用来衡量神经元所能接收到原始图像的范围，感受野越大，所能接受的原神经原的信息越多。</p>
+<p>感受野的计算：感受野是针对原始图象而言的。所以显然计算某一层神经元的感受野会依赖于前面神经元的感受野，所以是一个迭代的过程。简单来说直接将每一层的感受野先减1，再相加，最后和再加1，就是某层神经元的感受野。意思就是计算出每一层神经元损失的东西。需要注意的是在进行感受野的计算的时候不要考虑padding填充层，因为padding实际上不是原始image的一部分。</p>
+<h3 id="计算量的计算">计算量的计算</h3>
+<ul>
+<li>乘法运算</li>
+<li>加法运算</li>
+</ul>
+<h3 id="特殊的卷积操作1-x-1卷积">特殊的卷积操作：1 x 1卷积</h3>
+<p><strong>几个小滤波器卷积层的组合比一个大滤波器卷积层好</strong></p>
+<h3 id="激活层">激活层</h3>
+<p>激活层有很多种，在CNN中，常用的是Relu这个激活层。每个卷积层结束后，将结果放入激活层。</p>
+<h3 id="池化层">池化层</h3>
+<p>池化层pooling是夹在卷积层中间用来主动减少图片的尺寸，从而减少参数，避免过拟合。（压缩图像，降维）</p>
+<p>池化层的操作：使用一个过滤器 f x f对image进行处理，将image中对应的fxf的尺寸降维成一个值。同时也引入了padding和stride。</p>
+<p>一般包括：max pooling 和 average pooling。</p>
+<p>如下图所示为max pooling</p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/22.png" alt="" loading="lazy"></figure>
+<p>pooling后的image尺寸：输入image为 w x h x c，过滤器为 f x f，stride = s，padding = p。output = [(w + 2p - f)/s + 1]  x  [(h + 2p - f)/s + 1]</p>
+<p>当stride = 2，padding = 0时，image的尺寸减半。</p>
+<p>注意pooling的操作过程和卷积有一定的相似之处，但是pooling只是在二维上作用的，它只会影响image的尺寸而不会影响image的深度即通道的数量。</p>
+<h3 id="全连接层s">全连接层s</h3>
+<p>如果全连接层的输出很多，那么全连接的参数就很多。在卷积层和池化层操作过后，再把数据传给全连接层，以进行分类。</p>
+<h2 id="vgg16的分析">VGG16的分析</h2>
+<h3 id="vgg简要介绍">VGG简要介绍</h3>
+<p>VGG模型是由K.Simonyan 和A.Zisserman在<a href="https://arxiv.org/abs/1409.1556"><em>Very Deep Convolutional Networks for Large Scale Image Recognition</em></a>中提出的CNN模型。</p>
+<p>根据层数和卷积核的大小的不同，VGG的设计有以下几种类型</p>
+<figure data-type="image" tabindex="4"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/321.png" alt="" loading="lazy"></figure>
+<p>VGG模型的input是224 x 224 x 3</p>
+<p>convX-Y：该层中卷积核的尺寸是X，有个卷积核。</p>
+<p>每两到三个卷积层后就进入了池化层，最后再进入三个全连接层，将模型的输出变为1000。</p>
+<h3 id="vgg16具体分析">VGG16具体分析</h3>
+<p>VGG16是上述模型中的D类型，</p>
+<figure data-type="image" tabindex="5"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/ss.png" alt="" loading="lazy"></figure>
+<p>VGG16有13个卷积层，3个全连接层，5个池化层。</p>
+<p>卷积层：卷积核的尺寸为3 x 3，stride = 1，padding = same。每次卷积后的尺寸会缩小2，但是由于卷积后same padding操作会填充0，所以实际尺寸不改变。每次卷积后的通道数变为卷积核的核数。例如：第一次卷积后，通道数变为64。参数为：(3 * 3 * 通道数) * 卷积核个数</p>
+<p>池化层：池化层的核为2 x 2，stride = 2，且为max pooling。每次池化操作后卷积核的尺寸减半，通道数不改变。</p>
+<p>全连接层：前两个全连接层的输出为4096，最后一个全连接层的输出为1000。参数：第一层为7 x 7 x 512 x 4096。第二层为 4096 x 4096。第三层为4096 x 1000。</p>
+<p>下图为每次操作后图像尺寸几个维度的变化情况</p>
+<figure data-type="image" tabindex="6"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/33.png" alt="" loading="lazy"></figure>
+<h2 id="转置卷积">转置卷积</h2>
+<p>转置卷积又称为反卷积，表示卷积的逆过程。主要目的是根据卷积核大小和输出大小，恢复卷积前的尺寸大小。</p>
+]]></content>
+    </entry>
     <entry>
         <title type="html"><![CDATA[STM32 启动文件]]></title>
         <id>https://yvainefire.github.io/post/stm32-qi-dong-wen-jian/</id>
@@ -156,285 +816,6 @@ barrier可以防止多个连续的++指令被合并</p>
 <li>内核可抢占</li>
 <li>内核并不区分线程和进程，对内核来说所有的进程都一样，只是线程可以共享资源而已。</li>
 </ul>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C语言 关于字符常量的一些说明]]></title>
-        <id>https://yvainefire.github.io/post/c-yu-yan-guan-yu-zi-fu-chang-liang-de-yi-xie-shuo-ming/</id>
-        <link href="https://yvainefire.github.io/post/c-yu-yan-guan-yu-zi-fu-chang-liang-de-yi-xie-shuo-ming/">
-        </link>
-        <updated>2021-05-13T08:20:55.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="1为什么字符串常量无法被修改">1为什么字符串常量无法被修改</h2>
-<p>当程序在使用字符串常量的时候会生成一个指向字符的常量指针，当一个字符串常量出现在一个表达式的时候，表达式所使用的值就是这个字符串所指向的字符串常量。</p>
-<h2 id="2为什么无法直接把字符串常量赋给一个的数组呢">2.为什么无法直接把字符串常量赋给一个的数组呢？</h2>
-<p>字符串常量的的指针值是一个常量指针，数组名的值是也是一个指针常量，看似可以直接将字符串常量的值直接赋给数组名，但是如果这样操作实际上就丧了数组本身的意义，只是单单的把数组名这个指针指向了另一个地方，只是利用了数组的第一个元素的存储空间，而在声明数组时分配的存储空间就没有被使用，所以实际上我们想实现的不是把数组名指向字符串常量的地方，而是想使用数组的空间来复制字符串常量。</p>
-<p>看下面两个例子：</p>
-<pre><code class="language-c">/*example_1*/
-char *message = &quot;123456&quot;;
-char message1[] = message;
-/*example_2*/
-char message2[] = &quot;123456&quot;;
-/*example_3*/
-char message3[] = {'1','2','3','4','5','6','\0'};
-</code></pre>
-<p>这里example_1是错误的，example_2是正确的。显然example_1是上述所说的，不能直接把字符串常量赋给一个数组。对于example_2看似也像是直接把字符串赋给了数组，看似和example_1是一样的，但是实际上直接由于数组从一声明就具分配了空间，所以它是直接将这几个字符放在数组的连续存储空间中的，等效于example_3，它本来也是example_3的缩写。所以这里在初始化一个字符数组的时候，其后面实际不是一个字符串常量，而只是初始化数组时的初始化列表是的虽然它的形式是一样的，但是在其他的地方，例如这种形式的&quot;xxxxx&quot;就是表示字符串常量。</p>
-<h2 id="3为什么无法修改数组名">3.为什么无法修改数组名？</h2>
-<p>数组名的值是一个指针常量，同时也是数组名第一个元素的地址，它的类型，取决于其数组元素的类型。指针常量是由于在程序链接完成后数组的地址就已经固定了，是不能修改了，所以数组名也是无法修改的，所以其指向的也是指针产量。所以不能直接对数组名进行自增的操作。</p>
-<p>可以把数组名指针常量提前赋给一个指针变量，通过指针变量修改作者常量。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[ 关于linux-86汇编函数的堆栈初始化和出栈入栈的理解]]></title>
-        <id>https://yvainefire.github.io/post/guan-yu-linux-86-hui-bian-han-shu-de-dui-zhan-chu-shi-hua-he-chu-zhan-ru-zhan-de-li-jie/</id>
-        <link href="https://yvainefire.github.io/post/guan-yu-linux-86-hui-bian-han-shu-de-dui-zhan-chu-shi-hua-he-chu-zhan-ru-zhan-de-li-jie/">
-        </link>
-        <updated>2021-05-13T08:19:30.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="1一个只含返回语句main函数为空的代码段">1.一个只含返回语句main函数为空的代码段</h2>
-<p>c语言代码</p>
-<pre><code class="language-c">#include &lt;stdio.h&gt;
-
-int main(void)
-{
-        return 0;
-}
-
-</code></pre>
-<p>汇编代码</p>
-<pre><code class="language-汇编">Disassembly of section .text:
-
-0000000000000000 &lt;main&gt;:
-   0:   55                      push   %rbp  
-   1:   48 89 e5                mov    %rsp,%rbp
-   4:   b8 00 00 00 00          mov    $0x0,%eax
-   9:   5d                      pop    %rbp
-   a:   c3                      retq   
-
-</code></pre>
-<p>分析：</p>
-<p><strong>pop和push都是以rsp为堆栈指针</strong></p>
-<p>0：将rbp指针入栈，进入以rsp为栈顶的栈，由于x86的栈是从高地址到低地址，所以rsp-8</p>
-<p>1：将rsp这个栈顶指针赋给rbp，使rbp能够代替rsp进行出栈入栈的操作，而rsp保持在原来的栈底的位置，也相当于为rbp分配了一段新的栈，实际上仍然是rsp原来的栈。</p>
-<p>4：return 0</p>
-<p>9：利用rsp来恢复rbp最开始的值</p>
-<h2 id="2含有一些变量的main函数">2.含有一些变量的main函数</h2>
-<p>c语言代码</p>
-<pre><code class="language-c">#include &lt;stdio.h&gt;
-int G = 111;
-int l;
-
-int main(void)
-{
-        int a = 0;
-        int b;
-        int c = 10;
-        int C = 100;
-        static int d = 1;
-        static int e = 0;
-
-        return 0;
-}
-
-</code></pre>
-<p>汇编代码</p>
-<pre><code class="language-汇编">Disassembly of section .text:
-
-0000000000000000 &lt;main&gt;:
-   0:   55                      push   %rbp
-   1:   48 89 e5                mov    %rsp,%rbp
-   4:   c7 45 f4 00 00 00 00    movl   $0x0,-0xc(%rbp)
-   b:   c7 45 f8 0a 00 00 00    movl   $0xa,-0x8(%rbp)
-  12:   c7 45 fc 64 00 00 00    movl   $0x64,-0x4(%rbp)
-  19:   b8 00 00 00 00          mov    $0x0,%eax
-  1e:   5d                      pop    %rbp
-  1f:   c3                      retq   
-
-</code></pre>
-<p>分析：</p>
-<p>main函数中含有未初始化的局部变量和静态局部变量，初始化的局部变量和静态局部变量，未初始化的全局变量和初始化的全局变量。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C语言 隐式转换]]></title>
-        <id>https://yvainefire.github.io/post/yin-shi-zhuan-huan/</id>
-        <link href="https://yvainefire.github.io/post/yin-shi-zhuan-huan/">
-        </link>
-        <updated>2021-05-13T08:18:33.000Z</updated>
-        <content type="html"><![CDATA[<p>隐式转换的四种类型</p>
-<h2 id="1算术运算中低类型能够转换为高类型">1.算术运算中低类型能够转换为高类型</h2>
-<p>整型提升：即char转short，short转int，float转double</p>
-<h2 id="2赋值表达式中右边表达式自动转换为左边表达式的类型">2.赋值表达式中，右边表达式自动转换为左边表达式的类型</h2>
-<h2 id="3函数调用中参数传递时系统隐式的将实参的类型转换为形参的类型">3.函数调用中参数传递时，系统隐式的将实参的类型转换为形参的类型</h2>
-<h2 id="4函数有返回值时系统隐式的将返回表达式类型转换为返回值类型赋值给调用函数">4.函数有返回值时，系统隐式的将返回表达式类型转换为返回值类型，赋值给调用函数。</h2>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[C语言 数组和指针]]></title>
-        <id>https://yvainefire.github.io/post/c-yu-yan-shu-zu-he-zhi-zhen/</id>
-        <link href="https://yvainefire.github.io/post/c-yu-yan-shu-zu-he-zhi-zhen/">
-        </link>
-        <updated>2021-05-13T08:17:44.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="一维数组">一维数组</h2>
-<p>数组名的值是一个<strong>指针常量</strong>，也就是该数组中第一个元素的地址。具体的类型是由该数组中元素的类型决定。例：如果数组的元素类型是int，则该数组名的类型是“指向int的常量指针”。</p>
-<pre><code>由于数组名是一个指针常量，所以是不能修改数组名的。这样做的原因：再链接过后，该数组在内存中的位置就固定了，即数组名的值也就固定了，修改这个值，并不会把整个数组移动到另一个位置，所以禁止这样的操作。
-</code></pre>
-<p>数组具有确定数量的元素，而指针只是一个标量值。</p>
-<h3 id="数组的初始化">数组的初始化</h3>
-<p>完全初始化：在定义是指定每一个值；使用循环为每个下标初始化。</p>
-<p>未完全初始化：定义时只指定前n个值，其余部分默认为0</p>
-<p>完全为初始化：全部默认为0</p>
-<h3 id="下标引用">下标引用</h3>
-<p>下标引用和间接引用除了优先级的差别外，其他的效果一样。同时，任意的指针都可以和数组一样使用下标引用。例：</p>
-<pre><code class="language-c">int array[10];
-int *ap = array;
-ap[0]=3;
-</code></pre>
-<p>负值下标：负值下标指的是该数组名对应的前一个地址的值。在使用负值下标时，一定要在有意思不会造成危险的时候进行使用，即一定要知道这个值不是非法的内存区。</p>
-<h3 id="指针和下标">指针和下标</h3>
-<p>虽然指针和下标可以任意的使用，但是在某些时候使用指针时的效率会更加的好一点。</p>
-<p>例：两种方式对数组的每个元素进行遍历</p>
-<pre><code class="language-c">//采用下标的形式
-int array1[10],a1;
-for(a1 = 0; a1 &lt; 10; a1++)
-	array1[a1] = 0;
-	
-//采用指针的形式
-int array2[10],a2;
-for(a2 = array2; a2 &lt; array2 + 10; a2++)
-	*a2 = 0;
-</code></pre>
-<p>对于第一种形式：每次使用一个乘法运算a*4（数据长度）计算相对与基址的相对地址。所以会有大量的乘法运算</p>
-<p>对于第二种形式：由于是相当于一种累加的结果，所以只需要在编译的时候计算出1*4（数据长度），每次只进行一个加法运算a2+4。</p>
-<p>对于数组模式的取值和指针模式的取值，</p>
-<h3 id="数组名作为的函数参数">数组名作为的函数参数</h3>
-<p>c语言的函数的参数是按值传送的，所以实际上就是一个拷贝，在一般的情况下是不会改变实参的。但是在数组做为参数传递进去的时候数组里面的内容可以改变，看似进行的是传址调用。</p>
-<p>​		在数组名作为函数参数进行传送的时候，实际上实参就是一个指向数组第一个元素的指针，也就是数组第一元素的地址。所以实参拷贝给形参，形参的值就是数组第一个元素的地址，这个地址是不会被改变的，改变只可能是这个地址存储的内容，所以这也是按值传递。</p>
-<p>同时这也说明了，函数不能根据数组名去获得数组的长度，需要额外的给出。</p>
-<p>为了体现数组名作为参数的本质，<strong>最好将写为指针的形式</strong></p>
-<h3 id="初始化">初始化</h3>
-<p>自动（动态）变量和静态变量</p>
-<ul>
-<li>
-<p>自动变量指（auto）：对于所有未特别指定的局部变量都是自动变量。当自动变量所在的作用域被执行完后会自动销毁该变量，同时每次执行声明该变量的代码都会<strong>创建一个新的变量</strong>分配相应的存储空间，每次的存储空间可能是不相同的。<strong>存放于栈（注意不是堆，堆是被malloc动态分配的变量的存储位置）中，在每次调用的时候会进行重新赋值。</strong></p>
-</li>
-<li>
-<p>静态变量（static）：对于使用了static声明的局部变量变量是静态变量（<strong>注意全局变量是默认的static声明</strong>）。且即使静态变量所在的作用域被执行完了，该变量也不会被销毁而会存在于程序的整个执行中，且在下次重新执行到这段代码是会使用原来的这个变量。<strong>存放在静态存储区中，在编译就进行赋值了。</strong></p>
-</li>
-</ul>
-<p><strong>注意是否需要被重新初始化和大数组初始化的时间</strong></p>
-<p>数组的初始化需要看是自动的变量的初始化还是静态变量的初始化，且还需考虑是完整初始化，还是不完整初始化。当不完整初始化时都会将其默认为0或'\0'。</p>
-<h2 id="多维数组">多维数组</h2>
-<h3 id="数组名">数组名</h3>
-<p>多维数组的数组名是指向其第一维数组的指针。所以实际上是指向指针的指针。</p>
-<p>例如二维数组：int matrix[3] [4]</p>
-<p>可将其看作是一个含有3个元素的1维数组，每1维元素为包含4个元素的向量。所有matrix是指向第一维数组的指针，*matrix相当于第一维数组的数组名，**matrix相当于第一维数组的第一个元素。</p>
-<p>*(matrix+n)是第n维数组的数组名,**(matrix+n)是第n行的第一个元素。</p>
-<p>*( *(matrix+n)+m)是第n行第m个元素</p>
-<h3 id="指向二维数组的指针">指向二维数组的指针</h3>
-<p>int (*p)[n]</p>
-<p>声明一个第一维为n个元素的数组。实质上就是声明了一个整型的指针数组。对于这个数组来说其中的每个元素为一个指针，指向一个数组。</p>
-<p>int (*m)[3] = matrix;</p>
-<h3 id="数组名作为函数的参数">数组名作为函数的参数</h3>
-<p>传入值为一个指向指针的指针。</p>
-<h3 id="初始化-2">初始化</h3>
-<p>两种方式：</p>
-<p>int matrix[3] [4]={1, 1, 1,1, 1, 1,1, 1, 1,1, 1, 1};</p>
-<p>int matrix[3] [4]={</p>
-<p>{1, 1, 1}</p>
-<p>{1, 1, 1}</p>
-<p>{1, 1, 1}</p>
-<p>{1, 1, 1}</p>
-<p>};</p>
-<p><strong>在二维数组中只有第一维能够根据初始化列表缺省地提供。</strong></p>
-<h2 id="指针数组">指针数组</h2>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[存储器]]></title>
-        <id>https://yvainefire.github.io/post/cun-chu-qi/</id>
-        <link href="https://yvainefire.github.io/post/cun-chu-qi/">
-        </link>
-        <updated>2021-05-13T08:13:18.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="ram">RAM</h2>
-<p>随机存储器，随机指可读可写，且读取内部任意地址的时间是相同的。断电数据会丢失。</p>
-<h3 id="dram">DRAM</h3>
-<p>动态随机存储器，存储单元以电容的电荷来表示，动态指需要定期刷新。</p>
-<p>一般用于CPU外部的扩展内存</p>
-<h3 id="sram">SRAM</h3>
-<p>静态随机存储器，以锁存器来存储数据，不需要定时刷新，但是断电数据还是会丢失。</p>
-<p>一般只用于CPU内部的Cache</p>
-<h2 id="非易失存储器">非易失存储器</h2>
-<p>掉电后数据不会丢失。</p>
-<h3 id="rom">ROM</h3>
-<p>原指只读存储器，但现在指代非易失性半导体存储器，即掉电后数据不会丢失。包含只能读的存储器和可读但需要特殊写的存储器。</p>
-<h3 id="flash">FLASH</h3>
-<p>又称闪存，是可重读擦写的存储器。</p>
-<p>FLASH根据内部“地址/数据线”是分开可以分为NAND FLASH 和 NOR FLASH。</p>
-<h4 id="nor-flash">NOR FLASH</h4>
-<p>NOR FLASH 的地址和数据线分开，可以按照字节读写数据，符合CPU的取指令的规则，所以如果CPU知道NOR FLASH上指令的地址，就可以直接执行。一般存储代码。</p>
-<h4 id="nand-flash">NAND FLASH</h4>
-<p>NAND FLASH 的地址和数据线是共用的，所以只能按照块来读写，所以CPU不能直接执行NAND FLASH 上的指令。需要先将NAND FLASH上的指令加载到RAM上面才能被CPU执行。一般存储数据。</p>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[FreeROTS 多优先级]]></title>
-        <id>https://yvainefire.github.io/post/freerots-duo-you-xian-ji/</id>
-        <link href="https://yvainefire.github.io/post/freerots-duo-you-xian-ji/">
-        </link>
-        <updated>2021-05-12T08:46:43.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="freertos优先级概述">FreeRTOS优先级概述</h2>
-<p>虽然FreeRTOS支持同一优先级下可以有多个任务，但是此时我们假设每个优先级下最多有一个任务。</p>
-<p>在FreeRTOS中优先级数字越小对应的优先级就越小。</p>
-<p>FreeRTOS提供了两种方法用于优先级的查找，一种是通用的方法，一种是优化的方法。</p>
-<h2 id="寻找最高优先级的任务">寻找最高优先级的任务</h2>
-<h3 id="通用方法">通用方法</h3>
-<p>提供当前就绪任务的优先级，把它和当前任务的优先级进行比较，判断是否跟新。再使用循环从当前最高任务的优先级对应的就绪队列中依次向下寻找若该就绪队列为空，就将当前最高任务的优先级自减，直到找到为止。</p>
-<p>缺点：显然这样的查找方式并不能保证时间的确定性。</p>
-<h3 id="优化方法">优化方法</h3>
-<p>使用了前导零指令CLZ</p>
-<p>CLZ指令是cortex-M提供的一条特殊的指令，计算一个32位的变量的从最高位开始计算第一个出现1位前面出现了0位的个数，即 CLZ(0xfffffff1) 等于31。</p>
-<p>为了能使用前导零指令，需要更改使用优先级的方法，使用一个32位的变量uxTopReadyPriority作为位图，即第几个位上是1则表示这个位的数值对于的优先级的就绪列表上有任务就绪。如：0xfffffff3，表示优先级0和优先级1对应的就绪任务队列上有就绪的任务 。</p>
-<p>根据uxTopReadyPriority来确定当前最高优先级的任务的优先级，使用CLZ指令一步计算即可。</p>
-<p>当前最高优先级 =  31 - CLZ(uxTopReadyPriority)</p>
-<p>优点： 可以保证时间的确定性</p>
-<p>缺点：最大优先级为32</p>
-<h2 id="时间片">时间片</h2>
-<p>同一个优先级下可以有多个任务</p>
-<p>如何实现同一优先级下任务的切换？</p>
-<p>这主要是通过链表的头节点里面的 pxIndex来实现的，这个pxIndex在每次taskSELECT_HIGHEST_PRIORITY_TASK()选择最高优先级这个函数中中，通过listGET_OWNER_OF_NEXT_ENTRY()这个函数讲就绪列表的表头的索引指针pxIndex每次往后指一个，就实现了同一优先级的任务的切换在每个system sick后进行切换。</p>
-<pre><code class="language-c">typedef struct xLIST
-{
-	/* the number of the Item for the list */
-	UBaseType_t uxNumberOfItems; 
-	
-	ListItem_t * pxIndex;
-	/* the end node for the list */
-	MiniListItem_t xListEnd; 
-
-}List_t;
-</code></pre>
-]]></content>
-    </entry>
-    <entry>
-        <title type="html"><![CDATA[FreeRTOS 任务延时列表的原理]]></title>
-        <id>https://yvainefire.github.io/post/ren-wu-yan-shi-lie-biao-de-yuan-li/</id>
-        <link href="https://yvainefire.github.io/post/ren-wu-yan-shi-lie-biao-de-yuan-li/">
-        </link>
-        <updated>2021-05-11T08:45:24.000Z</updated>
-        <content type="html"><![CDATA[<h2 id="延时列表的结构">延时列表的结构</h2>
-<p>任务延时列表是是一个双向链表，<strong>按照延时到达的时刻进行增序插入链表</strong>（这个是一个时段，而不是延时的时间，由开始延时的时刻加上延时的时间计算出来的时刻）。</p>
-<p>需要维护</p>
-<ul>
-<li>全局变量系统从一开始到现在的系统时基计算器xTickCount</li>
-<li>全局变量xNextTaskUnblockTime</li>
-<li>两个任务延时列表，一个用于延时时刻变量溢出的任务，一个用于非溢出任务。</li>
-</ul>
-<h2 id="时基计时器和延时时刻的溢出">时基计时器和延时时刻的溢出</h2>
-<p>需要注意系统时基计时器的值加上任务的延时值和时基计时器的值，是否会溢出，溢出了需要将这个任务插入另一条针对于溢出任务的延时列表，没有溢出的则正常插入到正常任务的延时列表。</p>
-<p>溢出是实际上针对系统时基计数器这个变量（32位）而言的，当它的值变为0就表示溢出了。通过指针的切换来达到两个表的切换，实现溢出和非溢出延时队列的切换，同时系统时基计数器的归0，之后新的任务又会放在正确的表中。</p>
-<h2 id="判断任务结束">判断任务结束</h2>
-<p>利用系统时基计数器的值与结算任务的更新值来判断任务的延时是否结束。</p>
-<p>系统时基xTickCount == 下一任务跟新解锁变量xNextTaskUnblockTime，任务延时结束。</p>
-<p>优点：不需要扫描延时队列，只需要只是与xNextTaskUnblockTime这个全局变量进行比较。</p>
 ]]></content>
     </entry>
 </feed>

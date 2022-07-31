@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>CNN | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1659256108793">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="CNN的引入
+对于图象的处理一般是采用像素点来进行的，一个像素点一般又对应3个RGB参数用来表示颜色信息。那么对于图片处理而言，网络的输入的维度就会很大。如果使用全连接神经网络，相邻两层之间的都需要建立一个连接，每个连接都对应着一个参数，那..." />
+    <meta name="keywords" content="AICS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1659256108793" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">CNN</h2>
+            <div class="post-date">2022-07-31</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="cnn的引入">CNN的引入</h2>
+<p>对于图象的处理一般是采用像素点来进行的，一个像素点一般又对应3个RGB参数用来表示颜色信息。那么对于图片处理而言，网络的输入的维度就会很大。如果使用全连接神经网络，相邻两层之间的都需要建立一个连接，每个连接都对应着一个参数，那么训练的参数就会很多，从而导致训练的时间很长。同时参数过多也可能会出现过拟合的现象。为了解决这个问题就引入了CNN。</p>
+<h2 id="cnn的起源">CNN的起源</h2>
+<p>人类的视觉系统信息处理的原理，原始信号的摄入，大脑皮层相应细胞发现图象的边缘和方向，大脑对这些边缘信息进行组合进而抽象为形状，大脑再进行抽象，从而判断出最终的结果。所以人类视觉采用逐级分层，不断抽象的方式。CNN就借助了这种思想对图象进行处理。</p>
+<h2 id="cnn的基本组成">CNN的基本组成</h2>
+<h3 id="输入层">输入层</h3>
+<p>格式：W x H x D</p>
+<p>输入的是一个三维的格式，在二维上（W x H）是图象的像素点，再扩展一个维度（D）出来表示RGB灰度值。</p>
+<h3 id="卷积层">卷积层</h3>
+<p>卷积层是卷积神经网络得名的原因，所以应该算是卷积神经网络中最重要的一个部分。</p>
+<p>卷积层的操作包括：</p>
+<ul>
+<li>卷积运算</li>
+<li>填充（padding）</li>
+</ul>
+<p>卷积运算：卷积核所有权重与其在输入图像上对应元素亮度之和。</p>
+<p>卷积核（kernel）是指多个权重矩阵组成的一个矩阵集合。格式为：f x f x c，f为权重矩阵的大小，c为通道数，也就是权重矩阵的个数。通过卷积核中权重矩阵的参数的改变，可以从输入中提取出相应的特征。</p>
+<p>kernel 通道数 = 1的卷积过程：</p>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/20190305160149865.gif" alt="" loading="lazy"></figure>
+<p>image里黄色的权重矩阵（f  x  f）为每次进行卷积的一个基本单元，在这个权重矩阵中，image中对应的点和其对应的权重点相乘，最后再将这部分所有的乘积值相加，作为Convolved Feature（特征图）中的一个结果。权重矩阵每次滑动的距离称为stride（步数），上图中的stride = 1。可见Convolved Feature尺寸的大小是与卷积核的大小相关的，卷积核越大Convolved Feature的尺寸越小。</p>
+<p>参数共享机制：image中的多个位置都在共享卷积核，就这大大减少了参数的个数。</p>
+<p>如果进行多次卷积操作后，显然Convolved Feature的尺寸会变得越来越小，这样会导致某些原始信息的损失。引入padding来进行填充，即对Convolved Feature的边界进行填0扩充，以减小Convolved Feature的尺寸减小的速度。</p>
+<img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/v2-705305fee5a050575544c64067405fce_b.gif" style="zoom:25%;" />
+<img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/12.gif" style="zoom:25%;" />
+<p>第二张图就是在进行卷积操作之前，先进行填充操作，以扩大Convolved Feature的尺寸。</p>
+<p>padding的作用：</p>
+<ul>
+<li>扩大输入图像/特征图象的尺寸</li>
+<li>强化图象的边缘信息</li>
+</ul>
+<p>卷积后Convolved Feature的尺寸计算：若image为w x h x c，kernel为f x f x c，stride为s，padding为p，则 output = [(w + 2p - f)/s + 1]  x  [(h + 2p - f)/s + 1]</p>
+<p>在tensorflow中，padding = valid时不进行填充，output = [(w  - f)/s + 1]  x  [(h - f)/s + 1] （向下取整）；padding = same时，output = N / S （向上取整）</p>
+<p>多核多kernel 通道数的卷积过程：</p>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/23.gif" alt="" loading="lazy"></figure>
+<p>如上图是2个卷积核，每个卷积核中有3个通道的卷积。</p>
+<p>注意当一个卷积核中有多个权重矩阵时，最终的Convolved Feature是这几个权重矩阵分别计算出结果的直接相加（矩阵相应位置直接相加），可能会再加上相应的bais。</p>
+<p>Convolved Feature的深度是由卷积核的个数决定的。</p>
+<p>感受野（Receptive-Field, RF）：感受野是一个神经原对原始图像（最开始输入的图象）的连接。感受野可以用来衡量神经元所能接收到原始图像的范围，感受野越大，所能接受的原神经原的信息越多。</p>
+<p>感受野的计算：感受野是针对原始图象而言的。所以显然计算某一层神经元的感受野会依赖于前面神经元的感受野，所以是一个迭代的过程。简单来说直接将每一层的感受野先减1，再相加，最后和再加1，就是某层神经元的感受野。意思就是计算出每一层神经元损失的东西。需要注意的是在进行感受野的计算的时候不要考虑padding填充层，因为padding实际上不是原始image的一部分。</p>
+<h3 id="计算量的计算">计算量的计算</h3>
+<ul>
+<li>乘法运算</li>
+<li>加法运算</li>
+</ul>
+<h3 id="特殊的卷积操作1-x-1卷积">特殊的卷积操作：1 x 1卷积</h3>
+<p><strong>几个小滤波器卷积层的组合比一个大滤波器卷积层好</strong></p>
+<h3 id="激活层">激活层</h3>
+<p>激活层有很多种，在CNN中，常用的是Relu这个激活层。每个卷积层结束后，将结果放入激活层。</p>
+<h3 id="池化层">池化层</h3>
+<p>池化层pooling是夹在卷积层中间用来主动减少图片的尺寸，从而减少参数，避免过拟合。（压缩图像，降维）</p>
+<p>池化层的操作：使用一个过滤器 f x f对image进行处理，将image中对应的fxf的尺寸降维成一个值。同时也引入了padding和stride。</p>
+<p>一般包括：max pooling 和 average pooling。</p>
+<p>如下图所示为max pooling</p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/22.png" alt="" loading="lazy"></figure>
+<p>pooling后的image尺寸：输入image为 w x h x c，过滤器为 f x f，stride = s，padding = p。output = [(w + 2p - f)/s + 1]  x  [(h + 2p - f)/s + 1]</p>
+<p>当stride = 2，padding = 0时，image的尺寸减半。</p>
+<p>注意pooling的操作过程和卷积有一定的相似之处，但是pooling只是在二维上作用的，它只会影响image的尺寸而不会影响image的深度即通道的数量。</p>
+<h3 id="全连接层s">全连接层s</h3>
+<p>如果全连接层的输出很多，那么全连接的参数就很多。在卷积层和池化层操作过后，再把数据传给全连接层，以进行分类。</p>
+<h2 id="vgg16的分析">VGG16的分析</h2>
+<h3 id="vgg简要介绍">VGG简要介绍</h3>
+<p>VGG模型是由K.Simonyan 和A.Zisserman在<a href="https://arxiv.org/abs/1409.1556"><em>Very Deep Convolutional Networks for Large Scale Image Recognition</em></a>中提出的CNN模型。</p>
+<p>根据层数和卷积核的大小的不同，VGG的设计有以下几种类型</p>
+<figure data-type="image" tabindex="4"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/321.png" alt="" loading="lazy"></figure>
+<p>VGG模型的input是224 x 224 x 3</p>
+<p>convX-Y：该层中卷积核的尺寸是X，有个卷积核。</p>
+<p>每两到三个卷积层后就进入了池化层，最后再进入三个全连接层，将模型的输出变为1000。</p>
+<h3 id="vgg16具体分析">VGG16具体分析</h3>
+<p>VGG16是上述模型中的D类型，</p>
+<figure data-type="image" tabindex="5"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/ss.png" alt="" loading="lazy"></figure>
+<p>VGG16有13个卷积层，3个全连接层，5个池化层。</p>
+<p>卷积层：卷积核的尺寸为3 x 3，stride = 1，padding = same。每次卷积后的尺寸会缩小2，但是由于卷积后same padding操作会填充0，所以实际尺寸不改变。每次卷积后的通道数变为卷积核的核数。例如：第一次卷积后，通道数变为64。参数为：(3 * 3 * 通道数) * 卷积核个数</p>
+<p>池化层：池化层的核为2 x 2，stride = 2，且为max pooling。每次池化操作后卷积核的尺寸减半，通道数不改变。</p>
+<p>全连接层：前两个全连接层的输出为4096，最后一个全连接层的输出为1000。参数：第一层为7 x 7 x 512 x 4096。第二层为 4096 x 4096。第三层为4096 x 1000。</p>
+<p>下图为每次操作后图像尺寸几个维度的变化情况</p>
+<figure data-type="image" tabindex="6"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/33.png" alt="" loading="lazy"></figure>
+<h2 id="转置卷积">转置卷积</h2>
+<p>转置卷积又称为反卷积，表示卷积的逆过程。主要目的是根据卷积核大小和输出大小，恢复卷积前的尺寸大小。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/MnAQ9uAR_/" class="tag">
+                    AICS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/stm32-qi-dong-wen-jian/">
+                  <h3 class="post-title">
+                    STM32 启动文件
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

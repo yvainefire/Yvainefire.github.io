@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>手写MINIST数字分类总结 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1659256108793">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="不借助框架实现一个简单的神经网络
+数据的读取
+从文件中读取数据，了解数据存储在文件中的格式。
+读取的每一个训练样本的数据为一行
+数据的预处理
+整个数据分割为训练数据和测试数据，采用哪种方式进行数据的分割。数据的
+数据归一化：减少数据的量纲不..." />
+    <meta name="keywords" content="AICS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1659256108793" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">手写MINIST数字分类总结</h2>
+            <div class="post-date">2022-07-31</div>
+            
+            <div class="post-content" v-pre>
+              <p>不借助框架实现一个简单的神经网络</p>
+<h2 id="数据的读取">数据的读取</h2>
+<p>从文件中读取数据，了解数据存储在文件中的格式。</p>
+<p>读取的每一个训练样本的数据为一行</p>
+<h2 id="数据的预处理">数据的预处理</h2>
+<p>整个数据分割为训练数据和测试数据，采用哪种方式进行数据的分割。数据的</p>
+<p>数据归一化：减少数据的量纲不同带来的影响。</p>
+<p>实际的训练过程中数据是采用batch的形式，每次采用一组数据进行一次训练。所以数据的输入并不是一条数据，而是一组数据。</p>
+<h2 id="基本神经网络模块设计">基本神经网络模块设计</h2>
+<p>主要包括：全连接层，激活层（ReLU），softMax层</p>
+<p>采用面向对象来实现，便于模型的扩展和移植</p>
+<p>带参数层数据的初始化。根据每层的输入输出构造参数，参数初始化的方式，采用正态分布。对于一个batch的训练数据采用同样的训练参数。</p>
+<p>向前传播：直接利用公式进行向前传播的计算</p>
+<p>先后传播：先后传播，涉及到梯度的计算，特别是多层网络梯度的计算。采用自动求导的思想，不需要每次都手动写出解析式子。本质上是求导公式的变形，对每一层的求导，实际的运算只需要对本层参数求导再利用前面层求导结果。需要返回前层的梯度值。</p>
+<p>向后传播过程中，ReLU的特殊性。</p>
+<p>代价函数：只针对最后一层softMax，代价向后传播。</p>
+<p>参数更新：利用向后传播的梯度值进行参数的跟新。</p>
+<p>模型的加载：判断加载的参数和训练参数的格式是否一样</p>
+<p>模型的保存</p>
+<p>编码</p>
+<h2 id="算法模型的搭建">算法模型的搭建</h2>
+<p>模型的基本搭建：根据MINIST模型的结构进行搭建，一个输入层，两个全连接层，全连接层用ReLU进行激活，一个SoftMax层进行最后的分类。**这里只是将模型的框架搭起来，为了表示一个顺序，并没对模型内的参数进行初始化。**将模型每个层的对象放入一个参数列表中，供后面使用。</p>
+<p>模型参数的初始化：并不是每一层都需要进行初始化。</p>
+<p>向前传播</p>
+<p>向后传播</p>
+<p>参数更新</p>
+<h2 id="训练">训练</h2>
+<p>训练时每次迭代将所有的训练数据按照batchsize进行训练，每次训练结束需要将训练数据的顺序随机。</p>
+<h2 id="推测">推测</h2>
+<p>推测时也可以按照batchsize的来进行。</p>
+<h2 id="模型保存">模型保存</h2>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/MnAQ9uAR_/" class="tag">
+                    AICS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/zhi-neng-ji-suan-xi-tong-shen-du-xue-xi-chu-li-qi-jia-gou/">
+                  <h3 class="post-title">
+                    智能计算系统 深度学习处理器架构
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

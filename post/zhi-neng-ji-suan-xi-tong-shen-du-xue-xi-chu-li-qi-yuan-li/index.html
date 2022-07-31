@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>智能计算系统 深度学习处理器原理 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1659256108793">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="深度学习处理器
+深度学习处理器是针对于深度学习而提出的专用处理器。
+设计思路
+处理器解决的问题：适用的算法，算法的特性（计算特性，访存特性）
+阻碍高效率的因素：带宽，访存速度，访存代价
+目标算法分析
+深度学习处理器是为了加速哪一类算法而提出..." />
+    <meta name="keywords" content="AICS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1659256108793" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">智能计算系统 深度学习处理器原理</h2>
+            <div class="post-date">2022-07-31</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="深度学习处理器">深度学习处理器</h2>
+<p>深度学习处理器是针对于深度学习而提出的专用处理器。</p>
+<h2 id="设计思路">设计思路</h2>
+<p>处理器解决的问题：适用的算法，算法的特性（计算特性，访存特性）</p>
+<p>阻碍高效率的因素：带宽，访存速度，访存代价</p>
+<h2 id="目标算法分析">目标算法分析</h2>
+<p>深度学习处理器是为了加速哪一类算法而提出的。</p>
+<p>寻找这类算法的共性：</p>
+<ul>
+<li>计算（重复的计算操作）</li>
+<li>访存（数据的局部性---cache，数据和计算的关系---带宽的需求）</li>
+</ul>
+<h3 id="vgg19卷积神经网络的分析">VGG19卷积神经网络的分析</h3>
+<h4 id="计算特性">计算特性</h4>
+<p>全连接层</p>
+<p>包含计算：向量 X 矩阵，激活函数</p>
+<pre><code class="language-c">// No输出神经元的个数，Ni输入神经元的个数，W权重矩阵，b是偏置单元，x输入神经元，y输出神经元，G是激活函数
+for(j = 0; j &lt; No; j++)
+{
+    for(i = 0; i &lt; Ni; i++)
+        y[j] += W[j][i] * x[i]
+    y[j] = G(y[j] + b[j])
+}    
+</code></pre>
+<p>计算特点：主体循环是一个<strong>乘加操作</strong>，向量内积（向量和矩阵的每一行的内积）</p>
+<p>卷积层</p>
+<p>包含计算：卷积计算（多个矩阵的内积），激活函数</p>
+<pre><code class="language-c">//nor为输出特征图的行，noc为输出特征图的列，Nof输出特征图的通道数
+//Nir为输入特征图的行，Nic为输入特征图的列，Nif为输入特征图的通道数
+//sr为行上的步长，sc为列上的步长
+//W为卷积核，kr为卷积核的行，kc为卷积核的列，W[kr][kc][j][i]分别表示一个卷积核中一个通道上的权重矩阵的行，列。不同的卷积核。一个卷积核的不同通道。
+
+nor = 0;
+for(r = 0; r &lt; Nir; r += sr)
+{
+    noc = 0;
+    for(c = 0; c &lt; Nic; c += sc)
+    {
+        for(j = 0; j &lt; Nof; j++)
+            sum[j] = 0;
+        //计算多个卷积核在不同的通道上同一位置上的一次卷积，每次确定输出特征图中每个通道上的同一位置的一个点。
+    	for(kr = 0; kr &lt; Kr; kr++)
+            for(kc = 0; kc &lt; Kc; kc++)
+                //计算不同卷积核上同一位置的值。
+                for(j = 0; j &lt; Nof; j++)
+                    //先计算同一卷积核的不同通道上上同一位置的乘加，再把这个层上其他位置的乘加累积上来。
+                    for(i = 0; i &lt; Nif; i++)
+                        sum[j] += W[kr][kc][j][i] * X[r + kr][c + kc][i];
+        
+        for(j = 0; j &lt; Nof; j++)
+            Y[nor][noc][j] = G(sum[j] + b[j]);
+        
+    	noc++;
+    }
+	nor++;
+}
+</code></pre>
+<p>为什么不先计算同一卷积核的同通道的所有乘加。这样安排顺序的目的是减少卷积核在输入特征图上的移动，可以减少为了访问卷积核数据的频繁访存。</p>
+<p>计算特点：多重循环嵌套，最内层的操作还是一个乘加操作。</p>
+<p>池化层</p>
+<p>池化主要分为均值池化和最大池化。池化只是对每一个通道上进行操作，不会影响通道的数量。</p>
+<pre><code class="language-c">nor = 0;
+for(r = 0; r &lt; Nir; r += sr)
+{
+	noc = 0;
+	for(c = 0; c &lt; Nic; c += sc)
+	{
+		for(i = 0; i &lt; Nif; i++)
+			value[i] = 0;
+		
+		for(kr = 0; kr &lt; Kr; kr++)
+			for(kc = 0; kc &lt; Kc; kc++)
+                for(i = 0; i &lt; Nif; i++)
+                {	
+                    // average pooling
+                    value[i] += X[r + kr][c + kc][i];
+                    //max pooling
+                    value[i] = max(value[i], X[r + kr][c + kc][i])
+                }
+		
+        for(i = 0; i &lt; Nif; i++)
+        {
+            //average pooling
+            Y[nor][noc][i] = value[i]/Kr/Kc;
+
+            //max pooling
+            Y[nor][noc][i] = value[i];
+   
+        }   
+        noc++;
+	}
+    nor++;
+}
+</code></pre>
+<p>计算特点：在average池化操作中，做的是一个求和运算，也就是可以看作是一个特殊的乘加运算。</p>
+<p>卷积网络中的计算特征主要包括：矩阵内积，矩阵乘向量，向量的元素操作。</p>
+<h4 id="访存特性">访存特性</h4>
+<p>对于全连接层而言：</p>
+<ul>
+<li>x[i] 外循环复用，复用距离为Ni（输入参数的个数）</li>
+<li>w[i] [j] 内外循环无复用</li>
+<li>y[j] 内循环复用，复用距离为1</li>
+</ul>
+<p>循环的复用模式：在循环的复用距离跨度小的时候，数据可能仍然在cache中，不需要再从内容中读取。如果跨度大了，到下一次使用的时候，数据已经从cache中被清除了。</p>
+<p>在全连接层中，在进行计算的时候，需要整个权重矩阵，而由于是全相联，所以数据量是很大的。cache一般是装不下。同时循环的次数是和输入参数的个数相关的，显然复用距离也很大，也不一定能进行复用。为了增加数据的复用性，减少访存开销（减少cache miss），引入了循环分块（tiling）。</p>
+<h5 id="循环分块tiling">循环分块（tiling）</h5>
+<p>主要思想是将一个循环次数很大的循环拆分为几个小循环的叠加。比如一个循环次数为100的循环，可以拆为一个内外循环为都是10的循环。</p>
+<p>全连接层循环分块后的结果</p>
+<pre><code class="language-c">// No输出神经元的个数，Ni输入神经元的个数，W权重矩阵，b是偏置单元，x输入神经元，y输出神经元，G是激活函数
+// 对输入神经元进行Ti分块
+for(ii = 0; ii &lt; Ni; ii += Ti)
+	for(j = 0; j &lt; No; j++)
+	{
+    	for(i = ii; i &lt; ii + Ti; i++)
+      	  y[j] += W[j][i] * x[i]
+      	
+        if(i == Ni)
+	  	    y[j] = G(y[j] + b[j])
+	} 
+</code></pre>
+<p>还可以对输入和输出神经元同时进行分块。可以分了一块后再分块，分两次块。</p>
+<p>卷积层的循环分块</p>
+<pre><code class="language-c">//nor为输出特征图的行，noc为输出特征图的列，Nof输出特征图的通道数
+//Nir为输入特征图的行，Nic为输入特征图的列，Nif为输入特征图的通道数
+//sr为行上的步长，sc为列上的步长
+//W为卷积核，kr为卷积核的行，kc为卷积核的列，W[kr][kc][j][i]分别表示一个卷积核中一个通道上的权重矩阵的行，列。不同的卷积核。一个卷积核的不同通道。
+for(rr = 0; rr &lt; Nir; rr += Tr//输入行分块
+    for(cc = 0; cc &lt; Nic; cc += Tc)//输入列分块
+        for(jjj = 0; jjj &lt; Nof; jjj += Tjj)//输出特征图分块
+        {
+            nor = 0;
+            for(r = rr; r &lt; rr + Tr; r+= sr)//行步长
+            {
+                noc = 0;
+                for(c = cc; c &lt; cc + Tc; c += sc)//列步长
+                {
+                    for(jj = jjj; jj &lt; jjj + Tjj; jj += Tj )//输出特征图再分块 
+                    {
+                        for(j = jj; j &lt; jj + Tj; j++)
+                            sum[j] = 0;
+                    
+                        for(kr = 0; kr &lt; Kr; kr++)
+                        	for(kc = 0; kc &lt; Kc; kc++)
+                                for(ii = 0; ii &lt; Nif; ii += Ti)//输入特征图分块
+                                    for(j = jj; j &lt; jj + Tj; j++)
+                                        for(i =ii; i &lt; ii + Ti; i++)//输入特征图再分块
+                                            sum[j] += W[kr][kc][j][i] * X[r + kr][c + kc][i];
+                        for(j = jj; j &lt; jj + Tj; j++)
+                            Y[nor][noc][j] = G(sum[j] + b[j])
+                            
+              noc++; 
+                    }
+         nor++;  
+                }
+            }
+        }
+</code></pre>
+<h2 id="深度学习处理器结构">深度学习处理器结构</h2>
+<h4 id="指令集">指令集</h4>
+<p>定义一些可以直接操作向量和矩阵的指令（数据转移，计算指令，逻辑指令）</p>
+<h4 id="流水线">流水线</h4>
+<p>取指、译码、发射、读寄存器、执行、写回、提交</p>
+<h4 id="运算部件">运算部件</h4>
+<p>标量MAC：计算 a x b + c</p>
+<p>向量MAC：计算 vector x vector + c</p>
+<p>矩阵计算：n个向量MAC的堆叠</p>
+<h4 id="dlp架构">DLP架构</h4>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E6%88%91.png" alt="" loading="lazy"></figure>
+<p>前部分设计按照通用CPU进行设计，后面引入专门用于向量(VFU)和矩阵(NFU)的运算的模块及三块独立的NRAM。</p>
+<p><strong>访存的重要性</strong></p>
+<p>分离三个数据流（输入数据，输出数据和权重），避免访存流之间的互相干扰</p>
+<p>Scratchpad Memory管理（不是传统的cache管理），程序员完全可控，可以控制数据被读入，覆盖，回写的时间，而不是靠硬件自己实现。</p>
+<h4 id="算法映射">算法映射</h4>
+<p>硬件的运算器的数量远少于算法中神经元和突触的数量。比如：硬件只支持100个输入，但是网络的输入是1000个。</p>
+<p>需要把有限规模的硬件把任意规模的算法实现，<strong>思想：硬件的分时复用</strong>。要确定保证数据的重用性。</p>
+<p>分时复用的原理</p>
+<p>每一次仅计算怎个网络局部的神经元。如下图，每次仅计算输出的两个神经元和输出层的两个神经元，为了保证数据的重用性，每次先保证输入层不变，移动到输出层的下两个神经元。本质上是一个乘加运算，所以乘加的顺序不重要。</p>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E6%B5%8B.jpg" alt="" loading="lazy"></figure>
+<p>全连接层的分时复用</p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E4%BD%86%E6%98%AF.png" alt="" loading="lazy"></figure>
+<p>类似于循环的分块。从输入神经中先找一小部分Ti和输出神经元的Tj，只将他们放入硬件中进行运算。然后再保存Ti不变，滑动Tj进行运算，Tj滑动到最后，再滑动Ti，并将Tj恢复到最开始，进行运算。依次计算下去，直到完成所以的计算。</p>
+<p>卷积层的分时复用</p>
+<figure data-type="image" tabindex="4"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E4%BD%86%E6%98%AF.jpg" alt="" loading="lazy"></figure>
+<p>每次仅针对部分不同卷积核上所有不同层的某行数的部分（减少输入）输入进行计算（同时放入多个硬件中），每次计算得到所有输出特征图的同一位置的值（这个值不是最后的值，只做了部分的乘加运算）。</p>
+<p>下次再计算</p>
+<h2 id="优化设计">优化设计</h2>
+<p>稀疏化：针对某些可以剪枝的网络设计的加速器。</p>
+<p>低位宽：用低位宽（降低数据精度）来进行训练，代替高位宽。减少硬件的开销，增加运算的速度。</p>
+<h2 id="性能评价">性能评价</h2>
+<ul>
+<li>TOSP：Tera Operations Per Second（Operation指乘法或加法操作）</li>
+<li>访存带宽</li>
+</ul>
+<p>影响性能的因素：完成某类操作所需要的时钟周期，访存开销，并行程度</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/MnAQ9uAR_/" class="tag">
+                    AICS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/tensorflow-kuang-jia/">
+                  <h3 class="post-title">
+                    TensorFlow框架
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

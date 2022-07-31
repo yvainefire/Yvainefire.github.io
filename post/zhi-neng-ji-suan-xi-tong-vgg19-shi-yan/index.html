@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>智能计算系统 VGG19实验 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1659256108793">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="卷积层的优化
+前向传播优化
+非优化：直接用标量相乘进行运算
+        for index_image in range(self.out.shape[0]):
+            # different kernel
+      ..." />
+    <meta name="keywords" content="AICS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1659256108793" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">智能计算系统 VGG19实验</h2>
+            <div class="post-date">2022-07-31</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="卷积层的优化">卷积层的优化</h2>
+<h3 id="前向传播优化">前向传播优化</h3>
+<p>非优化：直接用标量相乘进行运算</p>
+<pre><code class="language-python">        for index_image in range(self.out.shape[0]):
+            # different kernel
+            for index_ch_o in range(self.channel_out):
+                # different channel in a kernel
+                for index_ch_i in range(self.channel_in):
+                    # stripe for width
+                    for stripe_h in range(self.out_h):
+                        # stripe for high
+                        for stripe_w in range(self.out_w):
+                            # different position in a kernel
+                            for kernel_h in range(self.kernel_size):
+                                for kernel_w in range(self.kernel_size):
+                                    self.out[index_image][index_ch_o][stripe_h][stripe_w] = self.out[index_image][index_ch_o][stripe_h][stripe_w] + \
+                                     self.weight[index_image][index_ch_o][kernel_h][kernel_w] * \
+                                    self.input_pad[index_image][index_ch_i][stripe_h * self.stride + kernel_h][stripe_w * self.stride + kernel_w]
+</code></pre>
+<p>不进行优化的时候，一共有7层循环嵌套。对于输入（N x Cin x Hin x Win）为1 x 3 x 224 x 224，卷积核（Cin x K x K x Cout）为3 x 3 x 3 x 64，循环的次数会是 3 x 3 x 224 x 224 x 3 x 64 x 1 = 86704128。</p>
+<p>优化一：将部分标量运算向量化</p>
+<pre><code class="language-python">        for index_image in range(self.out.shape[0]):
+            # different kernel
+            for index_ch_o in range(self.channel_out):
+                # different channel in a kernel
+                #for index_ch_i in range(self.channel_in):
+                    # stripe for width
+                    for stripe_h in range(self.out_h):
+                        # stripe for high
+                        for stripe_w in range(self.out_w):
+                            # different position in a kernel
+                            current_weight = self.weight[:, :, :][index_ch_o]
+                            current_input = self.input_pad[index_image, :, stripe_h * self.stride : stripe_h * self.stride + self.kernel_size, stripe_w * self.stride : stripe_w * self.stride + self.kernel_size]
+                            self.out[index_image][index_ch_o][stripe_h][stripe_w] = np.sum(np.multiply(current_weight, current_input)) + self.bais[index_ch_o]
+</code></pre>
+<p>每个kernel中的一个通道就可以和输入矩阵直接进行向量运算，减少两级循环（stripe_h 和 stripe_w）。同一输出通道对应的位置还可以进行相加，减少层循环（index_ch_i）。循环的次数会是 224 x 3 x 64 x 1 = 43008。</p>
+<p>self.weight[:, :, :] [index_ch_o] 这样的截取可以保证每次求和的内容为一个输出通道的，截取后是一个kernel中的所有的3 x 3权重矩阵。</p>
+<p>优化二：进一步向量化</p>
+<pre><code class="language-python">
+</code></pre>
+<h3 id="反向传播优化">反向传播优化</h3>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/sdf.png" alt="" loading="lazy"></figure>
+<p>非优化：直接用标量相乘进行运算</p>
+<pre><code class="language-python">        for index_ch_i in range(self.channel_in):
+            for index_ch_o in range(self.channel_out):
+                for kernel_h in range(self.kernel_size):
+                    for kernel_w in range(self.kernel_size):
+                        # compute grad for a param in the weight
+                        for index_image in range(self.input.shape[0]):
+                            for stripe_h in range(self.out_h):
+                                for stripe_w in range(self.out_w):
+                                    self.grad_w[index_ch_i][kernel_h][kernel_w][index_ch_o] =  self.grad_w[index_ch_i][kernel_h][kernel_w][index_ch_o] +\
+                                        top_diff[index_image][index_ch_o][stripe_h][stripe_w] * self.input_pad[index_image][index_ch_i][stripe_h * self.stride + kernel_h][stripe_w * self.stride + kernel_w]
+
+        self.grad_bias = np.zeros(self.bais.shape)
+</code></pre>
+<p>优化一：优化stripe_h，stripe_w和index_image</p>
+<pre><code class="language-python">for index_ch_o in range(self.channel_out):
+    for index_ch_i in range(self.channel_in):
+        for kernel_h in range(self.kernel_size):
+            for kernel_w in range(self.kernel_size):
+                # compute the grad for the weight
+                sh_mul_s_plus_k = np.arange(self.out_h) * self.stride + kernel_h
+                sw_mul_s_plus_w = np.arange(self.out_w) * self.stride + kernel_w
+                self.grad_w[index_ch_i][kernel_h][kernel_w][index_ch_o] = \                                   np.sum(np.multiply(top_diff[:, index_ch_o, :, :], self.input_pad[:, index_ch_i, sh_mul_s_plus_k, sw_mul_s_plus_w]))  
+</code></pre>
+<p>优化为4层循环，将stripe_h和stripe_w先向量化，需要特殊处理构造出sh_mul_s_plus_k和sw_mul_s_plus_w，他们并不是input_pad中的一个子矩阵，而是与input_out对应的元素提取出来的构成的矩阵。在此基础上再把index_image向量化。</p>
+<p>优化二：优化kernel_h，kernel_w和index_ch_i</p>
+<pre><code class="language-python">for index_ch_o in range(self.channel_out):
+    for index_image in range(self.input.shape[0]):
+        for stripe_h in range(self.out_h):
+            for stripe_w in range(self.out_w):
+                self.grad_w[:, :, :, index_ch_o] +=  np.multiply(top_diff[index_image, index_ch_o, stripe_h, stripe_w], self.input_pad[index_image, :, stripe_h * self.stride : stripe_h * self.stride + self.kernel_size, stripe_w * self.stride : stripe_w * self.stride + self.kernel_size])
+</code></pre>
+<p>将kernel_h和kernel_w向量化，每次对整个kernel的一个通道做向量运算。这样每次计算的结果并不是完整的，需要依次累加以得到一个参数的导数的最终结果。</p>
+<p>优化三：优化index_ch_o，kernel_h和kernel_w</p>
+<pre><code class="language-python">            for index_ch_i in range(self.channel_in):
+                for index_image in range(self.input.shape[0]):
+                    for stripe_h in range(self.out_h):
+                        for stripe_w in range(self.out_w):
+                            self.grad_w[index_image, :, :, :] += np.kron(top_diff[index_image, :, stripe_h, stripe_w], \
+                            self.input_pad[index_image, index_ch_i, stripe_h * self.stride : stripe_h * self.stride + self.kernel_size, stripe_w * self.stride : stripe_w * self.stride + self.kernel_size])
+
+</code></pre>
+<p>由于唯独并不对应，所有需要用张量积拉进行维度的扩充。</p>
+<h2 id="如何将循环向量化">如何将循环向量化</h2>
+<p>优化的方法有很多种，但是都是为了构造出矩阵。根据构造的矩阵的不同就会有不一样的效果。具体来说分为：</p>
+<p>一次计算出部分目标值的完整值，多次迭代计算其余目标的值。</p>
+<p>一次计算出全部目标值的部分结果，并且多次迭代，使得所有目标值的结果变得完整。</p>
+<p>需要注意维度问题，有时候维度可能不符合，但是可以用张量积来解决。</p>
+<p>产生注意一次性求还是分步求和。</p>
+<h3 id="矩阵展开为向量以利用向量运行">矩阵展开为向量以利用向量运行</h3>
+<p>将矩阵展开为一个向量，再利用向量的相关运算进行求解，求解完后再恢复相应的结构。</p>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/sz.png" alt="" loading="lazy"></figure>
+<h3 id="同时优化求和和批量化结果">同时优化求和和批量化结果</h3>
+<p>运用行向量与矩阵的内积进行计算，行向量 （乘数） x 右矩阵的列向量（系数对应的被乘数）用于求和，同时利用右矩阵不同的列来表示多个输入，就可以得到多个输出。</p>
+<p>将行向量扩展为矩阵，利用矩阵与矩阵的内积，可以进多种乘数和被乘数的求和。</p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E7%AC%AC%E4%B8%89%E6%96%B9.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/MnAQ9uAR_/" class="tag">
+                    AICS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/shou-xie-minist-shu-zi-fen-lei-zong-jie/">
+                  <h3 class="post-title">
+                    手写MINIST数字分类总结
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>

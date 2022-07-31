@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>智能计算系统 深度学习处理器架构 | YvaineFire_block</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://yvainefire.github.io/favicon.ico?v=1659256108793">
+<link rel="stylesheet" href="https://yvainefire.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="单核深度学习处理器（DLP-S）
+设计理念
+针对tensor（高维数组）设计控制模块（IFU，IDU），运算模块（VFU，MFU）和存储模块（DMA，NRAM，WRAM）。
+满足通用的基础上加上特定的应用（对tensor的处理）。
+三大模块..." />
+    <meta name="keywords" content="AICS" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://yvainefire.github.io">
+        <img src="https://yvainefire.github.io/images/avatar.png?v=1659256108793" class="site-logo">
+        <h1 class="site-title">YvaineFire_block</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      Rush Rush B
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://yvainefire.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">智能计算系统 深度学习处理器架构</h2>
+            <div class="post-date">2022-07-31</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="单核深度学习处理器dlp-s">单核深度学习处理器（DLP-S）</h2>
+<h3 id="设计理念">设计理念</h3>
+<p>针对tensor（高维数组）设计控制模块（IFU，IDU），运算模块（VFU，MFU）和存储模块（DMA，NRAM，WRAM）。</p>
+<p>满足通用的基础上加上特定的应用（对tensor的处理）。</p>
+<p>三大模块：</p>
+<ul>
+<li>
+<p>控制模块：通用CPU围绕标量，GPU围绕像素。深度学习处理器围绕tensor（只使用标量会产生大量的指令，增加取指译码的消耗），提简化控制通路。</p>
+</li>
+<li>
+<p>运算模块：提供通用计算能力（向量的加减乘除，矩阵的乘法），还提供针对领域相关的设计（tensor的计算，卷积，池化......）</p>
+</li>
+<li>
+<p>存储模块：至于 tensor的语义单元做访存，不再像传统处理器基于地址标量的映射。直接从内存进行tensor的读写，提高能效，方便使用。</p>
+</li>
+</ul>
+<h3 id="执行流程">执行流程</h3>
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E9%98%BF%E6%96%AF.jpg" alt="" loading="lazy"></figure>
+<ul>
+<li>IFU去指令，IDU译码</li>
+<li>DMA进行访存，读取相应数据到NRAM（vector和matrix）和WRAM（weight）。</li>
+<li>VFU对vector进行计算，MFU对matrix和vector进行处理。MFU处理后的tensor发给VFU，VFU再返回NRAM，weight直接给WRAM。</li>
+<li>DMA对数据进行回写</li>
+</ul>
+<p>神经元tensor的数据流：DRAM -&gt; NRAM -&gt; VFU (MFU -&gt; VFU -&gt;) NRAM -&gt; DRAM</p>
+<p>权值tensor的数据流：DRAM -&gt; WRAM -&gt; MFU</p>
+<h3 id="ifu模块">IFU模块</h3>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/DA.jpg" alt="" loading="lazy"></figure>
+<p>和传统CPU的IFU的结构类似，但是执行的频度下降。</p>
+<h3 id="idu模块">IDU模块</h3>
+<p>IDU中分为Control IQ, Compute IQ, Mermory Access IQ。额外增加计算和访存操作对应的指令队列。</p>
+<figure data-type="image" tabindex="3"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E9%99%90%E5%88%B6.jpg" alt="" loading="lazy"></figure>
+<p>三个指令乱序队列发射，同一指令队列顺序发射，不同类型的指令需要同步机制。</p>
+<h3 id="vfu模块">VFU模块</h3>
+<p>采用向量流水单元</p>
+<figure data-type="image" tabindex="4"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E9%98%BF%E6%96%AF%E9%A1%BF.jpg" alt="" loading="lazy"></figure>
+<p>通过对向量流水单元中各模块的组合和排布来构造不同的操作。具体来说每次选择流水线中的全部或部分单元进行运算的叠加。通过多次使用流水线来完成一次特定的操作。</p>
+<p>每个流水单元对应有寄存器，可以进行数据的暂存，以减少频繁的访问数据。</p>
+<h3 id="mfu模块">MFU模块</h3>
+<p>矩阵运算单元（分布式设计）</p>
+<figure data-type="image" tabindex="5"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E8%A3%82%E5%BC%80.jpg" alt="" loading="lazy"></figure>
+<p>采用H-tree互联：通过H-tree来广播神经元数据，不同的PE对神经元复用。</p>
+<p>PE：一个小的运算单元。每个PE旁边一个WRAM，用来存储权重值。</p>
+<p>集中式设计主要的问题在于数据的流动，数据的流动会带来很大的开销。</p>
+<p>引入int16 ×int16 int16 ×int16 int16 ×int16的运算模式</p>
+<h3 id="存储模块">存储模块</h3>
+<p>使用DMA进行存储的控制，片内使用NRAM，WRAM分别存储神经元和权重。</p>
+<p>虚拟存储： 片内片外统一编址，片内无需虚实地址转换，片外需要虚实地址转换</p>
+<p>引入缓存，稀疏化，数据压缩等......</p>
+<h2 id="多核深度学习处理器dlp-m">多核深度学习处理器（DLP-M）</h2>
+<figure data-type="image" tabindex="6"><img src="https://raw.githubusercontent.com/yvainefire/Picbed_PicGo/master/img/%E5%87%BA%E7%8E%B0%E5%9C%A8.jpg" alt="" loading="lazy"></figure>
+<p>一个DLP-M由多个DLP-C组成，一个DLP-C有多个DLP-S组成。</p>
+<h3 id="dlp-c">DLP-C</h3>
+<ul>
+<li>包含4个DLP-S，DPL-S的NRAM中存入不同的输入数据。</li>
+<li>内部通过SMEM来进行DLP-S之间数据的交换。通过broadcast bus来进行DPL-S数据的共享权重。</li>
+<li>broadcast广播的过程：通过DMA载入权重至SMEM中，广播总线广播权重至所有DLP-S，存储在每个DLP-S的片内WRAM中。减少数据传输的次数。</li>
+<li>外部通过GDMA来进行访存。通过CDMA来进行cluster之间的数据交换。</li>
+<li>多核同步，解决访存冲突</li>
+</ul>
+<h3 id="互联架构">互联架构</h3>
+<p>核间拓扑结构：根据模型选择</p>
+<ul>
+<li>环形：包含权值reduce操作</li>
+<li>网状：卷积计算</li>
+<li>torus：矩阵乘</li>
+</ul>
+<p>总线方式：</p>
+<ul>
+<li>总线互联：公共数据干线，扩展性差</li>
+<li>片上网络：片上互联，性能优势，扩展性好</li>
+</ul>
+<h2 id="mlu270">MLU270</h2>
+<h2 id="整体架构">整体架构</h2>
+<figure data-type="image" tabindex="7"><img src="https://github.com/yvainefire/Picbed_PicGo/blob/master/img/MLU270structor.png?raw=true" alt="" loading="lazy"></figure>
+<h3 id="存储结构">存储结构</h3>
+<figure data-type="image" tabindex="8"><img src="https://github.com/yvainefire/Picbed_PicGo/blob/master/img/%E5%95%8A.png?raw=true" alt="" loading="lazy"></figure>
+<p>多个cluster共享一个GDRAM，每个cluster上的多个core共享一个SRAM，每个cluster还可以访问其它cluster的SRAM。</p>
+<p>每个core包含NFU，NRAM，WRAM，Register。必须在NRAM上进行向量和矩阵化的计算。</p>
+<p>MLU270的NRAM为512KB，SRAM为2M。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://yvainefire.github.io/tag/MnAQ9uAR_/" class="tag">
+                    AICS
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://yvainefire.github.io/post/zhi-neng-bian-cheng-yu-yan/">
+                  <h3 class="post-title">
+                    智能编程语言
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+
+
+  </body>
+</html>
